@@ -20,6 +20,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+        with:
+          # Enable Pages on first deployment; existing repositories are left
+          # unchanged. This avoids a manual, account-side prerequisite.
+          enablement: true
       - name: Build static evidence site
         run: python3 site/build_site.py
       - uses: actions/upload-pages-artifact@v3

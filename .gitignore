@@ -9,6 +9,35 @@ __pycache__/
 *.tar.gz
 download.aspx
 
+# Local editor and operating-system residue.
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+*~
+.vscode/
+.idea/
+*.code-workspace
+
+# Python tooling and test intermediates.
+.coverage
+coverage.xml
+htmlcov/
+.mypy_cache/
+.pyre/
+.ruff_cache/
+.tox/
+.nox/
+
+# ROS/colcon produces these runtime pointers locally.  Do not ignore the
+# repository's presentation/build directory: it contains the reviewed deck.
+deploy/log/
+/build/
+/install/
+
 # Full experiment output is a 35 GB local evidence archive. The public site
 # consumes the reviewed, hash-traceable subset in site/source_assets/ instead.
 output/
