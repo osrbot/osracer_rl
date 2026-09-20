@@ -1,0 +1,26 @@
+{
+  "joints": {
+    "camera_joint": "camera_joint",
+    "imu_joint": "imu_joint",
+    "laser_joint": "laser_joint",
+    "left_front_wheel_joint": "left_front_wheel_joint",
+    "left_rear_wheel_joint": "left_rear_wheel_joint",
+    "left_steering_hinge_joint": "left_steering_hinge_joint",
+    "right_front_wheel_joint": "right_front_wheel_joint",
+    "right_rear_wheel_joint": "right_rear_wheel_joint",
+    "right_steering_hinge_joint": "right_steering_hinge_joint"
+  },
+  "links": {
+    "base_link": "base_link",
+    "camera_link": "camera_link",
+    "imu_link": "imu_link",
+    "laser": "laser",
+    "left_front_wheel_link": "left_front_wheel_link",
+    "left_rear_wheel_link": "left_rear_wheel_link",
+    "left_steering_hinge_link": "left_steering_hinge_link",
+    "right_front_wheel_link": "right_front_wheel_link",
+    "right_rear_wheel_link": "right_rear_wheel_link",
+    "right_steering_hinge_link": "right_steering_hinge_link"
+  },
+  "schemaVersion": 1
+}

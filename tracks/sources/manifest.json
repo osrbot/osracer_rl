@@ -1,0 +1,19 @@
+{
+  "repository": "https://github.com/bacinger/f1-circuits",
+  "commit": "394d8fbe70ef2c0b0c8d23ff7bee61fa09606055",
+  "retrieved_utc": "2026-09-12T16:01:09.591308+00:00",
+  "files": {
+    "f1-circuits.geojson": {
+      "sha256": "a0c8dfb3109a9181d096985eaa30bd692595eae9125b5b8686744600b24621b5",
+      "url": "https://raw.githubusercontent.com/bacinger/f1-circuits/394d8fbe70ef2c0b0c8d23ff7bee61fa09606055/f1-circuits.geojson"
+    },
+    "LICENSE.md": {
+      "sha256": "f093960027c8ebcc3220000b8316ec29cc6f9149b7625ebad02524bf44ebf2f3",
+      "url": "https://raw.githubusercontent.com/bacinger/f1-circuits/394d8fbe70ef2c0b0c8d23ff7bee61fa09606055/LICENSE.md"
+    },
+    "README.md": {
+      "sha256": "242cc691582147905a5a63119f524d1bd0b7b7210c6412da995c253c1a7202ff",
+      "url": "https://raw.githubusercontent.com/bacinger/f1-circuits/394d8fbe70ef2c0b0c8d23ff7bee61fa09606055/README.md"
+    }
+  }
+}

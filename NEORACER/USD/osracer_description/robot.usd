@@ -1,0 +1,781 @@
+#usda 1.0
+(
+    defaultPrim = "Robot"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "Robot" (
+    prepend apiSchemas = ["PhysicsArticulationRootAPI", "IsaacRobotAPI", "PhysxArticulationAPI", "NewtonArticulationRootAPI"]
+)
+{
+    custom string isaac:description = "Robot description package for osracer_arc_e01_prtnew_asm"
+    custom token isaac:license = "Apache-2.0"
+    custom string isaac:NameOverride = "osracer_arc_e01_prtnew_asm"
+    custom string isaac:nameOverride = "osracer_arc_e01_prtnew_asm"
+    custom string isaac:namespace = "osracer_arc_e01_prtnew_asm"
+    custom rel isaac:physics:robotJoints = [
+        </Robot/Joints/camera_joint>,
+        </Robot/Joints/laser_joint>,
+        </Robot/Joints/imu_joint>,
+        </Robot/Joints/left_steering_hinge_joint>,
+        </Robot/Joints/left_front_wheel_joint>,
+        </Robot/Joints/right_steering_hinge_joint>,
+        </Robot/Joints/right_front_wheel_joint>,
+        </Robot/Joints/left_rear_wheel_joint>,
+        </Robot/Joints/right_rear_wheel_joint>,
+    ]
+    custom rel isaac:physics:robotLinks = [
+        </Robot/Links/base_link>,
+        </Robot/Links/camera_link>,
+        </Robot/Links/laser>,
+        </Robot/Links/imu_link>,
+        </Robot/Links/left_steering_hinge_link>,
+        </Robot/Links/left_front_wheel_link>,
+        </Robot/Links/right_steering_hinge_link>,
+        </Robot/Links/right_front_wheel_link>,
+        </Robot/Links/left_rear_wheel_link>,
+        </Robot/Links/right_rear_wheel_link>,
+    ]
+    custom token isaac:robotType = "Quadruped"
+    custom string isaac:source = "solidworks-assembly"
+    custom bool newton:selfCollisionEnabled = 0
+    custom token osurdf:baseMode = "source"
+    custom bool osurdf:selfCollisionIntent = 0
+    custom bool physxArticulation:enabledSelfCollisions = 0
+
+    def Scope "Links"
+    {
+        def Xform "base_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "base_link"
+            custom string isaac:nameOverride = "base_link"
+            point3f physics:centerOfMass = (0.1514003, 0.0021455528, 0.025518613)
+            float3 physics:diagonalInertia = (0.004825452, 0.02083083, 0.021131497)
+            float physics:mass = 1.7848613
+            quatf physics:principalAxes = (0.8868156, 0.46197098, 0.0101659065, 0.0061257198)
+            matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/base_link_8b95f4a699747275.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_0>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/base_link_f12fa4b68f3079ad.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "camera_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "camera_link"
+            custom string isaac:nameOverride = "camera_link"
+            point3f physics:centerOfMass = (0.00005139013, 0.00012177204, -0.0051869475)
+            float3 physics:diagonalInertia = (0.0000025095767, 0.0000025457286, 0.000003366621)
+            float physics:mass = 0.018874997
+            quatf physics:principalAxes = (0.97950494, -0.010826281, 0.0021617638, -0.20111738)
+            matrix4d xformOp:transform = ( (-0.000003673205103638111, -0.9999999999932538, -1.6653345369377348e-16, 0), (-0.0000036732051034715774, 1.3492540418269527e-11, -0.9999999999932538, 0), (0.9999999999865077, -0.0000036732051034715774, -0.000003673205103638111, 0), (0.29391, 0, 0.047012, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/camera_link_d61d4977601cfe2d.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_1>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/camera_link_803c62cba904de4e.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "laser" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "laser"
+            custom string isaac:nameOverride = "laser"
+            point3f physics:centerOfMass = (0.00019003049, -1.1826085e-7, -0.049289647)
+            float3 physics:diagonalInertia = (0.00009603805, 0.00012928287, 0.00013054092)
+            float physics:mass = 0.19628389
+            quatf physics:principalAxes = (0.5077189, -0.50762326, 0.4922553, 0.49216348)
+            matrix4d xformOp:transform = ( (0.9987741654598005, 0.005761235317660491, 0.04916273566120707, 0), (-0.005754268494564017, 0.9999834039460928, -0.00028324278971676004, 0), (-0.0491635515821594, 2.710505431213761e-20, 0.9987907414447875, 0), (0.09655527768894902, 0, 0.1601364002266661, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/laser_56a44c063d2103c4.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_2>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/laser_114f25fed366c4da.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "imu_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "imu_link"
+            custom string isaac:nameOverride = "imu_link"
+            point3f physics:centerOfMass = (-0.025781922, -0.035159867, -0.0038614727)
+            float3 physics:diagonalInertia = (6.8314874e-13, 2.1676092e-12, 2.8308278e-12)
+            float physics:mass = 0.0000022844652
+            quatf physics:principalAxes = (0.49149784, 0.50835997, 0.49149784, 0.50835997)
+            matrix4d xformOp:transform = ( (0.9999999705460533, -0.0002427094817824887, -0, 0), (0.0002427094817824887, 0.9999999705460533, 0, 0), (0, -0, 1, 0), (0.2216975719533179, 0.01816190235534144, 0.03451848513357839, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/imu_link_5fdedcc80282a940.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_3>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/imu_link_870c2f7121d11723.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "left_steering_hinge_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "left_steering_hinge_link"
+            custom string isaac:nameOverride = "left_steering_hinge_link"
+            point3f physics:centerOfMass = (0.000001826591, -0.0025861338, -0.014885002)
+            float3 physics:diagonalInertia = (4.7974872e-8, 1.7115856e-7, 1.8808855e-7)
+            float physics:mass = 0.0018373122
+            quatf physics:principalAxes = (0.52740103, 0.4711992, -0.47105998, 0.52718306)
+            matrix4d xformOp:transform = ( (0.9999999971136216, 0, -0.00007597865903797164, 0), (0, 1, 0, 0), (0.00007597865903797164, 0, 0.9999999971136216, 0), (0.2885484469992709, 0.09031916074843986, 0.009055338762464957, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/left_steering_hinge_link_220800445c2b8b59.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_4>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/left_steering_hinge_link_777b0c1be2bf1c50.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "left_front_wheel_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "left_front_wheel_link"
+            custom string isaac:nameOverride = "left_front_wheel_link"
+            point3f physics:centerOfMass = (6.052098e-7, -0.012573111, 4.6485147e-7)
+            float3 physics:diagonalInertia = (0.000024211024, 0.000024217523, 0.000039338283)
+            float physics:mass = 0.038150012
+            quatf physics:principalAxes = (0.5442075, 0.5442073, -0.45148465, 0.45148453)
+            matrix4d xformOp:transform = ( (1, 0, 4.0657581468206416e-19, 0), (-0, 1, 0, 0), (-4.0657581468206416e-19, -0, 1, 0), (0.28763999516883976, 0.11749999905996918, 3.461511258184835e-8, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/left_front_wheel_link_403bf6f7ca8ccd45.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_5>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/left_front_wheel_link_dd9d2380a4a14f0c.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "right_steering_hinge_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "right_steering_hinge_link"
+            custom string isaac:nameOverride = "right_steering_hinge_link"
+            point3f physics:centerOfMass = (0.0000015180417, 0.002586149, -0.014884587)
+            float3 physics:diagonalInertia = (4.7982287e-8, 1.7115633e-7, 1.88094e-7)
+            float physics:mass = 0.0018373047
+            quatf physics:principalAxes = (0.52734923, -0.47123435, -0.47102392, -0.5272356)
+            matrix4d xformOp:transform = ( (0.9999999971136216, 0, -0.00007597865903797165, 0), (0, 1, 0, 0), (0.00007597865903797165, 0, 0.9999999971136216, 0), (0.288548439412917, -0.09031915663741326, 0.009055391259651284, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/right_steering_hinge_link_5cf4163a52321100.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_6>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/right_steering_hinge_link_fcb1bdaa3b56be4f.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "right_front_wheel_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "right_front_wheel_link"
+            custom string isaac:nameOverride = "right_front_wheel_link"
+            point3f physics:centerOfMass = (0.000004059961, 0.014761065, -0.00023417763)
+            float3 physics:diagonalInertia = (0.000024211024, 0.000024217523, 0.000039338283)
+            float physics:mass = 0.038150012
+            quatf physics:principalAxes = (0.557889, -0.55788875, 0.43446523, 0.4344651)
+            matrix4d xformOp:transform = ( (1, 0, 3.9302328752599536e-19, 0), (-0, 1, 0, 0), (-3.9302328752599536e-19, -0, 1, 0), (0.2876353120812268, -0.11968795327940741, 0.0002346406573801238, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/right_front_wheel_link_98a4d49ccd11d486.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_5>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/right_front_wheel_link_aa103a670bd621be.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "left_rear_wheel_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "left_rear_wheel_link"
+            custom string isaac:nameOverride = "left_rear_wheel_link"
+            point3f physics:centerOfMass = (1.2952981e-7, -0.011573111, 7.2557475e-7)
+            float3 physics:diagonalInertia = (0.000024211024, 0.000024217523, 0.000039338283)
+            float physics:mass = 0.038150012
+            quatf physics:principalAxes = (0.6104846, -0.61048436, 0.35680357, 0.3568034)
+            matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0.11749999999997, 0, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/left_rear_wheel_link_44dee4bc6e8d5c4c.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_5>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/left_rear_wheel_link_01cf80378dbe9ea4.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+
+        def Xform "right_rear_wheel_link" (
+            prepend apiSchemas = ["IsaacLinkAPI", "PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "right_rear_wheel_link"
+            custom string isaac:nameOverride = "right_rear_wheel_link"
+            point3f physics:centerOfMass = (-9.32813e-8, 0.011573111, 7.337169e-7)
+            float3 physics:diagonalInertia = (0.000024211024, 0.000024217523, 0.000039338283)
+            float physics:mass = 0.038150012
+            quatf physics:principalAxes = (0.6212112, 0.62121093, -0.33778232, 0.33778214)
+            matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, -0.11749999999997, 0, 1) )
+            uniform token[] xformOpOrder = ["xformOp:transform"]
+
+            def Scope "Visuals"
+            {
+                over "visual_0" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                    prepend references = @./geometry/right_rear_wheel_link_b39644af44caa674.usd@</Asset/Mesh>
+                )
+                {
+                    rel material:binding = </Robot/Looks/material_5>
+                    uniform token purpose = "render"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+
+            def Scope "Collisions"
+            {
+                over "collision_0" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+                    prepend references = @./geometry/right_rear_wheel_link_aa71dfb6654237aa.usd@</Asset/Mesh>
+                )
+                {
+                    uniform token physics:approximation = "none"
+                    uniform token purpose = "guide"
+                    float3 xformOp:scale = (1, 1, 1)
+                    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+                    uniform token[] xformOpOrder = ["xformOp:transform"]
+                }
+            }
+        }
+    }
+
+    def Scope "Joints"
+    {
+        def PhysicsFixedJoint "camera_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "camera_joint"
+            custom string isaac:nameOverride = "camera_joint"
+            custom string osurdf:jointType = "fixed"
+            custom string osurdf:sourceName = "camera_joint"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/camera_link>
+            point3f physics:localPos0 = (0.29391, 0, 0.047012)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.49999815, -0.5, 0.50000185, -0.5)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsFixedJoint "laser_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "laser_joint"
+            custom string isaac:nameOverride = "laser_joint"
+            custom string osurdf:jointType = "fixed"
+            custom string osurdf:sourceName = "laser_joint"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/laser>
+            point3f physics:localPos0 = (0.09655528, 0, 0.1601364)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.9996935, -0.00007083241, -0.024589108, 0.0028797586)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsFixedJoint "imu_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+            custom string isaac:NameOverride = "imu_joint"
+            custom string isaac:nameOverride = "imu_joint"
+            custom string osurdf:jointType = "fixed"
+            custom string osurdf:sourceName = "imu_joint"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/imu_link>
+            point3f physics:localPos0 = (0.22169757, 0.018161902, 0.034518484)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (1, 0, 0, -0.000121354744)
+            quatf physics:localRot1 = (1, 0, 0, 0)
+        }
+
+        def PhysicsRevoluteJoint "left_steering_hinge_joint" (
+            prepend apiSchemas = ["IsaacJointAPI", "PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.06981317
+            float drive:angular:physics:maxForce = 1
+            float drive:angular:physics:stiffness = 1.3962634
+            float drive:angular:physics:targetPosition = 0
+            uniform token drive:angular:physics:type = "force"
+            custom string isaac:NameOverride = "left_steering_hinge_joint"
+            custom string isaac:nameOverride = "left_steering_hinge_joint"
+            custom token osurdf:driveIntent = "position"
+            custom string osurdf:jointType = "continuous"
+            custom string osurdf:sourceName = "left_steering_hinge_joint"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/left_steering_hinge_link>
+            point3f physics:localPos0 = (0.28854844, 0.090319164, 0.009055339)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.70713365, 0, -0.70707995, 0)
+            quatf physics:localRot1 = (0.70710677, 0, -0.70710677, 0)
+            custom float physxJoint:jointFriction = 0.15
+            custom float physxJoint:maxJointVelocity = 57.29578
+        }
+
+        def PhysicsRevoluteJoint "left_front_wheel_joint" (
+            prepend apiSchemas = ["IsaacJointAPI", "PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:maxForce = 1
+            float drive:angular:physics:stiffness = 0
+            float drive:angular:physics:targetVelocity = 0
+            uniform token drive:angular:physics:type = "force"
+            custom string isaac:NameOverride = "left_front_wheel_joint"
+            custom string isaac:nameOverride = "left_front_wheel_joint"
+            custom token osurdf:driveIntent = "velocity"
+            custom string osurdf:jointType = "continuous"
+            custom string osurdf:sourceName = "left_front_wheel_joint"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Robot/Links/left_steering_hinge_link>
+            rel physics:body1 = </Robot/Links/left_front_wheel_link>
+            point3f physics:localPos0 = (-0.00090776384, 0.027180837, -0.009055373)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.70710677, -0.000026862512, -0.000026862512, 0.70710677)
+            quatf physics:localRot1 = (0.70710677, 0, -0, 0.70710677)
+            custom float physxJoint:jointFriction = 0.15
+            custom float physxJoint:maxJointVelocity = 57.29578
+        }
+
+        def PhysicsRevoluteJoint "right_steering_hinge_joint" (
+            prepend apiSchemas = ["IsaacJointAPI", "PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:damping = 0.06981317
+            float drive:angular:physics:maxForce = 1
+            float drive:angular:physics:stiffness = 1.3962634
+            float drive:angular:physics:targetPosition = 0
+            uniform token drive:angular:physics:type = "force"
+            custom string isaac:NameOverride = "right_steering_hinge_joint"
+            custom string isaac:nameOverride = "right_steering_hinge_joint"
+            custom token osurdf:driveIntent = "position"
+            custom string osurdf:jointType = "continuous"
+            custom string osurdf:sourceName = "right_steering_hinge_joint"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/right_steering_hinge_link>
+            point3f physics:localPos0 = (0.28854844, -0.09031916, 0.009055391)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.70713365, 0, -0.70707995, 0)
+            quatf physics:localRot1 = (0.70710677, 0, -0.70710677, 0)
+            custom float physxJoint:jointFriction = 0.15
+            custom float physxJoint:maxJointVelocity = 57.29578
+        }
+
+        def PhysicsRevoluteJoint "right_front_wheel_joint" (
+            prepend apiSchemas = ["IsaacJointAPI", "PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:maxForce = 1
+            float drive:angular:physics:stiffness = 0
+            float drive:angular:physics:targetVelocity = 0
+            uniform token drive:angular:physics:type = "force"
+            custom string isaac:NameOverride = "right_front_wheel_joint"
+            custom string isaac:nameOverride = "right_front_wheel_joint"
+            custom token osurdf:driveIntent = "velocity"
+            custom string osurdf:jointType = "continuous"
+            custom string osurdf:sourceName = "right_front_wheel_joint"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Robot/Links/right_steering_hinge_link>
+            rel physics:body1 = </Robot/Links/right_front_wheel_link>
+            point3f physics:localPos0 = (-0.0009124571, -0.029368797, -0.00882082)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.70710677, -0.000026862512, -0.000026862512, 0.70710677)
+            quatf physics:localRot1 = (0.70710677, 0, -0, 0.70710677)
+            custom float physxJoint:jointFriction = 0.15
+            custom float physxJoint:maxJointVelocity = 57.29578
+        }
+
+        def PhysicsRevoluteJoint "left_rear_wheel_joint" (
+            prepend apiSchemas = ["IsaacJointAPI", "PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:maxForce = 1
+            float drive:angular:physics:stiffness = 0
+            float drive:angular:physics:targetVelocity = 0
+            uniform token drive:angular:physics:type = "force"
+            custom string isaac:NameOverride = "left_rear_wheel_joint"
+            custom string isaac:nameOverride = "left_rear_wheel_joint"
+            custom token osurdf:driveIntent = "velocity"
+            custom string osurdf:jointType = "continuous"
+            custom string osurdf:sourceName = "left_rear_wheel_joint"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/left_rear_wheel_link>
+            point3f physics:localPos0 = (0, 0.1175, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.70710677, 0, 0, 0.70710677)
+            quatf physics:localRot1 = (0.70710677, 0, -0, 0.70710677)
+            custom float physxJoint:jointFriction = 0.15
+            custom float physxJoint:maxJointVelocity = 57.29578
+        }
+
+        def PhysicsRevoluteJoint "right_rear_wheel_joint" (
+            prepend apiSchemas = ["IsaacJointAPI", "PhysxJointAPI", "PhysicsDriveAPI:angular"]
+        )
+        {
+            float drive:angular:physics:maxForce = 1
+            float drive:angular:physics:stiffness = 0
+            float drive:angular:physics:targetVelocity = 0
+            uniform token drive:angular:physics:type = "force"
+            custom string isaac:NameOverride = "right_rear_wheel_joint"
+            custom string isaac:nameOverride = "right_rear_wheel_joint"
+            custom token osurdf:driveIntent = "velocity"
+            custom string osurdf:jointType = "continuous"
+            custom string osurdf:sourceName = "right_rear_wheel_joint"
+            uniform token physics:axis = "X"
+            rel physics:body0 = </Robot/Links/base_link>
+            rel physics:body1 = </Robot/Links/right_rear_wheel_link>
+            point3f physics:localPos0 = (0, -0.1175, 0)
+            point3f physics:localPos1 = (0, 0, 0)
+            quatf physics:localRot0 = (0.70710677, 0, 0, -0.70710677)
+            quatf physics:localRot1 = (0.70710677, 0, -0, -0.70710677)
+            custom float physxJoint:jointFriction = 0.15
+            custom float physxJoint:maxJointVelocity = 57.29578
+        }
+    }
+
+    def Scope "Looks"
+    {
+        def Material "material_0"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_0/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 0)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+
+        def Material "material_1"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_1/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 0, 0)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+
+        def Material "material_2"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_2/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0, 1, 1)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+
+        def Material "material_3"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_3/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0, 0.50196, 0.75294)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+
+        def Material "material_4"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_4/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0, 0.50196, 0)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+
+        def Material "material_5"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_5/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0, 0, 0)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+
+        def Material "material_6"
+        {
+            token outputs:surface.connect = </Robot/Looks/material_6/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (0, 0.50196, 0.25098)
+                float inputs:opacity = 1
+                token outputs:surface
+            }
+        }
+    }
+}
+

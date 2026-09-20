@@ -1,0 +1,21 @@
+.loopx/
+.codex/goals/
+.local/
+__pycache__/
+.venv/
+*.egg-info/
+.pytest_cache/
+*.log
+*.tar.gz
+download.aspx
+
+# Full experiment output is a 35 GB local evidence archive. The public site
+# consumes the reviewed, hash-traceable subset in site/source_assets/ instead.
+output/
+
+# Generated presentation artifacts and local site build output. The reviewed
+# briefing deck is intentionally versioned because the public site distributes it.
+presentation/build/*
+!presentation/build/osracer_live_briefing.pptx
+site/_site/
+site/.cache/

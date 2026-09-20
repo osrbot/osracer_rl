@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
+  <param name="robot_description" textfile="$(find osracer_description)/urdf/osracer_arc_e01_prtnew_asm.urdf"/>
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model osracer_arc_e01_prtnew_asm"/>
+</launch>

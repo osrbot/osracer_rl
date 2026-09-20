@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mujoco model="osracer_arc_e01_prtnew_asm_scene">
+  <include file="robot.xml" />
+</mujoco>

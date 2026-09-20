@@ -1,0 +1,15 @@
+# Stage 0/1 defaults: shadow mode, conservative limits.
+osracer_policy_node:
+  ros__parameters:
+    checkpoint_path: "/home/osrbot/Desktop/osracer_work/output/racing/policies/frozen-candidates-g00c_v10c_lateral.json"
+    racing_root: "/home/osrbot/Desktop/osracer_work"
+    shadow_mode: true
+    max_speed_mps: 1.0
+    max_steering_rad: 0.3
+    wheel_radius_m: 0.045
+    scan_topic: "/scan"
+    odom_topic: "/odometry/filtered"
+    ackermann_topic: "/race/raw_ackermann_cmd"
+    safety_stop_topic: "/race/safety_stop"
+    scan_timeout_s: 0.2
+    odom_timeout_s: 0.3

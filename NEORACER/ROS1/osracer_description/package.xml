@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package format="2">
+  <name>osracer_description</name>
+  <version>0.5.0</version>
+  <description>Robot description package for osracer_arc_e01_prtnew_asm</description>
+  <maintainer email="support@osrbot.com">osrbot</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+</package>

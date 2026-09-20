@@ -1,0 +1,125 @@
+{
+  "assetType": "OpenUSD robot asset",
+  "baseResolution": "preserved-source-no-injected-world-joint",
+  "entrypoint": "robot.usd",
+  "entrypointFormat": "UTF-8 USDA text",
+  "geometryDependencies": [
+    "geometry/base_link_8b95f4a699747275.usd",
+    "geometry/base_link_f12fa4b68f3079ad.usd",
+    "geometry/camera_link_803c62cba904de4e.usd",
+    "geometry/camera_link_d61d4977601cfe2d.usd",
+    "geometry/imu_link_5fdedcc80282a940.usd",
+    "geometry/imu_link_870c2f7121d11723.usd",
+    "geometry/laser_114f25fed366c4da.usd",
+    "geometry/laser_56a44c063d2103c4.usd",
+    "geometry/left_front_wheel_link_403bf6f7ca8ccd45.usd",
+    "geometry/left_front_wheel_link_dd9d2380a4a14f0c.usd",
+    "geometry/left_rear_wheel_link_01cf80378dbe9ea4.usd",
+    "geometry/left_rear_wheel_link_44dee4bc6e8d5c4c.usd",
+    "geometry/left_steering_hinge_link_220800445c2b8b59.usd",
+    "geometry/left_steering_hinge_link_777b0c1be2bf1c50.usd",
+    "geometry/right_front_wheel_link_98a4d49ccd11d486.usd",
+    "geometry/right_front_wheel_link_aa103a670bd621be.usd",
+    "geometry/right_rear_wheel_link_aa71dfb6654237aa.usd",
+    "geometry/right_rear_wheel_link_b39644af44caa674.usd",
+    "geometry/right_steering_hinge_link_5cf4163a52321100.usd",
+    "geometry/right_steering_hinge_link_fcb1bdaa3b56be4f.usd"
+  ],
+  "ok": true,
+  "physicsMappingNotes": {
+    "en": "Planar joints use generic UsdPhysics joints with transZ, rotX, and rotY locked by LimitAPI (low > high), leaving local transX, transY, and rotZ free; floating joints remain generic and are not exact mappings.",
+    "unsupportedJointTypes": [],
+    "zh-CN": "planar 关节使用通用 UsdPhysics Joint，并以 LimitAPI（low > high）锁定 transZ、rotX 和 rotY，仅保留局部 transX、transY 和 rotZ；floating 仍为通用 Joint，不是精确映射。"
+  },
+  "retainedPreviousDirectory": null,
+  "schemaAuthoring": {
+    "downstreamValidationRun": false,
+    "status": "authored, downstream validation not run",
+    "tokens": [
+      "IsaacRobotAPI",
+      "IsaacLinkAPI",
+      "IsaacJointAPI",
+      "PhysxArticulationAPI",
+      "PhysxJointAPI",
+      "NewtonArticulationRootAPI"
+    ]
+  },
+  "schemaVersion": 1,
+  "simulationSettings": {
+    "allowSelfCollision": false,
+    "baseMode": "source",
+    "gainUnits": "SI",
+    "jointDrives": [
+      {
+        "joint": "left_front_wheel_joint",
+        "maxForce": 1.0,
+        "maxForceUnits": "N*m",
+        "mode": "velocity",
+        "stiffness": 0.0
+      },
+      {
+        "joint": "left_rear_wheel_joint",
+        "maxForce": 1.0,
+        "maxForceUnits": "N*m",
+        "mode": "velocity",
+        "stiffness": 0.0
+      },
+      {
+        "damping": 4.0,
+        "joint": "left_steering_hinge_joint",
+        "maxForce": 1.0,
+        "maxForceUnits": "N*m",
+        "mode": "position",
+        "stiffness": 80.0
+      },
+      {
+        "joint": "right_front_wheel_joint",
+        "maxForce": 1.0,
+        "maxForceUnits": "N*m",
+        "mode": "velocity",
+        "stiffness": 0.0
+      },
+      {
+        "joint": "right_rear_wheel_joint",
+        "maxForce": 1.0,
+        "maxForceUnits": "N*m",
+        "mode": "velocity",
+        "stiffness": 0.0
+      },
+      {
+        "damping": 4.0,
+        "joint": "right_steering_hinge_joint",
+        "maxForce": 1.0,
+        "maxForceUnits": "N*m",
+        "mode": "position",
+        "stiffness": 80.0
+      }
+    ],
+    "robotType": "quadruped"
+  },
+  "validation": {
+    "activeDrives": 6,
+    "collisionShapes": 10,
+    "configuredDriveApis": 6,
+    "configuredDrives": 6,
+    "configuredJointIntents": 6,
+    "downstreamSchemaStatus": "authored, downstream validation not run",
+    "effortLimitsPreserved": 0,
+    "links": 10,
+    "massProperties": 10,
+    "meshCollisionApproximations": 0,
+    "ok": true,
+    "openUsdVersion": "0.26.8",
+    "physicsJoints": 9,
+    "planarJointsValidated": 0,
+    "preprocessedMeshCollisions": 10,
+    "resolvedMeshGeometries": 20,
+    "rigidBodies": 10,
+    "scope": "bundled OpenUSD structural validation only",
+    "stageReopened": true
+  },
+  "validationScope": {
+    "en": "Generated and structurally reopened with the bundled OpenUSD runtime; Isaac schema tokens were authored, downstream validation not run.",
+    "zh-CN": "已使用内置 OpenUSD 运行时生成并完成结构性重开检查；Isaac schema token 已作者化，未运行下游验证。"
+  }
+}

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neoracer-racing"
+version = "0.1.0"
+description = "Sensor-only NEORACER racing experiments for native Isaac Sim and MuJoCo"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26",
+  "scipy>=1.11",
+  "Pillow>=10",
+  "mujoco==3.10.0",
+]
+
+[project.optional-dependencies]
+build = [
+  "shapely>=2.1",
+  "trimesh>=4",
+  "pycollada>=0.9",
+  "pytest>=8",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["racing*", "scripts*"]
+namespaces = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,211 @@
+link,coordinate_system,quantity,unit,solidworks_expected,urdf_value,absolute_error,relative_error_percent,status,check_type,message
+base_link,base_link,mass,kg,1.7848613095946932,1.7848613095946932,0,0,PASS,numeric,
+base_link,base_link,origin.x,m,0.15140030399720705,0.15140030399720705,0,0,PASS,numeric,
+base_link,base_link,origin.y,m,0.0021455528239439988,0.0021455528239439988,0,0,PASS,numeric,
+base_link,base_link,origin.z,m,0.025518612244937938,0.025518612244937938,0,0,PASS,numeric,
+base_link,base_link,ixx,kg*m^2,0.0048346378754167713,0.0048346378754167713,0,0,PASS,numeric,
+base_link,base_link,ixy,kg*m^2,-0.0003299726155844146,-0.0003299726155844146,0,0,PASS,numeric,
+base_link,base_link,ixz,kg*m^2,0.00020202406158239533,0.00020202406158239533,0,0,PASS,numeric,
+base_link,base_link,iyy,kg*m^2,0.021026056958675057,0.021026056958675057,0,0,PASS,numeric,
+base_link,base_link,iyz,kg*m^2,-0.00013712014210189496,-0.00013712014210189488,8.1315162936412833E-20,5.930212854941979E-14,PASS,numeric,
+base_link,base_link,izz,kg*m^2,0.020927084124422023,0.020927084124422023,0,0,PASS,numeric,
+base_link,base_link,inertial.source,,,,,,PASS,source,"SW effective mass=1.7848613095946932 kg; export mass=1.7848613095946932 kg; measured mass=False; manual origin=False; manual tensor=False; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+base_link,base_link,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+base_link,base_link,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+base_link,base_link,origin.finite,,,,,,PASS,physical,COM origin is finite: 1.514003E-1/2.145553E-3/2.551861E-2
+base_link,base_link,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+base_link,base_link,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+base_link,base_link,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 4.825452E-3/2.083083E-2/2.11315E-2
+base_link,base_link,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+base_link,base_link,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+base_link,base_link,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+base_link,base_link,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(0.151400304,0.00214555282,0.0255186122); bounds=[-0.0799558328,0.397320163]x[-0.119687965,0.117500011]x[-0.0239876718,0.10827486] m."
+camera_link,camera_link,mass,kg,0.018874996615538979,0.018874996615538982,3.4694469519536142E-18,1.838117920030442E-14,PASS,numeric,
+camera_link,camera_link,origin.x,m,5.1390129042784705E-05,5.1390129042784638E-05,-6.7762635780344027E-20,1.3185924426056304E-13,PASS,numeric,
+camera_link,camera_link,origin.y,m,0.0001217720437692929,0.0001217720437692929,0,0,PASS,numeric,
+camera_link,camera_link,origin.z,m,-0.0051869473533304733,-0.0051869473533304733,0,0,PASS,numeric,
+camera_link,camera_link,ixx,kg*m^2,2.5152504600327956E-06,2.5152504600327956E-06,0,0,PASS,numeric,
+camera_link,camera_link,ixy,kg*m^2,1.3236113746091394E-08,1.3236113746091391E-08,-3.3087224502121107E-24,2.499768824659105E-14,PASS,numeric,
+camera_link,camera_link,ixz,kg*m^2,7.045456575381647E-09,7.0454565753816669E-09,1.9852334701272664E-23,2.8177499199471368E-13,PASS,numeric,
+camera_link,camera_link,iyy,kg*m^2,2.5404550898547173E-06,2.5404550898547169E-06,-4.2351647362715017E-22,1.6670890003860295E-14,PASS,numeric,
+camera_link,camera_link,iyz,kg*m^2,1.6693974348157387E-08,1.6693974348157371E-08,-1.6543612251060553E-23,9.9099303173941742E-14,PASS,numeric,
+camera_link,camera_link,izz,kg*m^2,3.366220809852324E-06,3.366220809852324E-06,0,0,PASS,numeric,
+camera_link,camera_link,inertial.source,,,,,,PASS,source,"SW effective mass=0.018874996615538979 kg; export mass=0.018874996615538982 kg; measured mass=False; manual origin=False; manual tensor=False; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+camera_link,camera_link,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+camera_link,camera_link,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+camera_link,camera_link,origin.finite,,,,,,PASS,physical,COM origin is finite: 5.139013E-5/1.21772E-4/-5.186947E-3
+camera_link,camera_link,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+camera_link,camera_link,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+camera_link,camera_link,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 2.509577E-6/2.545729E-6/3.366621E-6
+camera_link,camera_link,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+camera_link,camera_link,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+camera_link,camera_link,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+camera_link,camera_link,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(5.1390129E-05,0.000121772044,-0.00518694735); bounds=[-0.0185,0.0185]x[-0.0179999992,0.0179999992]x[-0.014,0.0123741325] m."
+laser,laser,mass,kg,0.19628389082040501,0.19628389082040501,0,0,PASS,numeric,
+laser,laser,origin.x,m,0.00019003048909806142,0.00019003048909806142,0,0,PASS,numeric,
+laser,laser,origin.y,m,-1.1826084855251669E-07,-1.1826084855251669E-07,0,0,PASS,numeric,
+laser,laser,origin.z,m,-0.049289646792137737,-0.049289646792137737,0,0,PASS,numeric,
+laser,laser,ixx,kg*m^2,0.00012925108651197533,0.00012925108651197533,0,0,PASS,numeric,
+laser,laser,ixy,kg*m^2,2.3482266793573638E-10,2.3482266793573638E-10,0,0,PASS,numeric,
+laser,laser,ixz,kg*m^2,1.0274281562653091E-06,1.0274281562653091E-06,0,0,PASS,numeric,
+laser,laser,iyy,kg*m^2,0.00013054092464454545,0.00013054092464454545,0,0,PASS,numeric,
+laser,laser,iyz,kg*m^2,4.062027017681686E-11,4.062027017681686E-11,0,0,PASS,numeric,
+laser,laser,izz,kg*m^2,9.606983403520977E-05,9.606983403520977E-05,0,0,PASS,numeric,
+laser,laser,inertial.source,,,,,,PASS,source,"SW effective mass=0.19628379188481476 kg; export mass=0.196283890820405 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+laser,laser,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+laser,laser,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+laser,laser,origin.finite,,,,,,PASS,physical,COM origin is finite: 1.900305E-4/-1.182608E-7/-4.928965E-2
+laser,laser,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+laser,laser,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+laser,laser,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 9.603805E-5/1.292829E-4/1.305409E-4
+laser,laser,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+laser,laser,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+laser,laser,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+laser,laser,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(0.000190030489,-1.18260849E-07,-0.0492896468); bounds=[-0.0296947427,0.0303052573]x[-0.0299999347,0.0300001326]x[-0.0799,1.71411848E-06] m."
+imu_link,imu_link,mass,kg,2.284465040809662E-06,2.284465040809662E-06,0,0,PASS,numeric,
+imu_link,imu_link,origin.x,m,-0.025781921715139738,-0.025781921715139738,0,0,PASS,numeric,
+imu_link,imu_link,origin.y,m,-0.035159866426265625,-0.035159866426265625,0,0,PASS,numeric,
+imu_link,imu_link,origin.z,m,-0.0038614727064569046,-0.0038614727064569046,0,0,PASS,numeric,
+imu_link,imu_link,ixx,kg*m^2,2.8308277822085219E-12,2.8308277822085219E-12,0,0,PASS,numeric,
+imu_link,imu_link,ixy,kg*m^2,2.8958180499321948E-17,2.8958180499321948E-17,0,0,PASS,numeric,
+imu_link,imu_link,ixz,kg*m^2,-2.3128013967440861E-19,-2.3128013967440861E-19,0,0,PASS,numeric,
+imu_link,imu_link,iyy,kg*m^2,6.8483656743381486E-13,6.8483656743381486E-13,0,0,PASS,numeric,
+imu_link,imu_link,iyz,kg*m^2,-5.0026743792011233E-14,-5.0026743792011233E-14,0,0,PASS,numeric,
+imu_link,imu_link,izz,kg*m^2,2.1659214380116053E-12,2.1659214380116053E-12,0,0,PASS,numeric,
+imu_link,imu_link,inertial.source,,,,,,PASS,source,"SW effective mass=2.2844676501277691E-06 kg; export mass=2.284465040809662E-06 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+imu_link,imu_link,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+imu_link,imu_link,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+imu_link,imu_link,origin.finite,,,,,,PASS,physical,COM origin is finite: -2.578192E-2/-3.515987E-2/-3.861473E-3
+imu_link,imu_link,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+imu_link,imu_link,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+imu_link,imu_link,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 6.831487E-13/2.167609E-12/2.830828E-12
+imu_link,imu_link,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+imu_link,imu_link,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+imu_link,imu_link,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+imu_link,imu_link,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(-0.0257819217,-0.0351598664,-0.00386147271); bounds=[-0.0331468309,-0.0235788134]x[-0.0380048415,-0.00349584568]x[-0.00535595833,-0.00250615707] m."
+left_steering_hinge_link,Left_steering_hinge,mass,kg,0.0018373121895523586,0.0018373121895523586,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,origin.x,m,1.8265909212944464E-06,1.8265909212944464E-06,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,origin.y,m,-0.0025861337072458079,-0.0025861337072458079,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,origin.z,m,-0.014885001925056518,-0.014885001925056518,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,ixx,kg*m^2,1.7115854638648739E-07,1.7115854638648739E-07,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,ixy,kg*m^2,-4.0027887835121932E-12,-4.0027887835121932E-12,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,ixz,kg*m^2,-4.430678285660217E-11,-4.430678285660217E-11,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,iyy,kg*m^2,1.863263318311644E-07,1.863263318311644E-07,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,iyz,kg*m^2,-1.5614276283612904E-08,-1.5614276283612904E-08,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,izz,kg*m^2,4.9737107549164092E-08,4.9737107549164092E-08,0,0,PASS,numeric,
+left_steering_hinge_link,Left_steering_hinge,inertial.source,,,,,,PASS,source,"SW effective mass=0.0018372686901145386 kg; export mass=0.0018373121895523586 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+left_steering_hinge_link,Left_steering_hinge,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+left_steering_hinge_link,Left_steering_hinge,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+left_steering_hinge_link,Left_steering_hinge,origin.finite,,,,,,PASS,physical,COM origin is finite: 1.826591E-6/-2.586134E-3/-1.4885E-2
+left_steering_hinge_link,Left_steering_hinge,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+left_steering_hinge_link,Left_steering_hinge,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+left_steering_hinge_link,Left_steering_hinge,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 4.797487E-8/1.711586E-7/1.880886E-7
+left_steering_hinge_link,Left_steering_hinge,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+left_steering_hinge_link,Left_steering_hinge,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+left_steering_hinge_link,Left_steering_hinge,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+left_steering_hinge_link,Left_steering_hinge,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(1.82659092E-06,-0.00258613371,-0.0148850019); bounds=[-0.00888687719,0.00888582665]x[-0.00816970652,0.00420529348]x[-0.0313094388,0.0043113413] m."
+left_front_wheel_link, Left_front_wheel,mass,kg,0.038150011570339377,0.038150011570339377,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,origin.x,m,6.0520975836420021E-07,6.0520975836420021E-07,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,origin.y,m,-0.012573110827048914,-0.012573110827048914,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,origin.z,m,4.6485146486339307E-07,4.6485146486339307E-07,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,ixx,kg*m^2,2.4217300875237484E-05,2.4217300875237484E-05,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,ixy,kg*m^2,5.2264446554083528E-12,5.2264446554083528E-12,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,ixz,kg*m^2,-1.1792725572600598E-09,-1.1792725572600598E-09,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,iyy,kg*m^2,3.9338283612222393E-05,3.9338283612222393E-05,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,iyz,kg*m^2,-2.3819652741459686E-12,-2.3819652741459686E-12,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,izz,kg*m^2,2.4211245607993144E-05,2.4211245607993144E-05,0,0,PASS,numeric,
+left_front_wheel_link, Left_front_wheel,inertial.source,,,,,,PASS,source,"SW effective mass=0.038148921547362727 kg; export mass=0.038150011570339377 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+left_front_wheel_link, Left_front_wheel,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+left_front_wheel_link, Left_front_wheel,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+left_front_wheel_link, Left_front_wheel,origin.finite,,,,,,PASS,physical,COM origin is finite: 6.052098E-7/-1.257311E-2/4.648515E-7
+left_front_wheel_link, Left_front_wheel,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+left_front_wheel_link, Left_front_wheel,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+left_front_wheel_link, Left_front_wheel,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 2.421102E-5/2.421752E-5/3.933828E-5
+left_front_wheel_link, Left_front_wheel,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+left_front_wheel_link, Left_front_wheel,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+left_front_wheel_link, Left_front_wheel,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+left_front_wheel_link, Left_front_wheel,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(6.05209758E-07,-0.0125731108,4.64851465E-07); bounds=[-0.0451413085,0.0451413182]x[-0.0327300036,0.00773000362]x[-0.0451413508,0.0451412759] m."
+right_steering_hinge_link,right_steering_hinge,mass,kg,0.0018373047015485301,0.0018373047015485301,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,origin.x,m,1.5180416850224532E-06,1.5180416850224532E-06,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,origin.y,m,0.0025861489310217006,0.0025861489310217006,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,origin.z,m,-0.014884587708211517,-0.014884587708211517,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,ixx,kg*m^2,1.7115631521431538E-07,1.7115631521431538E-07,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,ixy,kg*m^2,6.327794754500554E-12,6.327794754500554E-12,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,ixz,kg*m^2,-3.8715203685928892E-11,-3.8715203685928892E-11,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,iyy,kg*m^2,1.8633176086105508E-07,1.8633176086105508E-07,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,iyz,kg*m^2,1.5614307065039926E-08,1.5614307065039926E-08,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,izz,kg*m^2,4.9744550982494931E-08,4.9744550982494931E-08,0,0,PASS,numeric,
+right_steering_hinge_link,right_steering_hinge,inertial.source,,,,,,PASS,source,"SW effective mass=0.001837261204198486 kg; export mass=0.00183730470154853 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+right_steering_hinge_link,right_steering_hinge,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+right_steering_hinge_link,right_steering_hinge,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+right_steering_hinge_link,right_steering_hinge,origin.finite,,,,,,PASS,physical,COM origin is finite: 1.518042E-6/2.586149E-3/-1.488459E-2
+right_steering_hinge_link,right_steering_hinge,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+right_steering_hinge_link,right_steering_hinge,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+right_steering_hinge_link,right_steering_hinge,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 4.798229E-8/1.711563E-7/1.88094E-7
+right_steering_hinge_link,right_steering_hinge,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+right_steering_hinge_link,right_steering_hinge,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+right_steering_hinge_link,right_steering_hinge,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+right_steering_hinge_link,right_steering_hinge,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(1.51804169E-06,0.00258614893,-0.0148845877); bounds=[-0.0088868696,0.00888583424]x[-0.00420529759,0.00816970241]x[-0.0313094929,0.00431131093] m."
+right_front_wheel_link, right_front_wheel,mass,kg,0.03815001144120965,0.03815001144120965,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,origin.x,m,4.0599611699776439E-06,4.0599611699776439E-06,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,origin.y,m,0.014761065021000025,0.014761065021000025,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,origin.z,m,-0.00023417762253295045,-0.00023417762253295045,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,ixx,kg*m^2,2.4217132440056093E-05,2.4217132440056093E-05,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,ixy,kg*m^2,4.9559066913511899E-12,4.9559066913511899E-12,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,ixz,kg*m^2,1.5433336373463096E-09,1.5433336373463096E-09,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,iyy,kg*m^2,3.9338283564749103E-05,3.9338283564749103E-05,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,iyz,kg*m^2,2.360797729880089E-12,2.360797729880089E-12,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,izz,kg*m^2,2.4211413978717703E-05,2.4211413978717703E-05,0,0,PASS,numeric,
+right_front_wheel_link, right_front_wheel,inertial.source,,,,,,PASS,source,"SW effective mass=0.038148921547362727 kg; export mass=0.03815001144120965 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+right_front_wheel_link, right_front_wheel,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+right_front_wheel_link, right_front_wheel,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+right_front_wheel_link, right_front_wheel,origin.finite,,,,,,PASS,physical,COM origin is finite: 4.059961E-6/1.476107E-2/-2.341776E-4
+right_front_wheel_link, right_front_wheel,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+right_front_wheel_link, right_front_wheel,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+right_front_wheel_link, right_front_wheel,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 2.421102E-5/2.421752E-5/3.933828E-5
+right_front_wheel_link, right_front_wheel,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+right_front_wheel_link, right_front_wheel,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+right_front_wheel_link, right_front_wheel,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+right_front_wheel_link, right_front_wheel,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(4.05996117E-06,0.014761065,-0.000234177623); bounds=[-0.0451372646,0.0451466404]x[-0.00554204942,0.0349179578]x[-0.0453765962,0.0449073088] m."
+left_rear_wheel_link,left_rear_wheel,mass,kg,0.038150012035830835,0.038150012035830835,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,origin.x,m,1.2952981304735489E-07,1.2952981304735489E-07,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,origin.y,m,-0.011573110829807026,-0.011573110829807026,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,origin.z,m,7.2557474441398498E-07,7.2557474441398498E-07,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,ixx,kg*m^2,2.4215957438719352E-05,2.4215957438719352E-05,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,ixy,kg*m^2,5.5546411875544822E-12,5.5546411875544822E-12,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,ixz,kg*m^2,2.7787707430284905E-09,2.7787707430284905E-09,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,iyy,kg*m^2,3.9338283764324296E-05,3.9338283764324296E-05,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,iyz,kg*m^2,2.3687611239920299E-12,2.3687611239920299E-12,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,izz,kg*m^2,2.4212589254523395E-05,2.4212589254523395E-05,0,0,PASS,numeric,
+left_rear_wheel_link,left_rear_wheel,inertial.source,,,,,,PASS,source,"SW effective mass=0.038148921547362727 kg; export mass=0.038150012035830835 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+left_rear_wheel_link,left_rear_wheel,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+left_rear_wheel_link,left_rear_wheel,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+left_rear_wheel_link,left_rear_wheel,origin.finite,,,,,,PASS,physical,COM origin is finite: 1.295298E-7/-1.157311E-2/7.255747E-7
+left_rear_wheel_link,left_rear_wheel,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+left_rear_wheel_link,left_rear_wheel,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+left_rear_wheel_link,left_rear_wheel,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 2.421102E-5/2.421752E-5/3.933828E-5
+left_rear_wheel_link,left_rear_wheel,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+left_rear_wheel_link,left_rear_wheel,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+left_rear_wheel_link,left_rear_wheel,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+left_rear_wheel_link,left_rear_wheel,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(1.29529813E-07,-0.0115731108,7.25574744E-07); bounds=[-0.0451107321,0.0451107225]x[-0.0317300036,0.00873000362]x[-0.0451107647,0.0451106899] m."
+right_rear_wheel_link,right_rear_wheel,mass,kg,0.038150012022885905,0.038150012022885905,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,origin.x,m,-9.3281297755976739E-08,-9.3281297755976739E-08,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,origin.y,m,0.011573110829884659,0.011573110829884659,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,origin.z,m,7.3371689407637775E-07,7.3371689407637775E-07,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,ixx,kg*m^2,2.4215602199422674E-05,2.4215602199422674E-05,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,ixy,kg*m^2,5.5368542743993855E-12,5.5368542743993855E-12,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,ixz,kg*m^2,-2.9651105391163067E-09,-2.9651105391163067E-09,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,iyy,kg*m^2,3.9338283762148986E-05,3.9338283762148986E-05,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,iyz,kg*m^2,-2.5277479530974776E-12,-2.5277479530974776E-12,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,izz,kg*m^2,2.4212944490414103E-05,2.4212944490414103E-05,0,0,PASS,numeric,
+right_rear_wheel_link,right_rear_wheel,inertial.source,,,,,,PASS,source,"SW effective mass=0.038148921547362727 kg; export mass=0.038150012022885905 kg; measured mass=True; manual origin=True; manual tensor=True; SW inertia override=False; proportional calibration=False. Numeric checks compare the resolved export values, not raw CAD values for edited fields."
+right_rear_wheel_link,right_rear_wheel,mass.positive,,,,,,PASS,physical,Mass is positive and finite.
+right_rear_wheel_link,right_rear_wheel,mass.magnitude,,,,,,PASS,magnitude,Mass magnitude is within the expected robotics export range.
+right_rear_wheel_link,right_rear_wheel,origin.finite,,,,,,PASS,physical,COM origin is finite: -9.32813E-8/1.157311E-2/7.337169E-7
+right_rear_wheel_link,right_rear_wheel,origin.magnitude,,,,,,PASS,magnitude,COM origin magnitude is within the expected range.
+right_rear_wheel_link,right_rear_wheel,origin.rpy_finite,,,,,,PASS,physical,Inertial orientation must contain three finite angles.
+right_rear_wheel_link,right_rear_wheel,inertia.positive_definite,,,,,,PASS,physical,Principal moments are positive: 2.421102E-5/2.421752E-5/3.933828E-5
+right_rear_wheel_link,right_rear_wheel,principal_moments.triangle_inequality,,,,,,PASS,physical,"Principal moments satisfy Ix + Iy >= Iz, Ix + Iz >= Iy, Iy + Iz >= Ix."
+right_rear_wheel_link,right_rear_wheel,principal_moments.magnitude,,,,,,PASS,magnitude,Principal moment magnitudes are within the expected range.
+right_rear_wheel_link,right_rear_wheel,ellipsoid.display,,,,,,PASS,display,Inertia ellipsoid can be displayed.
+right_rear_wheel_link,right_rear_wheel,origin.within_selected_geometry_bounds,,,,,,PASS,geometry,"COM=(-9.32812978E-08,0.0115731108,7.33716894E-07); bounds=[-0.0451433249,0.0451433153]x[-0.00873000362,0.0317300036]x[-0.0451433576,0.0451432827] m."

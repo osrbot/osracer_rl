@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "robot": {
+    "source": "osracer_arc_e01_prtnew_asm",
+    "mjcf": "osracer_arc_e01_prtnew_asm"
+  },
+  "links": {
+    "base_link": "base_link",
+    "camera_link": "camera_link",
+    "laser": "laser",
+    "imu_link": "imu_link",
+    "left_steering_hinge_link": "left_steering_hinge_link",
+    "left_front_wheel_link": "left_front_wheel_link",
+    "right_steering_hinge_link": "right_steering_hinge_link",
+    "right_front_wheel_link": "right_front_wheel_link",
+    "left_rear_wheel_link": "left_rear_wheel_link",
+    "right_rear_wheel_link": "right_rear_wheel_link"
+  },
+  "joints": {
+    "camera_joint": [],
+    "laser_joint": [],
+    "imu_joint": [],
+    "left_steering_hinge_joint": [
+      "left_steering_hinge_joint"
+    ],
+    "left_front_wheel_joint": [
+      "left_front_wheel_joint"
+    ],
+    "right_steering_hinge_joint": [
+      "right_steering_hinge_joint"
+    ],
+    "right_front_wheel_joint": [
+      "right_front_wheel_joint"
+    ],
+    "left_rear_wheel_joint": [
+      "left_rear_wheel_joint"
+    ],
+    "right_rear_wheel_joint": [
+      "right_rear_wheel_joint"
+    ]
+  },
+  "visuals": {
+    "base_link/visual/visual_0": "base_link_visual_0",
+    "camera_link/visual/visual_0": "camera_link_visual_0",
+    "laser/visual/visual_0": "laser_visual_0",
+    "imu_link/visual/visual_0": "imu_link_visual_0",
+    "left_steering_hinge_link/visual/visual_0": "left_steering_hinge_link_visual_0",
+    "left_front_wheel_link/visual/visual_0": "left_front_wheel_link_visual_0",
+    "right_steering_hinge_link/visual/visual_0": "right_steering_hinge_link_visual_0",
+    "right_front_wheel_link/visual/visual_0": "right_front_wheel_link_visual_0",
+    "left_rear_wheel_link/visual/visual_0": "left_rear_wheel_link_visual_0",
+    "right_rear_wheel_link/visual/visual_0": "right_rear_wheel_link_visual_0"
+  },
+  "collisions": {
+    "base_link/collision/collision_0": "base_link_collision_0",
+    "camera_link/collision/collision_0": "camera_link_collision_0",
+    "laser/collision/collision_0": "laser_collision_0",
+    "imu_link/collision/collision_0": "imu_link_collision_0",
+    "left_steering_hinge_link/collision/collision_0": "left_steering_hinge_link_collision_0",
+    "left_front_wheel_link/collision/collision_0": "left_front_wheel_link_collision_0",
+    "right_steering_hinge_link/collision/collision_0": "right_steering_hinge_link_collision_0",
+    "right_front_wheel_link/collision/collision_0": "right_front_wheel_link_collision_0",
+    "left_rear_wheel_link/collision/collision_0": "left_rear_wheel_link_collision_0",
+    "right_rear_wheel_link/collision/collision_0": "right_rear_wheel_link_collision_0"
+  }
+}

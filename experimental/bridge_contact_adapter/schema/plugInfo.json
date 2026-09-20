@@ -1,0 +1,24 @@
+{
+  "Plugins": [
+    {
+      "Type": "resource",
+      "Name": "bridgeContactDiagnosticSchema",
+      "Root": ".",
+      "ResourcePath": ".",
+      "Info": {
+        "Types": {
+          "BridgeContactBridgeCylinderAPI": {
+            "bases": [
+              "UsdAPISchemaBase"
+            ],
+            "alias": {
+              "UsdSchemaBase": "BridgeCylinderAPI"
+            },
+            "schemaIdentifier": "BridgeCylinderAPI",
+            "schemaKind": "singleApplyAPI"
+          }
+        }
+      }
+    }
+  ]
+}

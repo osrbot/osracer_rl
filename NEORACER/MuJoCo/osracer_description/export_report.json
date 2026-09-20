@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "format": "osurdf-mjcf-export-report",
+  "robot": "osracer_arc_e01_prtnew_asm",
+  "structuralGeneration": {
+    "status": "passed",
+    "xmlApi": "System.Xml.Linq",
+    "inertiaSource": "CAD mass, COM, and full inertia from RobotDocument",
+    "visualCollisionSeparated": true
+  },
+  "officialCompilation": {
+    "status": "passed",
+    "validator": "bundled-official-mujoco-tools",
+    "muJoCoVersion": "3.12.0",
+    "message": "Official MuJoCo compiled to MJB and independently loaded and advanced one zero-control step for both the original XML and MJB: robot.xml, scene.xml. / MuJoCo 官方工具已完成 MJB 编译，原始 XML 与 MJB 均已独立载入并执行一步零控制仿真。"
+  },
+  "outputs": [
+    "robot.xml",
+    "scene.xml",
+    "assets/visual",
+    "assets/collision",
+    "name_map.json",
+    "export_report.json"
+  ],
+  "counts": {
+    "links": 10,
+    "joints": 9,
+    "visuals": 10,
+    "collisions": 10,
+    "meshAssets": 20,
+    "textureAssets": 0,
+    "actuators": 6
+  },
+  "canonicalMeshUris": [
+    "meshes/collision/base_link.STL",
+    "meshes/collision/camera_link.STL",
+    "meshes/collision/imu_link.STL",
+    "meshes/collision/laser.STL",
+    "meshes/collision/left_front_wheel_link.STL",
+    "meshes/collision/left_rear_wheel_link.STL",
+    "meshes/collision/left_steering_hinge_link.STL",
+    "meshes/collision/right_front_wheel_link.STL",
+    "meshes/collision/right_rear_wheel_link.STL",
+    "meshes/collision/right_steering_hinge_link.STL",
+    "meshes/visual/base_link.STL",
+    "meshes/visual/camera_link.STL",
+    "meshes/visual/imu_link.STL",
+    "meshes/visual/laser.STL",
+    "meshes/visual/left_front_wheel_link.STL",
+    "meshes/visual/left_rear_wheel_link.STL",
+    "meshes/visual/left_steering_hinge_link.STL",
+    "meshes/visual/right_front_wheel_link.STL",
+    "meshes/visual/right_rear_wheel_link.STL",
+    "meshes/visual/right_steering_hinge_link.STL"
+  ],
+  "jointMappings": {
+    "fixed": 3,
+    "revolute": 0,
+    "continuous": 6,
+    "prismatic": 0,
+    "floating": 0
+  },
+  "warnings": [],
+  "validationScope": {
+    "en": {
+      "structuralGenerationPassed": "The Robot Bundle manifest/checksums and canonical RobotDocument validation passed, and the exporter wrote structured MJCF XML, copied assets, and stable name mappings. This status does not mean MuJoCo parsed or simulated the model.",
+      "officialCompilationPassed": "A passed officialCompilation status means the injected validator reported success. For validator 'bundled-official-mujoco-tools', both robot.xml and scene.xml were compiled to MJB; the original XML and compiled MJB were independently loaded and advanced for one zero-control step with the reported MuJoCo version. Canonical XML rewriting is not required because it can round small nonzero inertia values to zero.",
+      "notCovered": [
+        "Source CAD/URDF engineering correctness or physical fidelity.",
+        "Long-horizon numerical stability, contact tuning, controller quality, task behavior, performance, or rendering fidelity."
+      ]
+    },
+    "zh-CN": {
+      "structuralGenerationPassed": "Robot Bundle 清单/校验和及规范 RobotDocument 验证已通过，导出器已写入结构化 MJCF XML、复制资产并生成稳定名称映射；该状态不代表 MuJoCo 已解析或运行模型。",
+      "officialCompilationPassed": "officialCompilation 为 passed 仅表示注入的验证器报告成功。对于 bundled-official-mujoco-tools，robot.xml 与 scene.xml 均使用报告版本的 MuJoCo 编译为 MJB；原始 XML 和编译后的 MJB 均独立载入并执行一步零控制仿真。不要求重写规范 XML，因为该过程可能将非零的小惯性值舍入为零。",
+      "notCovered": [
+        "源 CAD/URDF 的工程正确性或物理保真度。",
+        "长时间数值稳定性、接触调参、控制器质量、任务行为、性能或渲染保真度。"
+      ]
+    }
+  },
+  "notGeneratedCapabilities": {
+    "en": [
+      "Custom transmissions, automatic gain tuning, controllers, or control policies.",
+      "Sensors, keyframes, explicit contact pairs, friction/contact-solver tuning, or simulation timestep tuning.",
+      "World geometry, ground plane, lights, cameras, task environments, rewards, observations, resets, or domain randomization.",
+      "RL training code or task definitions; scene.xml only includes robot.xml.",
+      "Unsupported mesh or texture format conversion."
+    ],
+    "zh-CN": [
+      "自定义传动、自动增益整定、控制器或控制策略。",
+      "传感器、关键帧、显式接触对、摩擦/接触求解器调参或仿真步长调参。",
+      "世界几何体、地面、灯光、相机、任务环境、奖励、观测、重置或域随机化。",
+      "强化学习训练代码或任务定义；scene.xml 仅引用 robot.xml。",
+      "不受支持的网格或纹理格式转换。"
+    ]
+  },
+  "intentionallyNotGenerated": [
+    "automatic gain tuning",
+    "control policies",
+    "RL task definitions"
+  ],
+  "simulation": {
+    "baseMode": "source",
+    "rootFreeJoint": false,
+    "gainUnits": "SI",
+    "gear": 1
+  }
+}
