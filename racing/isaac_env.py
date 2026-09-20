@@ -46,7 +46,7 @@ class RaceIsaacEnv:
         for i in range(num_cars):
             path = f'/World/Car{i}'
             stage.DefinePrim(path, 'Xform').GetReferences().AddReference(
-                str(ROOT/'NEORACER/USD/osracer_description/robot.usd'), '/Robot')
+                str(ROOT/'OSRACER/USD/osracer_description/robot.usd'), '/Robot')
         for prim in list(stage.Traverse()):
             if not str(prim.GetPath()).startswith('/World/Car'): continue
             if prim.HasAPI(UsdPhysics.RigidBodyAPI):
@@ -137,7 +137,7 @@ class RaceIsaacEnv:
                     api.CreateContactOffsetAttr(.001); api.CreateRestOffsetAttr(0.)
                     UsdShade.MaterialBindingAPI.Apply(collider).Bind(material, materialPurpose='physics')
             self.robots.append(self.world.scene.add(SingleArticulation(
-                prim_path=f'/World/Car{i}', name=f'neoracer{i}')))
+                prim_path=f'/World/Car{i}', name=f'osracer{i}')))
         # Boundaries are physical boxes with the same height used by ray queries.
         elevated=getattr(track,'has_elevation',False)
         boundaries=track.boundary_segments_3d() if elevated else track.boundary_segments()

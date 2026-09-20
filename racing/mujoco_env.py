@@ -1,4 +1,4 @@
-"""Native multi-car NEORACER dynamics with independent six-actuator controls.
+"""Native multi-car OSRACER dynamics with independent six-actuator controls.
 
 Wheel commands are LF, RF, LR, RR radians/second (RR negative forward).
 Steering commands are left/right radians. The validated hairpin adapter's
@@ -134,10 +134,10 @@ def build_model(track, num_cars=2, path=None):
     if Path(track_id).name != track_id or track_id in ('', '.', '..'):
         raise ValueError('track.id must be a filename-safe identifier')
     path = Path(path or ROOT / 'output/racing/mujoco' / f'{track_id}.xml')
-    with tempfile.TemporaryDirectory(prefix='neoracer-mj-') as temporary:
+    with tempfile.TemporaryDirectory(prefix='osracer-mj-') as temporary:
         tree = ET.parse(build_base_model(Path(temporary)/'base.xml'))
     root = tree.getroot()
-    root.set('model', f'neoracer_race_{track_id}')
+    root.set('model', f'osracer_race_{track_id}')
     world, asset, actuators = root.find('worldbody'), root.find('asset'), root.find('actuator')
     template = copy.deepcopy(world.find('body'))
     world.remove(world.find('body'))

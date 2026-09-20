@@ -23,7 +23,7 @@ def main():
               duration_s=duration,width=1920,height=540,fps=30,decode_verified=True,
               presentation='Independent native simulations aligned at first control step; shorter completed run holds its last frame.')
     (OUT/'comparison.json').write_text(json.dumps(meta,indent=2))
-    lines=['# NEORACER 180° 回头弯：训练与 sim2sim 结果','',
+    lines=['# OSRACER 180° 回头弯：训练与 sim2sim 结果','',
         '已在 Isaac Sim 6.0.1 / PhysX 中完成 100 个 CEM 训练回合、15 个固定条件的候选选择回合，并把同一策略直接迁移到 MuJoCo。四轮速度目标与左右转向关节位置目标以 30 Hz 更新。','',
         '[并排视频](sim2sim_comparison.mp4) · [Isaac 原生视频](isaac_hairpin.mp4) · [MuJoCo 原生视频](mujoco_hairpin.mp4)','',
         '| 引擎 | 最终评估成功 | 平均耗时 | 平均 RMS 横向误差 | 最坏横向误差 |',

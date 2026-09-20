@@ -37,9 +37,9 @@ SolidWorks 装配体
 
 ### 资产来源与导出依赖
 
-`NEORACER/` 中的车辆描述是通过 [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro) 导出的资产。该工具维护从 SolidWorks 到 URDF 的工作流，并可输出 ROS、OpenUSD 与 MuJoCo 目标。它是本项目的**外部依赖和资产来源**，而不是复制进本仓库的代码；几何、惯量、关节语义、碰撞选择以及目标仿真器验证均是独立研究责任。
+`OSRACER/` 中的车辆描述是通过 [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro) 导出的资产。该工具维护从 SolidWorks 到 URDF 的工作流，并可输出 ROS、OpenUSD 与 MuJoCo 目标。它是本项目的**外部依赖和资产来源**，而不是复制进本仓库的代码；几何、惯量、关节语义、碰撞选择以及目标仿真器验证均是独立研究责任。
 
-为兼容既有导出资产和工作区，目录 `NEORACER/`、环境变量 `NEORACER_ISAAC_DIR` 与 `neoracer-*` 内部标识仍被保留。公开项目名称及审核后的演示媒体统一为 **OSRACER**。
+目录 `OSRACER/`、环境变量 `OSRACER_ISAAC_DIR` 与 `osracer-*` 是规范的资产、运行时和包标识。公开项目名称及审核后的演示媒体统一为 **OSRACER**。
 
 ## 最小复现实验
 
@@ -58,7 +58,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
 ```
 
 ```bash
-export NEORACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
+export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
 bash scripts/run_isaac.sh scripts/run_racing.py \
   --engine isaac --track bahrain --seconds 10 --episodes 1 --tag smoke_isaac
 ```
@@ -69,7 +69,7 @@ bash scripts/run_isaac.sh scripts/run_racing.py \
 
 | 路径 | 在研究记录中的职责 |
 | --- | --- |
-| `NEORACER/` | 导出的 ROS、OpenUSD 与 MuJoCo 车辆描述；资产来源工件。 |
+| `OSRACER/` | 导出的 ROS、OpenUSD 与 MuJoCo 车辆描述；资产来源工件。 |
 | `racing/` | 原生环境、传感器契约、控制器、安全层、资格评估与审计。 |
 | `tracks/` | 24 条唯一赛道、来源记录和缩放假设。 |
 | `scripts/` | 环境检查、批处理、录像与确定性的公开媒体品牌重制。 |

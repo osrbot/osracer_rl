@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native MuJoCo free-body NEORACER for the Isaac-to-MuJoCo hairpin task.
+"""Native MuJoCo free-body OSRACER for the Isaac-to-MuJoCo hairpin task.
 
 All motion after reset comes from actuator forces and contact integration.
 Targets are wheel joint velocities (LF, RF, LR, RR; RR negative forward),
@@ -27,7 +27,7 @@ import mujoco
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSET = ROOT / "NEORACER/MuJoCo/osracer_description"
+ASSET = ROOT / "OSRACER/MuJoCo/osracer_description"
 WHEEL_NAMES = tuple(f"{side}_{axle}_wheel_joint" for axle in ("front", "rear") for side in ("left", "right"))
 STEER_NAMES = ("left_steering_hinge_joint", "right_steering_hinge_joint")
 WHEEL_RADIUS = 0.045

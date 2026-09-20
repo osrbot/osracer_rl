@@ -1,4 +1,4 @@
-# NEORACER 高速进弯与 180° 发卡弯
+# OSRACER 高速进弯与 180° 发卡弯
 
 本实验在 Isaac Sim / PhysX 中训练 12 参数反馈策略，将同一份策略参数直接用于 MuJoCo。目标是先在直道达到至少 5 m/s，再制动、产生可测量的后轴侧滑并完成 180° 发卡弯。两端均使用原生接触动力学、四轮速度伺服和前轮转向伺服；重置后的运动由执行器和接触积分产生。
 
@@ -6,7 +6,7 @@
 
 ## 复现
 
-在仓库根目录执行。需要可运行的 Isaac Sim 6.0.1、MuJoCo、NumPy、Pillow，以及 `ffmpeg` / `ffprobe`。Isaac 启动脚本默认使用 `/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64`；其他安装位置可通过 `NEORACER_ISAAC_DIR` 指定。
+在仓库根目录执行。需要可运行的 Isaac Sim 6.0.1、MuJoCo、NumPy、Pillow，以及 `ffmpeg` / `ffprobe`。Isaac 启动脚本默认使用 `/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64`；其他安装位置可通过 `OSRACER_ISAAC_DIR` 指定。
 
 ```bash
 cd /home/osrbot/Desktop/osracer_work

@@ -19,7 +19,7 @@ class IsaacEnv:
         from isaacsim.core.utils.stage import open_stage, get_current_stage
         from isaacsim.core.utils.types import ArticulationAction
         self.Action = ArticulationAction
-        open_stage(str(ROOT/'NEORACER/USD/osracer_description/robot.usd'))
+        open_stage(str(ROOT/'OSRACER/USD/osracer_description/robot.usd'))
         stage = get_current_stage()
         stage.SetEditTarget(stage.GetSessionLayer())
         self.stage = stage
@@ -58,7 +58,7 @@ class IsaacEnv:
             phys = PhysxSchema.PhysxCollisionAPI.Apply(tire.GetPrim())
             phys.CreateContactOffsetAttr(.001); phys.CreateRestOffsetAttr(0.)
             UsdShade.MaterialBindingAPI.Apply(tire.GetPrim()).Bind(mat, materialPurpose='physics')
-        self.robot = self.world.scene.add(SingleArticulation(prim_path='/Robot', name='neoracer'))
+        self.robot = self.world.scene.add(SingleArticulation(prim_path='/Robot', name='osracer'))
         self.world.reset()
         self.wids = np.array([self.robot.dof_names.index(n) for n in WHEELS])
         self.sids = np.array([self.robot.dof_names.index(n) for n in STEERS])

@@ -57,7 +57,7 @@ Two independent-width road variants are generated:
 
 The RC road is a **nonuniformly widened training derivative**, not a uniformly
 scaled replica. In particular 12 m × 0.05 would be 0.6 m, whereas this road is
-1.5 m wide to allow multiple NEORACER cars to run side by side. The original
+1.5 m wide to allow multiple OSRACER cars to run side by side. The original
 data supplies no surveyed road widths; the full-scale 12 m width is also an
 assumption. Uniform arc sampling slightly shortens sharp polygonal corners;
 both the input projected length and output polyline length are recorded.

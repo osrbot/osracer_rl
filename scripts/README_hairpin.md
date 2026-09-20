@@ -1,4 +1,4 @@
-# NEORACER：Isaac Sim 6.0 → MuJoCo 180° 回头弯
+# OSRACER：Isaac Sim 6.0 → MuJoCo 180° 回头弯
 
 这是使用真实关节驱动与轮地接触的低速闭环驾驶任务。策略在本机 Isaac Sim **6.0.1 / PhysX** 中用交叉熵方法（CEM）训练，再将同一份 JSON 参数和 Python 推理代码直接用于 MuJoCo。不是 PPO 神经网络，也不是轨迹动画。
 
@@ -28,7 +28,7 @@ python3 scripts/summarize_hairpin.py
 
 可用 `--baseline` 检查未训练的初始反馈策略。已有训练日志时，`--engine isaac --select` 可在固定种子上重新选择候选。MuJoCo 模式禁止训练或选择检查点。
 
-`run_isaac.sh` 默认使用 `/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64`；可用 `NEORACER_ISAAC_DIR` 替换。启动器仅对当前 Isaac 子进程预加载配套 NCCL 库。MuJoCo 脚本优先使用已安装包，否则复用本机 uv 缓存；渲染使用 EGL。录像依赖 ffmpeg、Pillow。
+`run_isaac.sh` 默认使用 `/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64`；可用 `OSRACER_ISAAC_DIR` 替换。启动器仅对当前 Isaac 子进程预加载配套 NCCL 库。MuJoCo 脚本优先使用已安装包，否则复用本机 uv 缓存；渲染使用 EGL。录像依赖 ffmpeg、Pillow。
 
 ## 任务与策略接口
 

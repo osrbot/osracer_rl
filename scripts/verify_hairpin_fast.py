@@ -193,10 +193,10 @@ def main():
         report['errors'].append(f'policy: {type(error).__name__}: {error}')
     try:
         original = read(ROOT/'output/usability/openusd/validation.json')
-        check('original_usd_unchanged', digest(ROOT/'NEORACER/USD/osracer_description/robot.usd') == original['sha256'])
+        check('original_usd_unchanged', digest(ROOT/'OSRACER/USD/osracer_description/robot.usd') == original['sha256'])
         original = read(ROOT/'output/usability/mujoco/report.json')
         for name in ('robot.xml', 'scene.xml'):
-            check(f'original_{name}_unchanged', digest(ROOT/'NEORACER/MuJoCo/osracer_description'/name) == original['source_files_sha256'][name])
+            check(f'original_{name}_unchanged', digest(ROOT/'OSRACER/MuJoCo/osracer_description'/name) == original['source_files_sha256'][name])
     except Exception as error:
         report['errors'].append(f'original assets: {type(error).__name__}: {error}')
     report['low_speed_theory'] = dict(wheelbase_m=.28764, track_m=.212, assumed_per_wheel_stop_rad=.45,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-isaac_dir=${NEORACER_ISAAC_DIR:-/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64}
+isaac_dir=${OSRACER_ISAAC_DIR:-/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64}
 sdk=output/racing/bridge_adapter_sdk
 if [[ ! -f "$sdk/omni_include/omni/physx/IPhysx.h" ]]; then python3 experimental/bridge_contact_adapter/fetch_sdk.py; fi
 usd_lib="$isaac_dir/extscache/omni.usd.libs-1.0.3+f9bf0dda.lx64.r.cp312/bin"

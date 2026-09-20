@@ -37,9 +37,9 @@ SolidWorks assembly
 
 ### Asset provenance and export dependency
 
-The vehicle descriptions in `NEORACER/` are export artifacts produced with [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro), a maintained SolidWorks-to-URDF workflow with ROS, OpenUSD, and MuJoCo targets. It is an **external dependency and provenance source**, not vendored code in this repository. Geometry, inertia, joint semantics, collision choices, and target-simulator verification remain independent research responsibilities.
+The vehicle descriptions in `OSRACER/` are export artifacts produced with [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro), a maintained SolidWorks-to-URDF workflow with ROS, OpenUSD, and MuJoCo targets. It is an **external dependency and provenance source**, not vendored code in this repository. Geometry, inertia, joint semantics, collision choices, and target-simulator verification remain independent research responsibilities.
 
-`NEORACER/`, `NEORACER_ISAAC_DIR`, and `neoracer-*` are legacy compatibility identifiers for existing exported assets and workspaces. The public project name and reviewed presentation media are **OSRACER**.
+`OSRACER/`, `OSRACER_ISAAC_DIR`, and `osracer-*` are the canonical asset, runtime, and package identifiers. The public project name and reviewed presentation media are **OSRACER**.
 
 ## Minimal reproduction
 
@@ -58,7 +58,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
 ```
 
 ```bash
-export NEORACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
+export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
 bash scripts/run_isaac.sh scripts/run_racing.py \
   --engine isaac --track bahrain --seconds 10 --episodes 1 --tag smoke_isaac
 ```
@@ -69,7 +69,7 @@ Large raw experiment archives are deliberately excluded from the public reposito
 
 | Path | Research role |
 | --- | --- |
-| `NEORACER/` | Exported ROS, OpenUSD, and MuJoCo vehicle descriptions; provenance artifact. |
+| `OSRACER/` | Exported ROS, OpenUSD, and MuJoCo vehicle descriptions; provenance artifact. |
 | `racing/` | Native environments, sensor contract, controller, safety layer, qualification, and auditing. |
 | `tracks/` | 24 unique circuit assets, source records, and scaling assumptions. |
 | `scripts/` | Environment checks, batch execution, recording, and deterministic public-media rebranding. |

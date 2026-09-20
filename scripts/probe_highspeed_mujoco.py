@@ -95,7 +95,7 @@ def run(env, name, duration, control, tail_after=0):
 
 def main():
     start=time.monotonic()
-    with tempfile.TemporaryDirectory(prefix='neoracer-speed-probe-') as tmp:
+    with tempfile.TemporaryDirectory(prefix='osracer-speed-probe-') as tmp:
         env=MujocoEnv(Path(tmp)/'mujoco_model.xml')
         results=[]
         for goal in (5.,10.):

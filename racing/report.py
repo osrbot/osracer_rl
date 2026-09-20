@@ -325,8 +325,8 @@ def render_html(data):
     th = "".join(f'<th><button data-sort="{k}" aria-label="按{v}排序">{v} ↕</button></th>' for k,v in headings)
     sources = "".join(f'<li><a href="{e(s["path"])}">{e(s["path"])}</a> · <code>{s["sha256"]}</code></li>' for s in data["sources"])
     payload = json.dumps(data,ensure_ascii=False,allow_nan=False).replace("<","\\u003c")
-    return f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>NEORACER 阶段性竞速验收</title><style>{CSS}</style></head>
-<body><header><small>NEORACER / NATIVE PHYSICS / EVIDENCE</small><h1>{headline}</h1><p>标签 <strong>{e(data['tag'])}</strong> · 当前为阶段性验收，尚无全部竞速目标通过的证据。有效圈、超车和持续侧滑分别衡量，不把资产覆盖或未测试项目记作成功。</p><a href="RESULTS.md">下载 Markdown 报告</a> · <a href="../../docs/ENGINEERING.md">工程说明</a></header><main>
+    return f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>OSRACER 阶段性竞速验收</title><style>{CSS}</style></head>
+<body><header><small>OSRACER / NATIVE PHYSICS / EVIDENCE</small><h1>{headline}</h1><p>标签 <strong>{e(data['tag'])}</strong> · 当前为阶段性验收，尚无全部竞速目标通过的证据。有效圈、超车和持续侧滑分别衡量，不把资产覆盖或未测试项目记作成功。</p><a href="RESULTS.md">下载 Markdown 报告</a> · <a href="../../docs/ENGINEERING.md">工程说明</a></header><main>
 <section class="cards">{''.join(f'<div class="panel stat"><strong>{n}</strong><span>{label}</span></div>' for n,label in cards)}</section>
 <section class="notice"><strong>结果解读</strong><p>策略类别由检查点标识：{stats['untrained_baseline']} 个回合为未训练反馈基线，{stats['cem_trained']} 个回合为 CEM 训练策略。其余记录若来源未注明，不推定经过训练。传感器输入不包含全局位姿。</p><p>记录中的有效圈须经独立轨迹审计。累计侧滑时间不等于连续漂移通过；后轮增速也不等于车体漂移。</p><p>其中 {stats['prior_only']} 个回合使用不同版本/源码执行检查点参数，只能称为参数先验迁移。另有 {stats['geometry_changed']} 个回合对应已修订的旧赛道，不能作为当前布局的验收。</p></section>
 <section class="panel"><h2>竞速结果</h2><p class="muted">每行一个真实回合；不同赛道长度不相同。圈时仅显示记录为有效的回合。点击列名排序，筛选不改变上方全标签统计。</p>
@@ -341,7 +341,7 @@ def render_html(data):
 
 def render_markdown(data):
     s = data["stats"]
-    lines = ["# NEORACER 阶段性竞速验收", "",
+    lines = ["# OSRACER 阶段性竞速验收", "",
         f"标签 `{data['tag']}`：读取 {s['episodes']} 个回合；运行记录称有效圈 {s['reported_valid']} 个，独立确认有效圈 {s['verified_valid']} 个。",
         f"证据验证通过 {s['integrity_passed']} 个，失败 {s['integrity_failed']} 个，尚未独立验证 {s['unverified']} 个。当前没有全部竞速目标通过的证据。", "",
         f"策略类别：未训练反馈基线 {s['untrained_baseline']} 个回合；CEM 训练策略 {s['cem_trained']} 个回合。其余记录不推定经过训练。", "",

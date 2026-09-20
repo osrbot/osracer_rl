@@ -12,7 +12,7 @@ for racing_arg in "$@"; do
     -h|--help)
       echo "Usage: bash scripts/setup_racing.sh [--test] [--mujoco-only]"
       echo "Creates .venv and installs -e '.[build]'. RACING_PYTHON selects Python >=3.11."
-      echo "NEORACER_ISAAC_DIR selects an existing Isaac Sim 6.0.1 installation."
+      echo "OSRACER_ISAAC_DIR selects an existing Isaac Sim 6.0.1 installation."
       exit 0 ;;
     *) echo "Unknown option: $racing_arg" >&2; exit 2 ;;
   esac

@@ -38,7 +38,7 @@ def main():
         subprocess.run(['ffmpeg','-v','error','-xerror','-i',str(file),'-f','null','-'],check=True)
         media.append(dict(path=str(file),sha256=hashlib.sha256(file.read_bytes()).hexdigest(),decode_verified=True))
     (OUT/'comparison.json').write_text(json.dumps(media,indent=2))
-    lines=['# NEORACER 高速接近 + 180° 侧滑回头弯','',
+    lines=['# OSRACER 高速接近 + 180° 侧滑回头弯','',
         '[正常速度并排视频](sim2sim_fast_comparison.mp4) · [0.25 倍速观察侧滑](sim2sim_fast_slowmotion.mp4)','',
         '同一策略在 Isaac Sim 6.0.1 中训练后直接用于 MuJoCo。策略目标是以至少 5 m/s 接近弯道，再制动、利用后轴侧滑通过 180° 回头弯并加速驶出。弯道中心线半径仍为 0.8 m；前后直道各 6 m，道路宽 1.2 m。','',
         '**5–10 m/s 是接近弯道的目标范围，不是弯心速度。** 下面将制动前峰值、弯道入口和弯心实测速度分别列出，数值来自后轴参考点的真实平移速度。','',

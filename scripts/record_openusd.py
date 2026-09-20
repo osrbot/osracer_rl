@@ -13,7 +13,7 @@ p.add_argument('--output', type=Path, default=root/'output/usability/openusd')
 p.add_argument('--preview-only', action='store_true')
 args = p.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
-source = root/'NEORACER/USD/osracer_description/robot.usd'
+source = root/'OSRACER/USD/osracer_description/robot.usd'
 report = {'source': str(source), 'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
           'runtime': 'Isaac Sim 6.0.1', 'status': 'started', 'fps': 30, 'resolution': [1280,720],
           'scope': 'Native USD load/render, short zero-control physics smoke, fixture-based joint position demonstration; no driving controller validation.'}
@@ -45,7 +45,7 @@ try:
     report['bounds_m'] = [lo.tolist(), hi.tolist()]
     print('USD_ASSET_LOADED', report['asset_counts'], 'bounds', report['bounds_m'], flush=True)
     world = World(physics_dt=1/240, rendering_dt=1/30, stage_units_in_meters=1.0)
-    robot = world.scene.add(SingleArticulation(prim_path='/Robot', name='neoracer'))
+    robot = world.scene.add(SingleArticulation(prim_path='/Robot', name='osracer'))
     world.reset()
     start_pos, _ = robot.get_world_pose()
     for _ in range(60):
@@ -116,7 +116,7 @@ try:
     if not args.preview_only:
         font=ImageFont.truetype('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',24)
         small=ImageFont.truetype('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',19)
-        video=args.output/'NEORACER_OpenUSD_IsaacSim.mp4'
+        video=args.output/'OSRACER_OpenUSD_IsaacSim.mp4'
         encoder=subprocess.Popen(['ffmpeg','-y','-hide_banner','-loglevel','warning','-f','rawvideo','-pix_fmt','rgb24',
                                   '-s','1280x720','-r','30','-i','pipe:0','-an','-c:v','libx264','-preset','fast','-crf','18',
                                   '-pix_fmt','yuv420p','-movflags','+faststart',str(video)],stdin=subprocess.PIPE)

@@ -27,7 +27,7 @@ No infinite or moving hidden support is used. A box has its real finite sides an
 
 ## Build from a clean project
 
-Prerequisites: installed Isaac Sim **6.0.1**, C++17 compiler, Eigen, FCL 0.7 and libccd. Ubuntu packages: `g++ libeigen3-dev libfcl-dev libccd-dev`. Set `NEORACER_ISAAC_DIR` if Isaac is installed outside the project's default location.
+Prerequisites: installed Isaac Sim **6.0.1**, C++17 compiler, Eigen, FCL 0.7 and libccd. Ubuntu packages: `g++ libeigen3-dev libfcl-dev libccd-dev`. Set `OSRACER_ISAAC_DIR` if Isaac is installed outside the project's default location.
 
 ```sh
 python3 experimental/bridge_contact_adapter/fetch_sdk.py

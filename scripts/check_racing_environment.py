@@ -46,7 +46,7 @@ def inspect_environment(mujoco_only=False):
             add(distribution, False, f'{type(exc).__name__}: {exc}')
     try:
         add('editable_project', importlib.util.find_spec('racing') is not None,
-            importlib.metadata.version('neoracer-racing'))
+            importlib.metadata.version('osracer-racing'))
     except Exception as exc:
         add('editable_project', False, str(exc))
     for command in ('ffmpeg', 'ffprobe'):
@@ -70,7 +70,7 @@ def inspect_environment(mujoco_only=False):
             add('nvidia_gpu', False, str(exc), required=not mujoco_only)
     else:
         add('nvidia_gpu', False, 'nvidia-smi is not on PATH', required=not mujoco_only)
-    isaac = Path(os.environ.get('NEORACER_ISAAC_DIR', DEFAULT_ISAAC)).expanduser().resolve()
+    isaac = Path(os.environ.get('OSRACER_ISAAC_DIR', DEFAULT_ISAAC)).expanduser().resolve()
     version_path = isaac/'VERSION'
     version = version_path.read_text().strip() if version_path.is_file() else 'missing VERSION file'
     launcher = isaac/'python.sh'
@@ -81,7 +81,7 @@ def inspect_environment(mujoco_only=False):
     add('isaac_nccl_library', nccl.is_file(), str(nccl), required=not mujoco_only)
     icd = Path('/etc/vulkan/icd.d/nvidia_icd.json')
     add('isaac_vulkan_icd', icd.is_file(), str(icd), required=not mujoco_only)
-    model = ROOT/'NEORACER/MuJoCo/osracer_description/robot.xml'
+    model = ROOT/'OSRACER/MuJoCo/osracer_description/robot.xml'
     try:
         xml = ET.parse(model)
         assets = [model.parent/mesh.attrib['file'] for mesh in xml.findall('./asset/mesh')]
@@ -90,7 +90,7 @@ def inspect_environment(mujoco_only=False):
             f'{len(assets)} referenced CAD meshes; {len(missing)} missing', model=str(model), missing=missing)
     except Exception as exc:
         add('mujoco_source_assets', False, str(exc), model=str(model))
-    usd = ROOT/'NEORACER/USD/osracer_description/robot.usd'
+    usd = ROOT/'OSRACER/USD/osracer_description/robot.usd'
     visual = list((usd.parent/'meshes/visual').glob('*.STL'))
     collision = list((usd.parent/'meshes/collision').glob('*.STL'))
     usd_ok = usd.is_file() and usd.stat().st_size > 0 and len(visual) >= 10 and len(collision) >= 10
@@ -117,7 +117,7 @@ def main():
     if args.json:
         print(encoded)
     else:
-        print(f"NEORACER environment: {'PASS' if report['passed'] else 'FAIL'}")
+        print(f"OSRACER environment: {'PASS' if report['passed'] else 'FAIL'}")
         print(f'Python: {sys.executable}')
         for item in report['checks']:
             mark = 'OK' if item['passed'] else ('FAIL' if item['required'] else 'OPTIONAL')
@@ -125,7 +125,7 @@ def main():
         print('Isaac launcher: bash scripts/run_isaac.sh scripts/run_racing.py ...')
         if not report['passed']:
             print("Project packages: .venv/bin/python -m pip install -e '.[build]'")
-            print('Existing Isaac location: export NEORACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1')
+            print('Existing Isaac location: export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1')
     raise SystemExit(0 if report['passed'] else 1)
 
 

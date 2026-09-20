@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Record the unchanged NEORACER MJCF with native MuJoCo EGL rendering.
+"""Record the unchanged OSRACER MJCF with native MuJoCo EGL rendering.
 Run: MUJOCO_GL=egl python3 scripts/record_mujoco.py
 Uses installed MuJoCo, or the existing local uv wheel cache; downloads nothing.
 """
@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'output/usability/mujoco');p.add_argument('--seconds',type=float,default=18);args=p.parse_args()
 args.out.mkdir(parents=True,exist_ok=True)
-asset=ROOT/'NEORACER/MuJoCo/osracer_description'
+asset=ROOT/'OSRACER/MuJoCo/osracer_description'
 report={'engine':'MuJoCo','version':mujoco.__version__,'python':sys.executable,'render_backend':os.environ['MUJOCO_GL'],'source':str(asset),'source_files_sha256':{},'original_load_and_step':{},'limitations':['Fixed base: no free joint, so this asset cannot drive through the world.','No floor/world geometry; contact behavior and vehicle driving are not validated.','Six source actuators exist, but the stock controls do not reliably track targets in the short test. Controller tuning and contact diagnosis remain necessary.','The articulation segment uses explicitly labeled qpos + mj_forward kinematics; it does not demonstrate actuator tracking.','Finite short-run state and zero numerical warnings do not establish long-horizon physical fidelity.'],'presentation_changes':['In-memory offscreen buffer resolution and lighting only; source assets unchanged.','Collision geom group 3 is hidden from rendering; all physics collision geoms remain enabled.','Camera and video text are presentation overlays.']}
 for filename in ('robot.xml','scene.xml'):
     path=asset/filename;report['source_files_sha256'][filename]=hashlib.sha256(path.read_bytes()).hexdigest()
@@ -45,7 +45,7 @@ option=mujoco.MjvOption();option.geomgroup[3]=0
 cam=mujoco.MjvCamera();cam.lookat[:]=[.14,0,.055];cam.distance=.8
 font='/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 f=ImageFont.truetype(font,22);small=ImageFont.truetype(font,17);big=ImageFont.truetype(font,32)
-video=args.out/'neoracer_mujoco_usability.mp4'
+video=args.out/'osracer_mujoco_usability.mp4'
 cmd=['ffmpeg','-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s','1280x720','-r','30','-i','-','-an','-c:v','libx264','-preset','fast','-crf','19','-pix_fmt','yuv420p','-movflags','+faststart',str(video)]
 proc=subprocess.Popen(cmd,stdin=subprocess.PIPE)
 frames=int(args.seconds*30);mujoco.mj_resetData(m,d);dynamic_started=False

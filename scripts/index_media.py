@@ -155,7 +155,7 @@ def gallery(rows, path, root=ROOT):
             body.append('</div>')
         sections.append(f'<section><h2>{title}（{len(subset)}）</h2>{"".join(body)}</section>')
     page = f'''<!doctype html><html lang="zh"><meta charset="utf-8">
-<title>NEORACER 素材库</title>
+<title>OSRACER 素材库</title>
 <style>
 :root{{color-scheme:dark}}body{{margin:0;padding:24px;background:#12151c;color:#e6e9f0;
 font:15px/1.5 system-ui,-apple-system,"Noto Sans CJK SC",sans-serif}}
@@ -169,7 +169,7 @@ h3{{font-size:14px;color:#9aa4b6;margin:20px 0 10px;font-weight:600}}
 .badge{{display:inline-block;padding:1px 8px;border-radius:999px;background:#2a3140;color:#cfd6e4;font-size:12px}}
 .card.control .badge{{background:#5a2a2a;color:#ffd9d9}}
 </style>
-<h1>NEORACER 素材库</h1>
+<h1>OSRACER 素材库</h1>
 <p>共 {len(rows)} 段原生录像，按“当前证据 / 失败对照组 / 历史批次”分组。点开即播，未播放的录像不占用带宽。</p>
 {"".join(sections)}
 </html>
