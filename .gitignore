@@ -46,5 +46,6 @@ output/
 # briefing deck is intentionally versioned because the public site distributes it.
 presentation/build/*
 !presentation/build/osracer_live_briefing.pptx
+presentation/video/build/
 site/_site/
 site/.cache/
