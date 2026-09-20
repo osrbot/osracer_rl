@@ -24,6 +24,9 @@ RACE_IMAGES = {
     "mujoco-race.png": "OSRACER | mujoco | Bahrain International Circuit",
     "perturb.png": "OSRACER | mujoco | Bahrain International Circuit",
 }
+STILL_IMAGES = {
+    "mujoco-preview.png": ("mujoco", None),
+}
 VIDEOS = {
     "isaac-bahrain.mp4": "race_isaac",
     "mujoco-bahrain.mp4": "race_mujoco",
@@ -95,9 +98,17 @@ def rebrand_video(path: Path, profile: str) -> None:
 def main() -> None:
     for name, title in RACE_IMAGES.items():
         rebrand_image(MEDIA / name, title)
+    for name, (profile, title) in STILL_IMAGES.items():
+        path = MEDIA / name
+        with Image.open(path) as source:
+            rewritten = draw_brand(source, profile, title)
+        with tempfile.NamedTemporaryFile(dir=path.parent, suffix=".png", delete=False) as temporary:
+            destination = Path(temporary.name)
+        rewritten.save(destination, format="PNG", optimize=True)
+        destination.replace(path)
     for name, profile in VIDEOS.items():
         rebrand_video(MEDIA / name, profile)
-    print("Rebranded 4 screenshots and 4 videos as OSRACER.")
+    print("Rebranded 5 screenshots and 4 videos as OSRACER.")
 
 
 if __name__ == "__main__":
