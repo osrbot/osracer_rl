@@ -137,7 +137,7 @@ try:
             frame=capture()
             draw=ImageDraw.Draw(frame)
             draw.rectangle((0,0,1280,64),fill=(13,20,31))
-            draw.text((28,13),'NEORACER  |  OpenUSD / Isaac Sim 6.0.1',font=font,fill='white')
+            draw.text((28,13),'OSRACER  |  OpenUSD / Isaac Sim 6.0.1',font=font,fill='white')
             draw.text((1120,19),f'{i/30:04.1f} / 20s',font=small,fill=(141,216,240))
             draw.rectangle((0,624,1280,720),fill=(13,20,31))
             draw.text((28,635),caption,font=font,fill=(145,224,242))

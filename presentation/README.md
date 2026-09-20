@@ -5,7 +5,7 @@
 ## 交付物
 
 - `build/osracer_live_briefing.pptx`：16:9 中文可编辑演示稿（由 `build_presentation.py` 生成）。
-- [讲稿](SPEAKER_NOTES.md)：12 页逐页直播话术、演示动作和不应越界的表述。
+- [讲稿](SPEAKER_NOTES.md)：13 页逐页直播话术、演示动作和不应越界的表述。
 - [媒体清单](MEDIA_MANIFEST.md)：每个视频/截图的用途、结论和来源。
 - `build_presentation.py`：不依赖私有素材的 PPTX 构建脚本。运行时需要 `python-pptx`。
 

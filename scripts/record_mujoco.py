@@ -68,7 +68,7 @@ for i in range(frames):
         title='03 / ORIGINAL ACTUATORS  -  SHORT DYNAMICS TEST';line='mj_step + source actuators  |  Target tracking requires tuning';cam.azimuth=55;cam.elevation=-25
     renderer.update_scene(d,camera=cam,scene_option=option)
     im=Image.fromarray(renderer.render());draw=ImageDraw.Draw(im)
-    draw.rectangle((0,0,1280,119),fill=(13,20,30));draw.text((38,20),'NEORACER  /  MuJoCo',font=big,fill=(238,244,250));draw.text((40,74),title,font=f,fill=(92,216,213))
+    draw.rectangle((0,0,1280,119),fill=(13,20,30));draw.text((38,20),'OSRACER  /  MuJoCo',font=big,fill=(238,244,250));draw.text((40,74),title,font=f,fill=(92,216,213))
     draw.rectangle((0,608,1280,720),fill=(13,20,30));draw.text((40,623),line,font=f,fill=(235,239,245));draw.text((40,660),'6 joints  /  6 actuators  /  fixed base  /  no floor  |  Not a vehicle-driving validation',font=small,fill=(168,180,196))
     draw.rectangle((0,712,int(1280*(i+1)/frames),720),fill=(92,216,213))
     proc.stdin.write(im.tobytes())

@@ -94,7 +94,7 @@ class Video:
         image = Image.fromarray(env.render())
         draw=ImageDraw.Draw(image)
         draw.rectangle((0,0,1280,79),fill=(15,22,34))
-        draw.text((25,12),f'NEORACER | 180-degree hairpin | {self.engine}',font=self.font,fill='white')
+        draw.text((25,12),f'OSRACER | 180-degree hairpin | {self.engine}',font=self.font,fill='white')
         label='Untrained initial feedback policy' if self.baseline else 'Isaac-trained CEM feedback policy'
         draw.text((25,48),label+' | Wheel velocity + steering position targets',font=self.small,fill=(130,215,229))
         draw.rectangle((0,658,1280,720),fill=(15,22,34))

@@ -63,7 +63,7 @@ class Video:
         from PIL import Image,ImageDraw
         im=Image.fromarray(env.render());d=ImageDraw.Draw(im)
         d.rectangle((0,0,1280,76),fill=(15,22,34))
-        d.text((18,10),f'NEORACER | {self.engine} | {self.track.name}',font=self.font,fill='white')
+        d.text((18,10),f'OSRACER | {self.engine} | {self.track.name}',font=self.font,fill='white')
         d.text((18,42),'1x playback | wheel/steering encoders + 15 Hz laser | no global actor pose',font=self.font,fill='#79dce8')
         d.rectangle((0,630,1280,720),fill=(15,22,34))
         s=row['states'][0];v=np.hypot(s['vx'],s['vy'])

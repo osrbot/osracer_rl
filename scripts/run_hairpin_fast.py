@@ -62,7 +62,7 @@ class Video:
         from PIL import Image,ImageDraw
         image=Image.fromarray(env.render());draw=ImageDraw.Draw(image)
         draw.rectangle((0,0,1280,78),fill=(15,22,34))
-        draw.text((24,12),f'NEORACER | High-speed entry + 180-degree hairpin | {self.engine}',font=self.font,fill='white')
+        draw.text((24,12),f'OSRACER | High-speed entry + 180-degree hairpin | {self.engine}',font=self.font,fill='white')
         label='Same Isaac-trained policy' if self.trained else 'Untrained initial policy'
         draw.text((24,46),'Real-time playback | Native contact dynamics | '+label,font=self.small,fill=(130,215,229))
         draw.rectangle((0,626,1280,720),fill=(15,22,34))
