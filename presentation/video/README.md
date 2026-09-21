@@ -1,8 +1,8 @@
 # OSRACER 技术讲解视频
 
-build_demo_video.py 从项目中已审核的媒体、冻结结果和训练记录生成可直接播放的中文技术讲解片。它采用 Microsoft Edge 的 zh-CN-YunyangNeural 男声，并把中文字幕烧录进 MP4；也会输出独立 SRT 和旁白音轨。
+build_demo_video.py 从项目中已审核的媒体、冻结结果和训练记录生成可直接播放的中文技术讲解片。它采用 Microsoft Edge 的 zh-CN-YunyangNeural 男声，并将中文字幕直接烧录进 MP4。为了避免播放器自动加载字幕导致重复显示，构建目录不会保留独立 SRT。
 
-讲解结构包括实验契约与控制变量、资产可用性、MuJoCo 策略迭代、全 24 条赛道的引擎对照、同一 v10c 配置下的速度控制变量、回头弯 A/B 与感知失败边界、复现实演步骤。
+讲解结构包括实验契约与控制变量、资产可用性、SolidWorks URDF Exporter Pro 的导出能力与贡献入口、MuJoCo 策略迭代、全 24 条赛道的引擎对照、同一 v10c 配置下的速度控制变量、回头弯 A/B 与感知失败边界、复现实演步骤。
 
 ## 生成
 

@@ -24,23 +24,25 @@ W, H, FPS = 1280, 720, 30
 
 SEGMENTS = [
     ("title", "OSRACER：从训练到双引擎赛道验证", "证据驱动的技术分享演示",
-     "欢迎来到 OSRACER 技术分享。这里不把一段看起来很快的视频当作结论，而是从训练策略、固定的验证条件，到 MuJoCo 与 Isaac Sim 的逐赛道结果，完整展示哪些能力已经证实，哪些边界仍然存在。"),
+     "欢迎来到 OSRACER 技术汇报。本次分享围绕一个清晰的问题展开：在约束明确的观测和物理条件下，策略究竟已经具备哪些能力？我们将从训练设计、固定验证条件，到 MuJoCo 和 Isaac Sim 的逐赛道结果，说明已有证据，也说明尚未解决的边界。"),
     ("contract", "先固定实验契约，再谈策略好坏", "控制变量：观测、赛道集合、种子、验证器和引擎口径",
-     "策略的观测契约固定为轮速、转角和十五赫兹单线激光，不给它全局定位，更不是离线轨迹回放。资格验证固定在二十四条 RC 赛道、双车起始条件和同一审计器下。MuJoCo 与 Isaac Sim 分开记账，七点二五与九米每秒也不混算。"),
+     "首先固定实验契约。策略只接收轮速、转角和十五赫兹单线激光，不使用全局定位，也不依赖轨迹回放。资格验证固定为二十四条 RC 赛道、双车起始条件和同一审计规则。MuJoCo 与 Isaac Sim 分别统计，七点二五和九米每秒也分别统计，这样每一个比较都有明确前提。"),
     ("assets", "资产层验证：先证明它能进入目标引擎", "OpenUSD / Isaac Sim 与 MuJoCo",
-     "在训练之前，先检查资产是否真正进入目标仿真器。OpenUSD 在 Isaac Sim 中完成网格、刚体、关节和短程 PhysX 步进；MuJoCo 的 robot.xml 与 scene.xml 各完成五百步且无数值警告。它们证明的是资产层可用性，不证明固定基座模型已经具备可靠驾驶能力。"),
+     "进入训练之前，先验证资产能否在目标引擎中正确工作。OpenUSD 在 Isaac Sim 中完成网格、刚体、关节和短程 PhysX 步进；MuJoCo 的 robot.xml 与 scene.xml 各完成五百步，并且没有数值警告。这证明的是资产层可用性，而不是固定基座模型已经具备可靠驾驶能力。"),
+    ("exporter", "SolidWorks URDF Exporter Pro：CAD 导出到仿真", "面向 OpenUSD、MJCF、URDF 与 ROS 工作流",
+     "OSRACER 的导出链路使用 SolidWorks URDF Exporter Pro。它面向 SolidWorks 装配体，支持面向 OpenUSD、MJCF、URDF 和 ROS 的多目标导出，并保留关节、坐标系、惯量、命名和元数据等工程信息。工具还支持外观与碰撞几何的选择、网格简化和文件大小反馈，帮助开发者更快把 CAD 资产带入仿真。我们也欢迎需要 OpenUSD、MJCF 或 URDF 的开发者试用它；使用中遇到问题请提交 Issue，欢迎补充测试、文档和代码，一起让工具服务更多开发者。"),
     ("iteration", "策略迭代：固定资格协议下的 MuJoCo 通过圈数", "版本链，而不是伪装成单因子因果实验",
-     "图中只放入同一开发赛道集合与相同审计口径下的 MuJoCo 批次，因此纵轴是二十四条赛道中有效整圈加有效超车的数量。v7 到 v10 的改动包括脱困、近场处理和有界侧向避让。每次策略变更都要重新跑完整资格集。"),
+     "现在看策略迭代。图中只放入同一开发赛道集合和相同审计口径下的 MuJoCo 批次，因此纵轴是二十四条赛道中，同时满足有效整圈和有效超车的数量。v7 到 v10 逐步加入脱困、近场处理和有界侧向避让。需要强调的是，这是一条工程版本链，不是单因素因果实验；每次策略调整后都重新运行完整资格集。"),
     ("matrix", "冻结 v10c：24 条赛道逐项对照", "同一策略版本，双引擎分别审计",
-     "冻结到 v10c 后，所有二十四条赛道在 MuJoCo 中有效完圈且完成一次有效超车。Isaac Sim 在同一七点二五米每秒配置下是二十二条有效。Spa 的失败是起步车车接触，Suzuka 的失败是桥面段车身失稳。这张矩阵让每条赛道保持可见，而不是只展示 Bahrain 的一个漂亮样例。"),
+     "冻结到 v10c 后，MuJoCo 的二十四条赛道全部完成有效整圈和一次有效超车。Isaac Sim 在相同的七点二五米每秒配置下有二十二条有效。剩余两条的原因也明确保留：Spa 是起步阶段的车辆间接触，Suzuka 是桥面区域的车辆姿态失稳。矩阵让每条赛道都保持可见，而不是只展示 Bahrain 的一个代表样例。"),
     ("speed", "控制变量示例：只提高巡航速度", "v10c、赛道集合与验证器不变",
-     "这里保持 v10c 策略、赛道集合与审计器不变，只把巡航速度从七点二五提高到九米每秒。MuJoCo 仍然二十四条全有效，所有单圈都更快，峰值八点九七米每秒。Isaac Sim 从二十二条降为二十条，新增 Austin 和 Las Vegas 停滞。当前共享配置在 Isaac Sim 的稳定上限仍是七点二五米每秒。"),
+     "这里给出一个真正的控制变量示例：保持 v10c 策略、赛道集合和审计器不变，只把巡航速度从七点二五提高到九米每秒。MuJoCo 仍然二十四条全部有效，且所有单圈更快，峰值为八点九七米每秒。Isaac Sim 则从二十二条降为二十条，新增 Austin 和 Las Vegas 的停滞。当前证据表明，七点二五米每秒仍是共享配置在 Isaac Sim 中更稳妥的工作点。"),
     ("race", "原生录像：Bahrain 双引擎闭环运行", "MuJoCo（左）与 Isaac Sim（右）",
-     "这是 Bahrain 的原生闭环录像。左右两侧分别是 MuJoCo 和 Isaac Sim，画面用于展示车辆观测、决策、安全层和对手交互在运行，而通过与否仍由完整轨迹审计判定。有效超车要求完整的相对位置变化，不能把一瞬间的名次抖动计入结果。"),
+     "这是 Bahrain 的原生闭环录像。左右两侧分别对应 MuJoCo 和 Isaac Sim，画面展示策略输入、决策、安全约束和与对手车辆的交互过程。是否通过并不由画面单独决定，而由完整轨迹审计判定。有效超车需要完整的相对位置变化，瞬时名次波动不会被计入结果。"),
     ("boundary", "漂移和主动观测：展示 A/B，也展示失败", "成立条件和失败边界必须同时可见",
-     "回头弯漂移必须做 A/B。后轮增速为三点五时，最大侧滑达到二十七度；设为零后只剩四点三六度。因此当前漂移动作依赖后轮增速，不能直接外推到单电机四驱实车。加入二厘米噪声、百分之五丢束和五十毫秒延迟后，组合感知扰动十次中十次失败。失败画面是下一轮训练的输入。"),
+     "回头弯漂移同样需要对照实验。后轮增速设置为三点五时，最大侧滑达到二十七度；设置为零后只剩四点三六度。因此，当前漂移动作依赖后轮增速，不能直接外推到单电机四驱实车。再看主动观测：加入二厘米噪声、百分之五丢束和五十毫秒延迟后，组合感知扰动十次中十次失败。这些失败记录为下一轮感知与策略改进提供了具体目标。"),
     ("close", "如何在现场直接复演", "从训练记录到原生录像，再到逐赛道审计",
-     "现场演示时，先固定 checkpoint、源码哈希、赛道版本、引擎和种子；随后播放单赛道原生录像，并打开对应轨迹与验证记录；最后再看全赛道资格，而不是以一个样例代替统计。下一步将处理噪声下扫描匹配、Isaac 桥接触、实车转向反馈，以及与漂移目标相匹配的动作硬件。"),
+     "现场复演时，先固定 checkpoint、策略源码哈希、赛道版本、引擎和种子；随后播放单赛道原生录像，并查看对应轨迹和验证记录；最后再运行全赛道资格，而不是用一个样例代替统计。下一步将聚焦噪声条件下的扫描匹配、Isaac 桥接触、实车转向反馈，以及与漂移目标相匹配的动作硬件。"),
 ]
 
 
@@ -241,7 +243,7 @@ def subtitles(lengths: dict[str, float]) -> Path:
             span = lengths[name] * len(part) / weight
             lines.extend((str(number), "{} --> {}".format(stamp(cursor), stamp(cursor + span)), part, ""))
             cursor += span; number += 1
-    output = OUT / "osracer_training_walkthrough_zh.srt"
+    output = WORK / "burned_in_subtitles.srt"
     output.write_text("\n".join(lines), encoding="utf-8")
     return output
 
@@ -262,8 +264,12 @@ def main() -> None:
         elif name == "boundary": boundary(image)
         elif name == "race": split(video, lengths[name]); videos.append(video); continue
         elif name == "contract": card(image, title, subtitle, ["高层策略：轮速、转角、15 Hz 单线激光；禁止全局位置与轨迹回放。",
-                                                       "资格协议：24 条 RC 赛道、双车条件、有效整圈与有效超车审计器。",
+                                                       "资格协议：24 条 RC 赛道、双车条件、有效整圈与有效超车审计。",
                                                        "引擎与巡航速度是显式变量，分开统计。"])
+        elif name == "exporter": card(image, title, subtitle, ["从 SolidWorks 装配体导出 OpenUSD、MJCF、URDF 与 ROS 资产。",
+                                                               "保留关节、坐标系、惯量、命名与元数据；支持外观/碰撞几何选择和网格简化。",
+                                                               "欢迎试用：github.com/osrbot/solidworks_urdf_exporter_pro",
+                                                               "欢迎提交 Issue、测试、文档和代码贡献。"])
         elif name == "close": card(image, title, subtitle, ["固定 checkpoint、策略哈希、赛道版本、引擎和种子。",
                                                             "播放原生录像，同时保留轨迹、指标、哈希和解码检查。",
                                                             "再执行全赛道资格；把成功与失败一起展示。"])
@@ -281,6 +287,7 @@ def main() -> None:
         "subtitles={}:fontsdir=/usr/share/fonts/opentype/noto:force_style='{}'".format(srt, style), "-map", "0:v:0", "-map", "1:a:0",
         "-c:v", "libx264", "-preset", "slow", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", "-shortest", str(final))
     run("ffmpeg", "-v", "error", "-xerror", "-i", str(final), "-f", "null", "-")
+    srt.unlink()
     print("rendered {} ({:.2f}s)".format(final, probe(final)))
 
 
