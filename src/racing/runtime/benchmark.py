@@ -354,4 +354,9 @@ def main(argv=None):
         parser.error(str(exc))
 
 
-if __name__=="__main__":main()
+def console_main() -> None:
+    """Run the CLI without passing internal result objects to ``sys.exit``."""
+    main()
+
+
+if __name__=="__main__":console_main()

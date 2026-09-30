@@ -89,3 +89,9 @@ def test_benchmark_profile_is_packaged():
     assert profile.refinement_cycles==0
     assert profile.imitation_steps==14400
     assert profile.imitation_epochs==16
+
+
+def test_console_main_does_not_return_internal_summary(monkeypatch):
+    summary={"counts":{"completed":1}}
+    monkeypatch.setattr(benchmark,"main",lambda:summary)
+    assert benchmark.console_main() is None

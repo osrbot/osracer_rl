@@ -24,7 +24,7 @@ osracer-report = "racing.evaluation.report:main"
 osracer-sweep = "racing.runtime.sweep:main"
 osracer-train-joint = "racing.runtime.train_joint:main"
 osracer-export = "racing.runtime.ppo:export_main"
-osracer-benchmark = "racing.runtime.benchmark:main"
+osracer-benchmark = "racing.runtime.benchmark:console_main"
 
 [project.optional-dependencies]
 build = [
