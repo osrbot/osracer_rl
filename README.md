@@ -88,6 +88,18 @@ tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
 osracer-play experiment_name=demo
 ```
 
+Train one independently validated PPO policy for every round in the 24-track
+season catalog:
+
+```bash
+osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
+  checkpoint=runs/ppo-cem-pace-v2/checkpoints/policy.pt \
+  +simulator=mujoco +train=benchmark
+```
+
+The command resumes at track boundaries and writes one shared TensorBoard tree
+plus JSON/CSV standings. See [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+
 PPO is the default algorithm and its training scale lives in `src/racing/config/training/default.toml`; append `+train=quick` for an environment check. MuJoCo and Isaac Sim use the same per-iteration console summary. Training writes `policy.pt` and automatically exports a checked `policy.onnx`; complete raw metrics remain in the run directory. The former CEM parameter search remains available as the explicit `algorithm=cem` baseline. See [Run artifacts](docs/RUN_ARTIFACTS.md) for configuration overrides, output fields, and compatibility options.
 
 Simulator backends implement one lifecycle contract and are selected through packaged target configurations. See [Simulator backends](docs/SIMULATORS.md) before adding another engine.

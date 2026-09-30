@@ -88,6 +88,17 @@ tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
 osracer-play experiment_name=demo
 ```
 
+为赛季目录中的 24 条赛道分别训练并验证 PPO 策略：
+
+```bash
+osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
+  checkpoint=runs/ppo-cem-pace-v2/checkpoints/policy.pt \
+  +simulator=mujoco +train=benchmark
+```
+
+命令支持赛道粒度断点续跑，并生成统一 TensorBoard 目录与 JSON/CSV 排行表。详见
+[docs/BENCHMARKS.md](docs/BENCHMARKS.md)。
+
 默认算法是 PPO，训练规模由 `src/racing/config/training/default.toml` 管理；环境检查可追加 `+train=quick`。MuJoCo 与 Isaac Sim 使用统一的逐迭代终端摘要，训练生成 `policy.pt` 并自动导出已校验的 `policy.onnx`；完整原始指标保存在运行目录中。原 CEM 参数搜索通过 `algorithm=cem` 保留为兼容基线。配置覆盖方式、终端字段及兼容选项见[运行产物目录](docs/RUN_ARTIFACTS.md)。
 
 ## 负责任地阅读结果

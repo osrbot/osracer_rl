@@ -286,6 +286,92 @@ def pretrain_actor(task, model, optimizer, args, device):
     return result
 
 
+def transfer_actor(task,model,args,device):
+    """Adapt a proven checkpoint with evenly distributed expert sectors.
+
+    A checkpoint trained on one circuit often reaches the same unseen corner
+    before failing, so start-only DAgger repeatedly labels the opening sector.
+    This transfer pass covers the whole target circuit, anchors the update to
+    the parent actor, and retains an epoch only after closed-loop evaluation.
+    """
+    seeds=tuple(range(args.evaluation_episodes))
+    baseline=evaluate_actor_suite(task,model,device,seeds)
+    if baseline["valid_lap"] or not args.imitation_steps or not args.imitation_epochs:
+        return {"mode":"sector_transfer","improved":False,"steps":0,"epochs":0,
+                "baseline":baseline,"evaluation":baseline,"history":[]}
+    best_rank=evaluation_rank(baseline);best_evaluation=baseline
+    best_state={name:value.detach().cpu().clone()
+                for name,value in model.state_dict().items()}
+    observations=[];targets=[]
+    segment_count=min(12,max(4,args.imitation_steps//512))
+    steps_per_segment=max(1,int(np.ceil(args.imitation_steps/segment_count)))
+    for segment in range(segment_count):
+        observation=task.reset(
+            args.seed+10000+segment,
+            start_s=task.track.length*segment/segment_count)
+        for _ in range(steps_per_segment):
+            target=task.teacher_action()
+            observations.append(observation);targets.append(target)
+            observation,_,done,_=task.step(target)
+            if done:break
+    observation_tensor=torch.from_numpy(
+        np.asarray(observations,np.float32)).to(device)
+    target_tensor=model.quantize_action(torch.from_numpy(
+        np.asarray(targets,np.float32)).to(device))
+    model.eval()
+    anchors=[]
+    with torch.inference_mode():
+        for start in range(0,len(observation_tensor),1024):
+            anchors.append(model.deterministic(observation_tensor[start:start+1024]))
+    anchor_tensor=torch.cat(anchors)
+    gradient_flags={name:parameter.requires_grad
+                    for name,parameter in model.named_parameters()}
+    for parameter in model.critic.parameters():parameter.requires_grad_(False)
+    optimizer=torch.optim.Adam(
+        [parameter for parameter in model.parameters() if parameter.requires_grad],
+        lr=min(args.learning_rate,5e-6))
+    generator=torch.Generator(device=device).manual_seed(args.seed+15485863)
+    history=[]
+    for epoch in range(args.imitation_epochs):
+        model.train();losses=[]
+        order=torch.randperm(len(observation_tensor),generator=generator,device=device)
+        for start in range(0,len(order),512):
+            indices=order[start:start+512]
+            action=model.deterministic(observation_tensor[indices])
+            teacher_error=(action-target_tensor[indices]).square()
+            anchor_error=(action-anchor_tensor[indices]).square()
+            loss=(teacher_error[:,0]+12.*teacher_error[:,1]
+                  +4.*(anchor_error[:,0]+12.*anchor_error[:,1])).mean()
+            optimizer.zero_grad(set_to_none=True);loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(),args.max_gradient_norm)
+            optimizer.step();losses.append(float(loss.item()))
+        model.eval();primary=evaluate_actor(task,model,device,seeds[0])
+        if primary["valid_lap"]:
+            evaluation=_evaluation_summary([primary]+[
+                evaluate_actor(task,model,device,seed) for seed in seeds[1:]])
+        else:evaluation=_evaluation_summary([primary])
+        row={"epoch":epoch+1,"loss":float(np.mean(losses)),
+             "evaluation":evaluation};history.append(row)
+        print(f"Transfer epoch {epoch+1}/{args.imitation_epochs}  ·  "
+              f"loss {row['loss']:.6f}  ·  valid "
+              f"{evaluation['valid_laps']}/{len(seeds)}  ·  "
+              f"progress {evaluation['progress_m']:.2f}m",flush=True)
+        if len(evaluation["episodes"])==len(seeds):
+            rank=evaluation_rank(evaluation)
+            if rank>best_rank:
+                best_rank=rank;best_evaluation=evaluation
+                best_state={name:value.detach().cpu().clone()
+                            for name,value in model.state_dict().items()}
+            if evaluation["valid_lap"]:break
+    model.load_state_dict(best_state);model.to(device);model.eval()
+    for name,parameter in model.named_parameters():
+        parameter.requires_grad_(gradient_flags[name])
+    return {"mode":"sector_transfer",
+            "improved":evaluation_rank(best_evaluation)>evaluation_rank(baseline),
+            "steps":len(observations),"epochs":len(history),
+            "baseline":baseline,"evaluation":best_evaluation,"history":history}
+
+
 def evaluate_actor(task, model, device, seed):
     observation=task.reset(seed);total_reward=0.;info={}
     while True:
@@ -447,7 +533,8 @@ def train(args):
     task=RacingPPOEnv(native,track,args.seconds,args.opponent_speed,args.opponent_gap)
     model.to(device)
     checkpoint=args.layout.checkpoints/'policy.pt'
-    imitation=pretrain_actor(task,model,imitation_optimizer,args,device)
+    imitation=(transfer_actor(task,model,args,device) if args.checkpoint else
+               pretrain_actor(task,model,imitation_optimizer,args,device))
     warmstart=evaluate_actor_suite(
         task,model,device,range(args.evaluation_episodes))
     print(f"Warm-start check  progress {warmstart['progress_m']:.2f}m  ·  "
