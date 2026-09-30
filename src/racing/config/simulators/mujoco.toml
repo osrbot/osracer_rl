@@ -1,0 +1,8 @@
+name = "mujoco"
+target = "racing.simulators.mujoco.environment:RaceMujocoEnv"
+description = "Native MuJoCo racing backend"
+
+[defaults]
+num_cars = 2
+render = false
+physics_hz = 480

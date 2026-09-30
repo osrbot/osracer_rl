@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
-from racing.mujoco_env import CONTROL_DT, RaceMujocoEnv
+from racing.simulators.mujoco.environment import CONTROL_DT, RaceMujocoEnv
 
 
 class StraightTrack:

@@ -1,6 +1,6 @@
 import hashlib
 import pytest
-from racing.train_joint import aggregate,candidate,vector,audit_trial
+from racing.runtime.train_joint import aggregate,candidate,vector,audit_trial
 
 
 def row(drift=.2,failure='timeout',**extra):
@@ -45,7 +45,7 @@ def test_local_donuts_and_missing_metrics_cannot_beat_real_racing():
 
 
 def test_resume_recomputes_score_and_requires_unchanged_trace(tmp_path,monkeypatch):
-    monkeypatch.setattr('racing.verify.audit_trace',lambda *_:{'errors':[]})
+    monkeypatch.setattr('racing.evaluation.verify.audit_trace',lambda *_:{'errors':[]})
     trace=tmp_path/'trace.json';trace.write_text('[]')
     values=[7.2,3.5,.3,.6,.2,3.8]
     episodes=[]

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT/'deploy/osracer_policy'))
+sys.path.insert(0, str(ROOT/'deployment/ros2/osracer_policy'))
 
 from osracer_policy.mapping import action_to_ackermann, build_observation, scan_to_packet  # noqa: E402
 from osracer_policy.checkpoint import CheckpointMismatch, load_actor  # noqa: E402
@@ -63,23 +63,44 @@ def test_observation_and_action_round_trip():
     assert angle == pytest.approx(.3)        # clamped to the configured limit
 
 
-def test_frozen_checkpoint_matches_the_running_source():
+def test_legacy_frozen_checkpoint_requires_explicit_source_migration(tmp_path):
     checkpoint = ROOT/'output/racing/policies/frozen-candidates-g00c_v10c_lateral.json'
-    actor, spec = load_actor(checkpoint, racing_root=ROOT)
+    with pytest.raises(CheckpointMismatch):
+        load_actor(checkpoint, racing_root=ROOT)
+
+    import json
+    from racing.control.policy_bundle import actor_source_hashes
+    spec = json.loads(checkpoint.read_text())
+    spec['actor_source_sha256'] = actor_source_hashes(spec)
+    migrated = tmp_path/'migrated.json'
+    migrated.write_text(json.dumps(spec))
+    actor, spec = load_actor(migrated, racing_root=ROOT)
     assert 'verified-escape' in spec['policy_version']
     weights = actor.p
     assert weights.shape == (12,)
 
 
-def test_tampered_checkpoint_is_refused():
+def test_tampered_checkpoint_is_refused(tmp_path):
     checkpoint = ROOT/'output/racing/policies/frozen-candidates-g00c_v10c_lateral.json'
     import json
     spec = json.loads(checkpoint.read_text())
-    spec['actor_source_sha256'] = dict(spec['actor_source_sha256'], **{'racing/policy.py': '0'*64})
-    tampered = ROOT/'output/racing/policies/.tampered_checkpoint.json'
+    spec['actor_source_sha256'] = dict(spec['actor_source_sha256'], **{'racing/control/policy.py': '0'*64})
+    tampered = tmp_path/'tampered_checkpoint.json'
     tampered.write_text(json.dumps(spec))
-    try:
-        with pytest.raises(CheckpointMismatch):
-            load_actor(tampered, racing_root=ROOT)
-    finally:
-        tampered.unlink()
+    with pytest.raises(CheckpointMismatch):
+        load_actor(tampered, racing_root=ROOT)
+
+
+def test_ppo_checkpoint_loads_for_deployment(tmp_path):
+    import hashlib
+    from racing.control.neural_policy import ActorCritic, POLICY_VERSION, save_checkpoint
+    from racing.paths import source_files
+    hashes = {name: hashlib.sha256(path.read_bytes()).hexdigest()
+              for name, path in source_files().items()}
+    checkpoint = tmp_path/'policy.pt'
+    save_checkpoint(checkpoint, ActorCritic(), {
+        'max_speed_m_s': 6., 'source_sha256': hashes,
+    })
+    actor, spec = load_actor(checkpoint, racing_root=ROOT)
+    assert spec['algorithm'] == 'ppo'
+    assert actor.version == POLICY_VERSION

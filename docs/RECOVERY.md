@@ -120,11 +120,11 @@ result_wheels = np.array([rolling, rolling, rolling, -rolling])
 
 ## 每个赛道都留录像
 
-双引擎刷榜默认对全部赛道录像，失败场次同样入库作为对照组。MuJoCo 用 `racing.sweep --record-tracks <ids>`，Isaac 用 `scripts/run_racing_batch.py --record-tracks <ids>`。`racing.report` 会把每段视频写进 [RESULTS.md](../output/racing/RESULTS.md)，`racing.verify` 逐段做解码校验，身份（赛道、种子、检查点哈希）与成绩一起核对。
+双引擎刷榜默认对全部赛道录像，失败场次同样入库作为对照组。MuJoCo 用 `racing.runtime.sweep --record-tracks <ids>`，Isaac 用 `tools/runtime/run_racing_batch.py --record-tracks <ids>`。`racing.evaluation.report` 会把每段视频写进 [RESULTS.md](../output/racing/RESULTS.md)，`racing.evaluation.verify` 逐段做解码校验，身份（赛道、种子、检查点哈希）与成绩一起核对。
 
 ## 速度榜
 
-7.2 m/s 的上限来自 `cruise_m_s` 参数，不是引擎限制。在同一套 v10c 控制器上把巡航提到 9.0 m/s（`scripts/rebind_actor_source.py --set cruise_m_s=9.0`），MuJoCo 24 条赛道仍然全部有效完圈并各完成 1 次有效超车：
+7.2 m/s 的上限来自 `cruise_m_s` 参数，不是引擎限制。在同一套 v10c 控制器上把巡航提到 9.0 m/s（`tools/training/rebind_actor_source.py --set cruise_m_s=9.0`），MuJoCo 24 条赛道仍然全部有效完圈并各完成 1 次有效超车：
 
 | 引擎 | 巡航 | 有效整圈 | 峰值速度 | 圈均速度 | 单圈范围 | 与 7.25 m/s 基准比较 |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -174,7 +174,7 @@ Isaac 侧此前完全没有留出种子，本轮补齐三条代表赛道（种�
 
 ## 素材库
 
-`scripts/index_media.py` 读取已有产物生成三个文件，不移动、不重写任何录像：
+`tools/assets/index_media.py` 读取已有产物生成三个文件，不移动、不重写任何录像：
 
 - [media.html](../output/racing/media.html)：可浏览素材库，按“当前证据 / 失败对照组 / 历史批次”分组，点开即播，未播放的录像不占用带宽。
 - [MEDIA.md](../output/racing/MEDIA.md)：同一批素材的表格索引，含引擎、赛道、配置、种子、是否有效圈、单圈、超车数、最长连续漂移与时长。
@@ -294,17 +294,17 @@ for cloud in compact_clouds:
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
 
 # 把已有检查点的参数绑定到当前控制器源码，并记录迁移来源
-.venv/bin/python -I scripts/rebind_actor_source.py \
+.venv/bin/python -I tools/training/rebind_actor_source.py \
   --checkpoint output/racing/experimental/joint_cem_g00c03_multitrack_workspace/candidate.json \
   --output output/racing/candidates/g00c03_v8a_escape.json
 
 # 单赛道原生复现
-.venv/bin/python -I scripts/run_racing.py --engine mujoco --track bahrain \
+.venv/bin/python -I tools/runtime/run_racing.py --engine mujoco --track bahrain \
   --checkpoint output/racing/candidates/g00c03_v8a_escape.json --seconds 200 --tag check
 
 # 双引擎全赛道刷榜
-.venv/bin/python -I -m racing.sweep --checkpoint output/racing/candidates/g00c03_v8a_escape.json \
+.venv/bin/python -I -m racing.runtime.sweep --checkpoint output/racing/candidates/g00c03_v8a_escape.json \
   --tag c03v8a_escape_dev24 --seconds 200 --seed 0
-bash scripts/run_isaac.sh scripts/run_racing_batch.py --tracks <全部赛道> \
+bash tools/runtime/run_isaac.sh tools/runtime/run_racing_batch.py --tracks <全部赛道> \
   --checkpoint output/racing/candidates/g00c03_v8a_escape.json --tag c03v8a_escape_dev24 --seconds 200
 ```

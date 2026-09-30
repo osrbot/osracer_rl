@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import numpy as np
 
-from racing.verify import audit_artifact, audit_trace, parameter_sha256, sha256
+from racing.evaluation.verify import audit_artifact, audit_trace, parameter_sha256, sha256
 
 
 class Straight:
@@ -124,7 +124,7 @@ class TestRacingVerifier(unittest.TestCase):
                           parameters_sha256=parameter_sha256(result['parameters']))
             (root/'race_seed0_trace.json').write_text(json.dumps(rows))
             artifact.write_text(json.dumps([result]))
-            with patch('racing.verify.Track', return_value=Straight()):
+            with patch('racing.evaluation.verify.Track', return_value=Straight()):
                 audit = audit_artifact(artifact)
                 self.assertTrue(audit['evidence_integrity_passed'], audit['episodes'][0]['errors'])
                 self.assertFalse(audit['episodes'][0]['video']['present'])
@@ -134,7 +134,7 @@ class TestRacingVerifier(unittest.TestCase):
                 self.assertTrue(any('Checkpoint SHA' in e for e in tampered['episodes'][0]['errors']))
 
     def test_invalid_video_is_evidence_failure(self):
-        from racing.verify import audit_video
+        from racing.evaluation.verify import audit_video
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             video = root/'invalid.mp4'

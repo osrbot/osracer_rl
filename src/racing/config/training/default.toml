@@ -1,0 +1,38 @@
+name = "default"
+description = "Full sensor-only PPO training used by the standard racing workflow"
+
+[algorithm]
+name = "ppo"
+iterations = 1000
+steps_per_iteration = 2048
+learning_epochs = 5
+mini_batches = 4
+learning_rate = 0.0003
+gamma = 0.99
+gae_lambda = 0.95
+clip_ratio = 0.2
+entropy_coefficient = 0.001
+value_coefficient = 0.5
+max_gradient_norm = 1.0
+checkpoint_interval = 50
+imitation_steps = 8192
+imitation_epochs = 20
+refinement_cycles = 2
+refinement_epochs = 8
+generations = 4
+population = 12
+
+[environment]
+episode_length_s = 120.0
+evaluation_episodes = 3
+
+[task]
+name = "racing/bahrain"
+opponent_speed_m_s = 2.8
+opponent_gap_m = 3.0
+
+[reproducibility]
+seed = 73
+
+[logging]
+tensorboard = true

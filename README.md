@@ -37,21 +37,21 @@ SolidWorks assembly
 
 ### Asset provenance and export dependency
 
-The vehicle descriptions in `OSRACER/` are export artifacts produced with [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro), a maintained SolidWorks-to-URDF workflow with ROS, OpenUSD, and MuJoCo targets. It is an **external dependency and provenance source**, not vendored code in this repository. Geometry, inertia, joint semantics, collision choices, and target-simulator verification remain independent research responsibilities.
+The vehicle descriptions in `assets/vehicles/osracer/` are export artifacts produced with [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro), a maintained SolidWorks-to-URDF workflow with ROS, OpenUSD, and MuJoCo targets. It is an **external dependency and provenance source**, not vendored code in this repository. Geometry, inertia, joint semantics, collision choices, and target-simulator verification remain independent research responsibilities.
 
-`OSRACER/`, `OSRACER_ISAAC_DIR`, and `osracer-*` are the canonical asset, runtime, and package identifiers. The public project name and reviewed presentation media are **OSRACER**.
+`assets/vehicles/osracer/`, `OSRACER_ISAAC_DIR`, and `osracer-*` are the canonical asset, runtime, and package identifiers. The public project name and reviewed presentation media are **OSRACER**.
 
 ## Minimal reproduction
 
 Run from the repository root. Python 3.11+ is required; Python 3.12 is the development environment. Native Isaac Sim must be installed separately.
 
 ```bash
-bash scripts/setup_racing.sh --test
+bash tools/environment/setup_racing.sh --test
 . .venv/bin/activate
 
 # Model, sensor, and actuator smoke run.
-python3 scripts/run_racing.py \
-  --engine mujoco --track bahrain --seconds 10 --episodes 1 --tag smoke
+python3 tools/runtime/run_racing.py \
+  --simulator mujoco --task bahrain --seconds 10 --episodes 1 --tag smoke
 
 # Deterministic contract tests.
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
@@ -59,8 +59,8 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
 
 ```bash
 export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
-bash scripts/run_isaac.sh scripts/run_racing.py \
-  --engine isaac --track bahrain --seconds 10 --episodes 1 --tag smoke_isaac
+bash tools/runtime/run_isaac.sh tools/runtime/run_racing.py \
+  --simulator isaac --task bahrain --seconds 10 --episodes 1 --tag smoke_isaac
 ```
 
 Large raw experiment archives are deliberately excluded from the public repository. The static site packages a reviewed subset of screenshots, videos, and auditable summaries. Read [the public-release boundary](docs/PROJECT_STRUCTURE.md#公开仓库边界) before treating a local `output/` directory as published evidence.
@@ -69,13 +69,28 @@ Large raw experiment archives are deliberately excluded from the public reposito
 
 | Path | Research role |
 | --- | --- |
-| `OSRACER/` | Exported ROS, OpenUSD, and MuJoCo vehicle descriptions; provenance artifact. |
-| `racing/` | Native environments, sensor contract, controller, safety layer, qualification, and auditing. |
-| `tracks/` | 24 unique circuit assets, source records, and scaling assumptions. |
-| `scripts/` | Environment checks, batch execution, recording, and deterministic public-media rebranding. |
+| `assets/` | Vehicle descriptions under `vehicles/` and 24 circuit assets under `tracks/`. |
+| `src/racing/` | Installable Python package grouped into control, perception, evaluation, runtime, tracks, vehicle, and simulator domains. |
+| `tools/` | Commands grouped into runtime, training, evaluation, diagnostics, assets, and environment domains. |
+| `native/` | Optional C++ extensions and their narrow Python probes. |
+| `deployment/` | ROS2 and other deployment adapters, separated from simulator code. |
 | `docs/` | Engineering contract, validation ledger, deployment limits, and release notes. |
-| `site/` | Dependency-free evidence-site builder and curated public assets. |
-| `experimental/` | Rejected candidates and failure investigations; never mixed into accepted results. |
+| `publication/` | Shared reviewed media, evidence-site builder, presentation, notes, and video production. |
+| `runs/` | Ignored, run-scoped checkpoints, metrics, TensorBoard events, trajectories, videos, and logs. |
+
+New runs use the layout in [Run artifacts](docs/RUN_ARTIFACTS.md). Start TensorBoard with `.venv/bin/tensorboard --logdir runs --port 6006`. The existing `output/racing/` tree is retained as a read-only legacy evidence archive.
+
+The normal loop is one command each for training, TensorBoard, and playback:
+
+```bash
+osracer-train +simulator=mujoco +task=racing/bahrain experiment_name=demo
+tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
+osracer-play experiment_name=demo
+```
+
+PPO is the default algorithm and its training scale lives in `src/racing/config/training/default.toml`; append `+train=quick` for an environment check. MuJoCo and Isaac Sim use the same per-iteration console summary. Training writes `policy.pt` and automatically exports a checked `policy.onnx`; complete raw metrics remain in the run directory. The former CEM parameter search remains available as the explicit `algorithm=cem` baseline. See [Run artifacts](docs/RUN_ARTIFACTS.md) for configuration overrides, output fields, and compatibility options.
+
+Simulator backends implement one lifecycle contract and are selected through packaged target configurations. See [Simulator backends](docs/SIMULATORS.md) before adding another engine.
 
 ## Reading results responsibly
 

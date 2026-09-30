@@ -3,7 +3,7 @@
 依据：`/home/osrbot/osracer_ws/src/osracer_base`（底盘驱动）与
 `/home/osrbot/osracer_ws/src/osracer`（整车与 `osracer_race` 控制器框架）。
 本页把仿真训练出的策略与实车接口逐项对照，指出缺口、风险与分阶段上线步骤。
-参考实现放在 `deploy/osracer_policy/`，可直接拷入车辆工作区构建。
+参考实现放在 `deployment/ros2/osracer_policy/`，可直接拷入车辆工作区构建。
 
 ## 实车现状
 
@@ -113,7 +113,7 @@
 
 ## 参考实现
 
-`deploy/osracer_policy/` 是一个 ament_python 包，可直接拷入
+`deployment/ros2/osracer_policy/` 是一个 ament_python 包，可直接拷入
 `/home/osrbot/osracer_ws/src/` 后 `colcon build`：
 
 - `osracer_policy/mapping.py`：纯函数，把 `LaserScan`/`Odometry` 转成策略观测，
@@ -121,16 +121,16 @@
 - `osracer_policy/policy_node.py`：ROS 2 节点。订阅 `/scan`、`/odometry/filtered`、
   `/race/safety_stop`，发 `/race/raw_ackermann_cmd`；支持 `shadow_mode`（只算不发）、
   限幅、失联停车与检查点哈希校验。
-- `osracer_policy/checkpoint.py`：加载冻结检查点并构建 actor，校验源码哈希。
+- `osracer_policy/checkpoint.py`：加载 PPO `.pt` 或 CEM `.json` 冻结检查点并构建 actor，校验源码哈希。
 
 节点默认参数面向阶段 0/1：`shadow_mode=true`、`max_speed_mps=1.0`、`max_steering_rad=0.3`。
-安装与运行命令见 `deploy/osracer_policy/README.md`。
+安装与运行命令见 `deployment/ros2/osracer_policy/README.md`。
 
 ### 本机已完成的验证
 
 | 检查 | 结果 |
 | --- | --- |
-| 映射与检查点单元测试（`tests/test_deploy_mapping.py`） | 5 项通过：扫描重采样到 361×270°、无效束归零并标无效、里程计→四轮角速度、动作→Ackermann（含限幅）、**冻结检查点经部署加载器校验通过、篡改哈希被拒绝** |
+| 映射与检查点单元测试（`tests/test_deploy_mapping.py`） | 覆盖扫描重采样到 361×270°、无效束归零并标无效、里程计→四轮角速度、动作→Ackermann（含限幅）、PPO/CEM 检查点加载和篡改哈希拒绝 |
 | 包结构 | `colcon list` 在 `/opt/ros/jazzy` 下识别为 `osracer_policy (ros.ament_python)` |
 | 节点模块 | 在 ROS 2 Jazzy 下导入成功（`ackermann_msgs` 用 stub 顶替，车辆端为既有依赖） |
 | 字节编译 | `python -m compileall` 通过 |

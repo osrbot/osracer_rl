@@ -15,6 +15,16 @@ dependencies = [
   "mujoco==3.10.0",
 ]
 
+[project.scripts]
+osracer = "racing.runtime.run:main"
+osracer-train = "racing.runtime.train:main"
+osracer-play = "racing.runtime.play:main"
+osracer-qualify = "racing.evaluation.qualify:main"
+osracer-report = "racing.evaluation.report:main"
+osracer-sweep = "racing.runtime.sweep:main"
+osracer-train-joint = "racing.runtime.train_joint:main"
+osracer-export = "racing.runtime.ppo:export_main"
+
 [project.optional-dependencies]
 build = [
   "shapely>=2.1",
@@ -22,11 +32,23 @@ build = [
   "pycollada>=0.9",
   "pytest>=8",
 ]
+training = [
+  "tensorboard>=2.16",
+  "tensorboardX>=2.6",
+]
+ppo = [
+  "torch>=2.4",
+  "onnx>=1.17",
+]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["racing*", "scripts*"]
+where = ["src"]
+include = ["racing*"]
 namespaces = true
+
+[tool.setuptools.package-data]
+racing = ["config/simulators/*.toml", "config/training/*.toml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src", "."]

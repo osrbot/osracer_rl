@@ -1,6 +1,6 @@
 """A failed native child must not silently qualify artifacts from another run."""
 from copy import deepcopy
-from racing.qualify import results_match
+from racing.evaluation.qualify import results_match
 
 
 def test_reuse_requires_full_inputs_and_exact_seed_order():

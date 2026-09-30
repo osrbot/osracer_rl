@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
-from racing.sensors import LidarSensor, ACTOR_KEYS
-from racing.policy import RacingPolicy
-from racing.metrics import RaceMetrics, drift_statistics
+from racing.perception.sensors import LidarSensor, ACTOR_KEYS
+from racing.control.policy import RacingPolicy
+from racing.evaluation.metrics import RaceMetrics, drift_statistics
 
 
 class StraightTrack:

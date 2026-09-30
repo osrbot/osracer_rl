@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from scripts.race_bridge_probe import controls, run_case
+from tools.diagnostics.race_bridge_probe import controls, run_case
 
 
 class TrackFixture:

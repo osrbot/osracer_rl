@@ -24,14 +24,14 @@ are included.
 The source is [Tomislav Bacinger's f1-circuits GeoJSON repository](https://github.com/bacinger/f1-circuits),
 pinned to commit `394d8fbe70ef2c0b0c8d23ff7bee61fa09606055`.
 The original GeoJSON, README, and complete MIT license are retained under
-`tracks/sources/`. `manifest.json` records the download time, immutable source
+`assets/tracks/sources/`. `manifest.json` records the download time, immutable source
 URLs and SHA-256 of each file. Downloads were rechecked against that exact
 commit. The builder verifies the GeoJSON hash before generating any assets.
 Each `track.json` records the source feature ID, source hash, attribution and
 projected/source-reported lengths.
 
 Copyright and permission details are in
-[`tracks/sources/LICENSE.md`](../tracks/sources/LICENSE.md). Retain that file
+[`assets/tracks/sources/LICENSE.md`](../assets/tracks/sources/LICENSE.md). Retain that file
 with redistributed geometry and its derivatives. The procedural asphalt
 texture and generated meshes contain no third-party image textures.
 
@@ -91,7 +91,7 @@ through COLLADA effects/materials and OBJ's MTL, with planar repeating UVs.
   training assumptions, not surveyed elevations. `requires_3d_backend` must
   be honored by physics, sensors and scoring. The unchanged **full_scale**
   asset remains a flat reference and is still unsupported for bridge racing.
-  See [Suzuka bridge schema](../tracks/suzuka/BRIDGE.md). Geometric support and
+  See [Suzuka bridge schema](../assets/tracks/suzuka/BRIDGE.md). Geometric support and
   native traversal tests do not establish full-lap policy qualification.
 - **Nearby arms:** revision 1 joined nearby route arms at Miami, Monaco,
   Montreal and Baku. Revision 2 separates those four by increasing centerline
@@ -116,8 +116,8 @@ through COLLADA effects/materials and OBJ's MTL, with planar repeating UVs.
 Install build dependencies `numpy`, `Pillow`, and `shapely>=2.1`, then run:
 
 ```sh
-python -m racing.build_tracks
-python -m racing.build_tracks --track bahrain
+python -m racing.tracks.builder
+python -m racing.tracks.builder --track bahrain
 ```
 
 No network is required for a rebuild. `racing.tracks.Track` only requires
@@ -127,7 +127,7 @@ are metres. `at(s, offset)` returns `(xy, yaw)` and wraps distance around the
 lap. `project(xy)` returns `(s, signed_cte, yaw)`. Positive offsets/errors are
 left of travel; yaw is radians from +X. `boundary_segments()` returns N×2×2
 segments for lidar. For the full-size variant use
-`Track("tracks/bahrain/full_scale/track.json")`.
+`Track("assets/tracks/bahrain/full_scale/track.json")`.
 
 For elevated assets, `has_elevation` selects the three-dimensional API:
 `at3d(s, offset)` returns `(xyz, yaw, grade)`, where grade is dimensionless

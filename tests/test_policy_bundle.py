@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
-from racing.policy import RacingPolicy
-from racing.policy_bundle import configuration,make_actor,actor_source_hashes,actor_version
-from racing.sensors import LidarSensor
+from racing.control.policy import RacingPolicy
+from racing.control.policy_bundle import configuration,make_actor,actor_source_hashes,actor_version
+from racing.perception.sensors import LidarSensor
 from tests.test_racing_contracts import StraightTrack,state
 
 
@@ -18,18 +18,19 @@ class PolicyBundleTests(unittest.TestCase):
     def test_configuration_and_sources_are_explicit(self):
         spec={'actor_type':'closed_loop','controls':{'max_boost_seconds':.5,'steering_bias':.14},'safety_supervisor':True}
         self.assertIn('footprint-safety',actor_version(spec))
-        self.assertIn('racing/safety.py',actor_source_hashes(spec))
-        self.assertIn('racing/odometry.py',actor_source_hashes(spec))
+        self.assertIn('racing/control/safety.py',actor_source_hashes(spec))
+        self.assertIn('racing/perception/odometry.py',actor_source_hashes(spec))
         self.assertNotIn('racing/isaac_env.py',actor_source_hashes(spec))
+        self.assertNotIn('racing/simulators/isaac/environment.py',actor_source_hashes(spec))
         with self.assertRaises(ValueError):configuration({'actor_type':'unknown'})
         with self.assertRaises(ValueError):configuration({'actor_type':'reactive','controls':{'max_boost_seconds':.5}})
 
     def test_reactive_safety_freezes_its_motion_dependencies(self):
         sources=actor_source_hashes({'actor_type':'reactive','safety_supervisor':True})
-        self.assertIn('racing/safety_motion.py',sources)
-        self.assertIn('racing/odometry.py',sources)
-        self.assertNotIn('racing/policy_closed_loop.py',sources)
-        self.assertNotIn('racing/safety_motion.py',actor_source_hashes())
+        self.assertIn('racing/control/safety_motion.py',sources)
+        self.assertIn('racing/perception/odometry.py',sources)
+        self.assertNotIn('racing/control/policy_closed_loop.py',sources)
+        self.assertNotIn('racing/control/safety_motion.py',actor_source_hashes())
 
     def test_supervision_handles_initial_missing_scan(self):
         actor=make_actor(spec={'actor_type':'closed_loop','safety_supervisor':True})

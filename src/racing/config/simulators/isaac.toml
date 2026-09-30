@@ -1,0 +1,9 @@
+name = "isaac"
+target = "racing.simulators.isaac.environment:RaceIsaacEnv"
+description = "Native Isaac Sim / PhysX racing backend"
+
+[defaults]
+num_cars = 2
+render = false
+physics_hz = 480
+tire_representation = "native_cylinder"

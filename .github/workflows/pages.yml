@@ -25,10 +25,10 @@ jobs:
           # unchanged. This avoids a manual, account-side prerequisite.
           enablement: true
       - name: Build static evidence site
-        run: python3 site/build_site.py
+        run: python3 publication/site/build_site.py
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site/_site
+          path: publication/site/_site
 
   deploy:
     environment:

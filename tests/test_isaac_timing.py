@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 
-from racing.isaac_env import RaceIsaacEnv
+from racing.simulators.isaac import RaceIsaacEnv
 
 
 class StopNativeStartup(Exception):

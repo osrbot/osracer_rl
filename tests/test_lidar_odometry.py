@@ -1,7 +1,7 @@
 """Independent synthetic scans with known rigid motion, not simulator truth inputs."""
 import unittest
 import numpy as np
-from racing.odometry import LidarOdometry
+from racing.perception.odometry import LidarOdometry
 
 DT = 1/15
 ROOM = np.array([[[-6., -3.], [6., -3.]], [[6., -3.], [6., 3.]],

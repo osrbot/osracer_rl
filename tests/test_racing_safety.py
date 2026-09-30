@@ -3,8 +3,8 @@ import unittest
 
 import numpy as np
 
-from racing.safety import LocalSafetySupervisor, _wall_fits, _reflector_forward, _reflector_geometry
-from racing.sensors import LidarSensor
+from racing.control.safety import LocalSafetySupervisor, _wall_fits, _reflector_forward, _reflector_geometry
+from racing.perception.sensors import LidarSensor
 
 
 def observation(right=-.75, left=.75, speed=3., slope=0.):
@@ -330,8 +330,8 @@ class TestScanMotionSafety(unittest.TestCase):
         self.assertFalse(call(float('nan'), 3.))
 
     def test_directed_geometry_does_not_flip_after_crossing_old_wall(self):
-        from racing.safety import _scan_geometry, _transform_geometry, FOOTPRINT
-        from racing.safety_motion import compensate_points
+        from racing.control.safety import _scan_geometry, _transform_geometry, FOOTPRINT
+        from racing.control.safety_motion import compensate_points
         p = np.c_[np.full(40, .55), np.linspace(-1., 1., 40)]
         g = _scan_geometry(p, np.ones(40, bool))
         wall = _transform_geometry(g, [7., 0., 0.], .1)['walls'][0]
@@ -346,7 +346,7 @@ class TestScanMotionSafety(unittest.TestCase):
                                       [wall['minimum'], wall['maximum']], atol=1e-12)
 
     def test_old_reflector_face_and_roi_padding(self):
-        from racing.safety import _scan_geometry, _transform_geometry
+        from racing.control.safety import _scan_geometry, _transform_geometry
         p = np.c_[np.full(20, .45), np.linspace(.4, .56, 20)]
         valid = np.ones(20, bool)
         g = _transform_geometry(_scan_geometry(p, valid), [8., 0., 0.], .05)
@@ -378,7 +378,7 @@ class TestScanMotionSafety(unittest.TestCase):
 
 class TestLocalMotionGeometry(unittest.TestCase):
     def test_exact_se2_and_mirror(self):
-        from racing.safety_motion import twist_displacement, compensate_points, predict_poses, swept_footprints
+        from racing.control.safety_motion import twist_displacement, compensate_points, predict_poses, swept_footprints
         translation, yaw = twist_displacement([4., -1., 3.], .05)
         np.testing.assert_allclose(translation, [.2029938173, -.0348408147], atol=1e-10)
         self.assertAlmostEqual(yaw, .15)
@@ -397,7 +397,7 @@ class TestLocalMotionGeometry(unittest.TestCase):
         np.testing.assert_allclose(footprint[0, 0], [.577580910, .163362389], atol=1e-9)
 
     def test_recovery_accelerates_from_initial_velocity_and_validates_inputs(self):
-        from racing.safety_motion import predict_poses
+        from racing.control.safety_motion import predict_poses
         slow = predict_poses([0., 0., 0.], 0., 0., command_speed=.5)
         fast = predict_poses([4., 0., 0.], 0., 0., command_speed=.5)
         self.assertAlmostEqual(slow[1, 0], .0024)
@@ -417,7 +417,7 @@ class TestLocalMotionGeometry(unittest.TestCase):
 
 class TestForwardRecoveryAcceleration(unittest.TestCase):
     def test_tiny_reverse_or_sideways_motion_does_not_command_reverse_acceleration(self):
-        from racing.safety_motion import predict_poses
+        from racing.control.safety_motion import predict_poses
         for mode in ['slip', 'coast']:
             negative = predict_poses([-.00122, .000077, 0.], 0., 0., command_speed=.5, mode=mode)
             self.assertAlmostEqual(negative[1, 0], .0023756)

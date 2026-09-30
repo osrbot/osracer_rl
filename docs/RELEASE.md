@@ -17,7 +17,7 @@
 
 ```bash
 .venv/bin/python -I -c "import sys,json;sys.path.insert(0,'.');\
-from racing.policy_bundle import actor_source_hashes;\
+from racing.control.policy_bundle import actor_source_hashes;\
 spec=json.load(open('output/racing/candidates/g00c_v10c_lateral.json'));\
 print(actor_source_hashes(spec)==spec['actor_source_sha256'])"
 ```
@@ -42,12 +42,12 @@ print(actor_source_hashes(spec)==spec['actor_source_sha256'])"
 - `output/racing/policies/`：62 个策略检查点的符号链接视图与清单（含参数、版本、训练引擎、状态、SHA-256），**冻结版是 `frozen-candidates-g00c_v10c_lateral.json`**。
 - `output/racing/logs/`：运行日志按 `isaac/`、`mujoco/`、`bridge/`、`training/`、`qualification/`、`misc/` 分组（本轮归位 264 个文件）。
 - 顶层从 446 项降到 184 项；结果、轨迹、录像仍在原路径，未移动、未改名，因此已记录的证据哈希与引用保持有效。
-- 重新整理只需 `.venv/bin/python -I scripts/organize_outputs.py`，它只归位新出现的日志并刷新索引。
+- 重新整理只需 `.venv/bin/python -I tools/assets/organize_outputs.py`，它只归位新出现的日志并刷新索引。
 
 [media.html](../output/racing/media.html) 是可浏览素材库（点开即播），[MEDIA.md](../output/racing/MEDIA.md) 是同一批素材的表格索引，`MEDIA_INDEX.json` 是机器清单。当前共 **411 段原生录像**（证据 91 / 失败对照组 8 / 历史批次 312，后者含被撤回实验的录像）与 905 张首帧预览，全部通过 `ffprobe` 解码校验，逐段带 SHA-256、分辨率、帧数与对应回合指标。
 
 ```bash
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -I scripts/index_media.py \
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -I tools/assets/index_media.py \
   --tag c03v10c_dev24 --tag c03v10c_cruise9_dev24 --tag c03v10c_cruise9_holdout \
   --tag c03v10c_sensor_perturb --tag c03v10c_isaac_holdout
 ```
@@ -66,14 +66,14 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -I scripts/index_media.py \
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest tests -q
 
 # MuJoCo 全赛道（含录制）
-.venv/bin/python -I -m racing.sweep --checkpoint output/racing/candidates/g00c_v10c_lateral.json \
+.venv/bin/python -I -m racing.runtime.sweep --checkpoint output/racing/candidates/g00c_v10c_lateral.json \
   --tag c03v10c_dev24 --record-tracks <全部赛道> --seconds 200 --seed 0
 
 # Isaac 全赛道（含录制）
-bash scripts/run_isaac.sh scripts/run_racing_batch.py --tracks <全部赛道> --record-tracks <全部赛道> \
+bash tools/runtime/run_isaac.sh tools/runtime/run_racing_batch.py --tracks <全部赛道> --record-tracks <全部赛道> \
   --checkpoint output/racing/candidates/g00c_v10c_lateral.json --tag c03v10c_dev24 --seconds 200 --seeds 0
 
 # 独立审计与报告
-.venv/bin/python -I -m racing.verify output/racing/mujoco/*_c03v10c_dev24.json
-.venv/bin/python -I -m racing.report --tag c03v10c_dev24 --checkpoint output/racing/candidates/g00c_v10c_lateral.json
+.venv/bin/python -I -m racing.evaluation.verify output/racing/mujoco/*_c03v10c_dev24.json
+.venv/bin/python -I -m racing.evaluation.report --tag c03v10c_dev24 --checkpoint output/racing/candidates/g00c_v10c_lateral.json
 ```

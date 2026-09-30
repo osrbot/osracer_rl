@@ -2,10 +2,10 @@ import unittest
 
 import numpy as np
 
-from racing.policy import (DT, ESCAPE_PROGRESS_REQUIRED, ESCAPE_SECONDS,
+from racing.control.policy import (DT, ESCAPE_PROGRESS_REQUIRED, ESCAPE_SECONDS,
                            ESCAPE_STUCK_SECONDS, RacingPolicy)
-from racing.policy_bundle import BLOCKED_ESCAPE_SECONDS, make_actor
-from racing.sensors import LidarSensor
+from racing.control.policy_bundle import BLOCKED_ESCAPE_SECONDS, make_actor
+from racing.perception.sensors import LidarSensor
 
 
 class OpenCorridor:

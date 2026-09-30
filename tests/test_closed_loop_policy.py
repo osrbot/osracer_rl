@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
-from racing.policy import RacingPolicy
-from racing.policy_closed_loop import ClosedLoopRacingPolicy
-from racing.sensors import LidarSensor
+from racing.control.policy import RacingPolicy
+from racing.control.policy_closed_loop import ClosedLoopRacingPolicy
+from racing.perception.sensors import LidarSensor
 
 
 class Track:

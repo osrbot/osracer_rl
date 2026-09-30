@@ -37,21 +37,21 @@ SolidWorks 装配体
 
 ### 资产来源与导出依赖
 
-`OSRACER/` 中的车辆描述是通过 [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro) 导出的资产。该工具维护从 SolidWorks 到 URDF 的工作流，并可输出 ROS、OpenUSD 与 MuJoCo 目标。它是本项目的**外部依赖和资产来源**，而不是复制进本仓库的代码；几何、惯量、关节语义、碰撞选择以及目标仿真器验证均是独立研究责任。
+`assets/vehicles/osracer/` 中的车辆描述是通过 [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro) 导出的资产。该工具维护从 SolidWorks 到 URDF 的工作流，并可输出 ROS、OpenUSD 与 MuJoCo 目标。它是本项目的**外部依赖和资产来源**，而不是复制进本仓库的代码；几何、惯量、关节语义、碰撞选择以及目标仿真器验证均是独立研究责任。
 
-目录 `OSRACER/`、环境变量 `OSRACER_ISAAC_DIR` 与 `osracer-*` 是规范的资产、运行时和包标识。公开项目名称及审核后的演示媒体统一为 **OSRACER**。
+目录 `assets/vehicles/osracer/`、环境变量 `OSRACER_ISAAC_DIR` 与 `osracer-*` 是规范的资产、运行时和包标识。公开项目名称及审核后的演示媒体统一为 **OSRACER**。
 
 ## 最小复现实验
 
 请在仓库根目录执行。需要 Python 3.11+（开发环境为 Python 3.12）；原生 Isaac Sim 需单独安装。
 
 ```bash
-bash scripts/setup_racing.sh --test
+bash tools/environment/setup_racing.sh --test
 . .venv/bin/activate
 
 # 模型、传感器和执行器路径的短回合。
-python3 scripts/run_racing.py \
-  --engine mujoco --track bahrain --seconds 10 --episodes 1 --tag smoke
+python3 tools/runtime/run_racing.py \
+  --simulator mujoco --task bahrain --seconds 10 --episodes 1 --tag smoke
 
 # 确定性契约测试。
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
@@ -59,8 +59,8 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
 
 ```bash
 export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
-bash scripts/run_isaac.sh scripts/run_racing.py \
-  --engine isaac --track bahrain --seconds 10 --episodes 1 --tag smoke_isaac
+bash tools/runtime/run_isaac.sh tools/runtime/run_racing.py \
+  --simulator isaac --task bahrain --seconds 10 --episodes 1 --tag smoke_isaac
 ```
 
 大型原始实验档案被有意排除在公开仓库之外。静态站只发布经审核的截图、视频、讲解材料和可审计摘要；将本地 `output/` 视为公开证据前，请先阅读[公开仓库边界](docs/PROJECT_STRUCTURE.md#公开仓库边界)。
@@ -69,13 +69,26 @@ bash scripts/run_isaac.sh scripts/run_racing.py \
 
 | 路径 | 在研究记录中的职责 |
 | --- | --- |
-| `OSRACER/` | 导出的 ROS、OpenUSD 与 MuJoCo 车辆描述；资产来源工件。 |
-| `racing/` | 原生环境、传感器契约、控制器、安全层、资格评估与审计。 |
-| `tracks/` | 24 条唯一赛道、来源记录和缩放假设。 |
-| `scripts/` | 环境检查、批处理、录像与确定性的公开媒体品牌重制。 |
+| `assets/` | `vehicles/` 下的车辆描述和 `tracks/` 下的 24 条赛道资产。 |
+| `src/racing/` | 按控制、感知、评估、运行时、赛道、车辆和仿真器划分的可安装 Python 包。 |
+| `tools/` | 按运行、训练、评估、诊断、资产和环境划分的命令工具。 |
+| `native/` | 可选 C++ 扩展及其小范围 Python 探针。 |
+| `deployment/` | ROS2 等部署适配，不与核心仿真代码混放。 |
 | `docs/` | 工程契约、验证台账、部署边界与发布说明。 |
-| `site/` | 无外部依赖的证据站构建器与精选公开资产。 |
-| `experimental/` | 被拒收候选和失败调查，绝不混入通过成绩。 |
+| `publication/` | 共享审核媒体、证据站构建器、PPT、讲稿和视频制作。 |
+| `runs/` | 被忽略的分批运行产物：检查点、指标、TensorBoard、轨迹、录像和日志。 |
+
+新实验使用[运行产物目录](docs/RUN_ARTIFACTS.md)。执行 `.venv/bin/tensorboard --logdir runs --port 6006` 可查看训练指标。现有 `output/racing/` 作为只读历史证据库保留。
+
+常用闭环是一行训练、一行 TensorBoard、一行播放：
+
+```bash
+osracer-train +simulator=mujoco +task=racing/bahrain experiment_name=demo
+tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
+osracer-play experiment_name=demo
+```
+
+默认算法是 PPO，训练规模由 `src/racing/config/training/default.toml` 管理；环境检查可追加 `+train=quick`。MuJoCo 与 Isaac Sim 使用统一的逐迭代终端摘要，训练生成 `policy.pt` 并自动导出已校验的 `policy.onnx`；完整原始指标保存在运行目录中。原 CEM 参数搜索通过 `algorithm=cem` 保留为兼容基线。配置覆盖方式、终端字段及兼容选项见[运行产物目录](docs/RUN_ARTIFACTS.md)。
 
 ## 负责任地阅读结果
 

@@ -4,6 +4,8 @@
 __pycache__/
 .venv/
 *.egg-info/
+.eggs/
+dist/
 .pytest_cache/
 *.log
 *.tar.gz
@@ -33,19 +35,19 @@ htmlcov/
 .nox/
 
 # ROS/colcon produces these runtime pointers locally.  Do not ignore the
-# repository's presentation/build directory: it contains the reviewed deck.
-deploy/log/
-/build/
+# repository's publication/presentation/build directory: it contains the reviewed deck.
+/log/
+build/
 /install/
 
 # Full experiment output is a 35 GB local evidence archive. The public site
-# consumes the reviewed, hash-traceable subset in site/source_assets/ instead.
+# consumes the reviewed, hash-traceable subset in publication/assets/ instead.
 output/
+runs/
 
 # Generated presentation artifacts and local site build output. The reviewed
-# briefing deck is intentionally versioned because the public site distributes it.
-presentation/build/*
-!presentation/build/osracer_live_briefing.pptx
-presentation/video/build/
-site/_site/
-site/.cache/
+# briefing deck lives in publication/presentation/releases/.
+publication/presentation/video/build/
+publication/presentation/video/final/
+publication/site/_site/
+publication/site/.cache/
