@@ -3,9 +3,9 @@ description = "Track-specific PPO transfer profile for the 24-round season bench
 
 [algorithm]
 name = "ppo"
-iterations = 20
-steps_per_iteration = 1024
-learning_epochs = 4
+iterations = 1
+steps_per_iteration = 256
+learning_epochs = 1
 mini_batches = 4
 learning_rate = 0.0001
 gamma = 0.99
@@ -14,11 +14,11 @@ clip_ratio = 0.2
 entropy_coefficient = 0.001
 value_coefficient = 0.5
 max_gradient_norm = 1.0
-checkpoint_interval = 5
+checkpoint_interval = 1
 imitation_steps = 14400
-imitation_epochs = 10
-refinement_cycles = 1
-refinement_epochs = 6
+imitation_epochs = 16
+refinement_cycles = 0
+refinement_epochs = 0
 generations = 1
 population = 4
 

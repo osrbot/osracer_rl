@@ -70,6 +70,7 @@ def test_train_creates_independent_runs_and_resume_skips_completed(monkeypatch,t
     assert [row["run_id"] for row in summary["tracks"]]==[
         "suite-r01-melbourne","suite-r04-bahrain"]
     assert all("checkpoint="+str(parent.resolve()) in command for command in commands)
+    assert "seed=73" in commands[0]
     assert "+task=racing/melbourne" in commands[0]
     assert "+task=racing/bahrain" in commands[1]
     assert commands[0]!=commands[1]
@@ -83,7 +84,8 @@ def test_train_creates_independent_runs_and_resume_skips_completed(monkeypatch,t
 def test_benchmark_profile_is_packaged():
     from racing.runtime.configuration import load_training_profile
     profile=load_training_profile("benchmark")
-    assert profile.iterations==20
+    assert profile.iterations==1
     assert profile.evaluation_episodes==3
-    assert profile.refinement_cycles==1
+    assert profile.refinement_cycles==0
     assert profile.imitation_steps==14400
+    assert profile.imitation_epochs==16

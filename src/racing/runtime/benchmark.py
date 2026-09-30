@@ -16,15 +16,15 @@ from ..control.neural_policy import load_checkpoint
 from ..simulators import available_simulators
 from ..tracks import catalog, season_tracks
 from .artifacts import RunLayout
-from .configuration import composed_values
+from .configuration import composed_values,load_training_profile
 
 
 SCHEMA_VERSION = 1
 COMMANDS = {"train", "status", "play"}
-MANAGED_KEYS = {"benchmark_name", "season", "tracks", "checkpoint",
+MANAGED_KEYS = {"benchmark_name", "season", "tracks", "checkpoint", "attempts", "seed",
                 "task", "experiment_name", "logger.tensorboard_dir"}
 PPO_KEYS = {
-    "train", "algorithm", "simulator", "seed", "device",
+    "train", "algorithm", "simulator", "device",
     "train.iterations", "train.steps_per_iteration", "train.learning_epochs",
     "train.mini_batches", "train.learning_rate", "train.checkpoint_interval",
     "train.imitation_steps", "train.imitation_epochs",
@@ -138,6 +138,7 @@ def _write_summary(layout: RunLayout,state: dict) -> dict:
         "schema_version":SCHEMA_VERSION,
         "benchmark_name":state["benchmark_name"],"season":state["season"],
         "simulator":state["simulator"],"training_profile":state["training_profile"],
+        "base_seed":state["base_seed"],"max_attempts":state["max_attempts"],
         "protocol_sha256":state["protocol_sha256"],
         "source_checkpoint_sha256":state["source_checkpoint_sha256"],
         "created_at":state["created_at"],"updated_at":_now(),
@@ -177,9 +178,16 @@ def _run_child(command: list[str],log_path: Path) -> int:
         process=subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,
                                  text=True,bufsize=1)
         assert process.stdout is not None
-        for line in process.stdout:
-            print(line,end="",flush=True);log.write(line);log.flush()
-        return process.wait()
+        try:
+            for line in process.stdout:
+                print(line,end="",flush=True);log.write(line);log.flush()
+            return process.wait()
+        except KeyboardInterrupt:
+            process.terminate()
+            try:process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill();process.wait()
+            raise
 
 
 def _load_state(layout: RunLayout) -> dict:
@@ -202,6 +210,10 @@ def _train(args,values: dict[str,str],forwarded: list[str]) -> dict:
     if engine not in available_simulators():
         raise ValueError(f"unknown simulator: {engine}")
     profile=values.get("train","benchmark")
+    profile_config=load_training_profile(profile)
+    base_seed=int(values.get("seed",profile_config.seed))
+    max_attempts=int(values.get("attempts","3"))
+    if max_attempts<1:raise ValueError("attempts must be positive")
     source_sha=_sha256(checkpoint)
     protocol_sha=_protocol_sha256(profile)
     layout=RunLayout.path(name,args.runs_root)
@@ -209,6 +221,7 @@ def _train(args,values: dict[str,str],forwarded: list[str]) -> dict:
         print(json.dumps({"benchmark_name":name,"season":season,"simulator":engine,
             "training_profile":profile,"tracks":plan,"source_checkpoint":str(checkpoint),
             "source_checkpoint_sha256":source_sha,"protocol_sha256":protocol_sha,
+            "base_seed":base_seed,"max_attempts":max_attempts,
             "forwarded_overrides":forwarded},ensure_ascii=False,indent=2))
         return {"dry_run":True,"tracks":plan}
     layout=RunLayout.open(name,args.runs_root)
@@ -218,8 +231,8 @@ def _train(args,values: dict[str,str],forwarded: list[str]) -> dict:
         state=_load_state(layout)
         frozen=(state["season"],state["simulator"],state["training_profile"],
                 state["source_checkpoint_sha256"],state.get("protocol_sha256"),
-                state["forwarded_overrides"])
-        requested=(season,engine,profile,source_sha,protocol_sha,forwarded)
+                state.get("base_seed"),state.get("max_attempts"),state["forwarded_overrides"])
+        requested=(season,engine,profile,source_sha,protocol_sha,base_seed,max_attempts,forwarded)
         if frozen!=requested:
             raise ValueError("resume arguments differ from the frozen benchmark protocol")
         requested_tracks=[row["track"] for row in plan]
@@ -231,49 +244,55 @@ def _train(args,values: dict[str,str],forwarded: list[str]) -> dict:
             "simulator":engine,"training_profile":profile,
             "source_checkpoint":str(checkpoint),"source_checkpoint_sha256":source_sha,
             "protocol_sha256":protocol_sha,
+            "base_seed":base_seed,"max_attempts":max_attempts,
             "forwarded_overrides":forwarded,"created_at":_now(),"updated_at":_now(),
             "tracks":[{"round":row["round"],"track":row["track"],"status":"pending",
                        "attempt":0,"run_id":None,"result":None,"error":None}
                       for row in plan]}
         _atomic_json(state_path,state);_write_summary(layout,state)
-    for item in state["tracks"]:
-        if item["status"]=="completed":
-            result=_checkpoint_result(item["run_id"],args.runs_root,item["track"],engine)
-            if result is not None and result["qualified"]:
-                item["result"]=result;continue
-            item["status"]=("unqualified" if result is not None else "failed")
-            item["error"]=("policy did not pass every evaluation seed" if result is not None
-                           else "completed artifacts failed validation")
-        attempt=int(item.get("attempt",0))+1
-        base=f"{name}-r{item['round']:02d}-{item['track']}"
-        run_id=base if attempt==1 else f"{base}-a{attempt:02d}"
-        while RunLayout.path(run_id,args.runs_root).root.exists():
-            attempt+=1;run_id=f"{base}-a{attempt:02d}"
-        item.update(status="running",attempt=attempt,run_id=run_id,
-                    started_at=_now(),completed_at=None,error=None,result=None)
-        state["updated_at"]=_now();_atomic_json(state_path,state);_write_summary(layout,state)
-        tensorboard=layout.tensorboard/f"r{item['round']:02d}-{item['track']}"
-        child=[sys.executable,"-m","racing.runtime.train",
-               f"+simulator={engine}",f"+task=racing/{item['track']}",
-               f"experiment_name={run_id}",f"checkpoint={checkpoint}",
-               f"logger.tensorboard_dir={tensorboard}",*forwarded,
-               "--runs-root",str(layout.root.parent)]
-        print(f"\nTraining track {item['round']}/{len(state['tracks'])}: "
-              f"{item['track']} ({run_id})",flush=True)
-        return_code=_run_child(child,layout.logs/f"{run_id}.log")
-        result=_checkpoint_result(run_id,args.runs_root,item["track"],engine)
-        if return_code==0 and result is not None and result["qualified"]:
-            item.update(status="completed",completed_at=_now(),result=result,error=None)
-        elif return_code==0 and result is not None:
-            item.update(status="unqualified",completed_at=_now(),result=result,
-                        error="policy did not pass every evaluation seed")
-        else:
-            item.update(status="failed",completed_at=_now(),result=result,
-                error=(f"training exited with status {return_code}" if return_code else
-                       "training artifacts failed validation"))
-        state["updated_at"]=_now();_atomic_json(state_path,state)
-        summary=_write_summary(layout,state);_print_summary(summary)
-        if item["status"]!="completed" and args.fail_fast:break
+    for _ in range(max_attempts):
+        for selection_index,item in enumerate(state["tracks"],1):
+            if item["status"]=="completed":
+                result=_checkpoint_result(item["run_id"],args.runs_root,item["track"],engine)
+                if result is not None and result["qualified"]:
+                    item["result"]=result;continue
+                item["status"]=("unqualified" if result is not None else "failed")
+                item["error"]=("policy did not pass every evaluation seed" if result is not None
+                               else "completed artifacts failed validation")
+            if int(item.get("attempt",0))>=max_attempts:continue
+            attempt=int(item.get("attempt",0))+1
+            base=f"{name}-r{item['round']:02d}-{item['track']}"
+            run_id=base if attempt==1 else f"{base}-a{attempt:02d}"
+            while RunLayout.path(run_id,args.runs_root).root.exists():
+                attempt+=1;run_id=f"{base}-a{attempt:02d}"
+            if attempt>max_attempts:continue
+            item.update(status="running",attempt=attempt,run_id=run_id,
+                        started_at=_now(),completed_at=None,error=None,result=None)
+            state["updated_at"]=_now();_atomic_json(state_path,state);_write_summary(layout,state)
+            tensorboard=layout.tensorboard/f"r{item['round']:02d}-{item['track']}"/f"a{attempt:02d}"
+            child=[sys.executable,"-m","racing.runtime.train",
+                   f"+simulator={engine}",f"+task=racing/{item['track']}",
+                   f"experiment_name={run_id}",f"checkpoint={checkpoint}",
+                   f"seed={base_seed+attempt-1}",
+                   f"logger.tensorboard_dir={tensorboard}",*forwarded,
+                   "--runs-root",str(layout.root.parent)]
+            print(f"\nTraining track {selection_index}/{len(state['tracks'])} · "
+                  f"round {item['round']} · attempt {attempt}/{max_attempts}: "
+                  f"{item['track']} ({run_id})",flush=True)
+            return_code=_run_child(child,layout.logs/f"{run_id}.log")
+            result=_checkpoint_result(run_id,args.runs_root,item["track"],engine)
+            if return_code==0 and result is not None and result["qualified"]:
+                item.update(status="completed",completed_at=_now(),result=result,error=None)
+            elif return_code==0 and result is not None:
+                item.update(status="unqualified",completed_at=_now(),result=result,
+                            error="policy did not pass every evaluation seed")
+            else:
+                item.update(status="failed",completed_at=_now(),result=result,
+                    error=(f"training exited with status {return_code}" if return_code else
+                           "training artifacts failed validation"))
+            state["updated_at"]=_now();_atomic_json(state_path,state)
+            summary=_write_summary(layout,state);_print_summary(summary)
+            if item["status"]!="completed" and args.fail_fast:raise SystemExit(1)
     summary=_write_summary(layout,state);_print_summary(summary)
     json_path,csv_path=_summary_paths(layout)
     print("OSRACER_BENCHMARK_ARTIFACTS",json.dumps({
