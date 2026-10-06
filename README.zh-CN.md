@@ -1,88 +1,98 @@
-# OSRACER：面向自主阿克曼赛车的证据优先研究
+# OSRACER · 传感器驱动的阿克曼赛车
 
-[文档导航](docs/README.md) · [参考材料](docs/REFERENCES.md) · [历史迁移](docs/LEGACY.md)
+[English](README.md) · [使用文档](docs/README.md) · [实验结果](docs/VALIDATION_STATUS.md) · [演示材料](publication/README.md)
 
-[English](README.md) · [证据站点](https://osrbot.github.io/osracer_rl/) · [验证台账](docs/VALIDATION_STATUS.md) · [项目结构](docs/PROJECT_STRUCTURE.md)
+OSRACER 用 MuJoCo 和 Isaac Sim / PhysX 研究阿克曼小车的自主竞速。你可以在同一套接口下训练策略，查看 TensorBoard 曲线，再把模型放回原生仿真器录制一圈。项目包含车辆资产、24 条赛道、PPO 神经策略、CEM 基线，以及轨迹和录像的核验工具。
 
-OSRACER 是一个研究型开源项目，研究阿克曼转向车辆在原生 **MuJoCo** 与 **Isaac Sim / PhysX** 中的高速自主竞速。项目将车辆资产验证、受传感器约束的驾驶、跨赛道测评、轨迹审计、原生视频和失败对照组整合为同一可复现流程。
+策略读取轮速、转角和单线激光，不读取车辆的全局位置。当前 PPO 已能在 MuJoCo Bahrain 完圈，但最近的 24 赛道迁移只有 **6/24** 通过全部筛选种子。历史 CEM 在 MuJoCo 上的 24/24 成绩属于另一套控制器。两者的配置、检查点和结果分别记录，详见[验证状态](docs/VALIDATION_STATUS.md)。
 
-仿真输出被视为需要资格审查的证据，而不是宣传结论。
+## 安装前先确认环境
 
-## 研究问题
+下面的命令面向 **Linux x86_64、Bash**；当前开发与验证环境为 Ubuntu 24.04、Python 3.12。包声明支持 Python ≥3.11，其他系统和 Python 版本组合尚未获得同等验证。先走 MuJoCo 路线即可开始，Isaac 需要额外安装。
 
-1. 导出的车辆资产能否在 OpenUSD/Isaac Sim 与 MuJoCo 中可靠加载、渲染、运动学驱动和物理步进？
-2. 在不使用全局 actor 位姿、仅使用轮速、转角和 15 Hz 激光历史的条件下，阿克曼小车能否在明确物理假设下完成整圈、主动超车并改善圈速？
-3. 极限来自仿真器、传感器契约，还是实车的执行器架构？
-
-## 已审查的研究快照
-
-本仓库仍在研究中，**不**宣称已解决全部驾驶目标。[验证台账](docs/VALIDATION_STATUS.md) 同时保留支持性和反例性证据。
-
-| 问题 | 当前证据支持的结论 | 仍然存在的边界 |
-| --- | --- | --- |
-| OpenUSD 与 MuJoCo 资产 | OpenUSD 已有加载/渲染/短时步进证据：20 个网格引用、10 个刚体、9 个物理关节、6 个可动自由度；MuJoCo `robot.xml`/`scene.xml` 已完成 500 步有限状态检查。 | 这是**资产层**检查，不等于固定基座导出模型已被证明能够地面驾驶。 |
-| 完圈与超车 | v10c 在 MuJoCo 上为 24/24 有效圈，每圈一次审计通过的超车；Isaac 在匹配资格条件下为 22/24。 | Isaac 仍在 Spa 出现起步车车接触、Suzuka 出现桥面失稳。 |
-| 最短圈速 / 提速 | 9.0 m/s 巡航配置下，MuJoCo 为 24/24 有效圈、峰值 8.97 m/s；Isaac 为 20/24 可比有效圈、峰值 9.00–9.04 m/s。 | Isaac 高速配置以稳定性换取速度，不能当作共享鲁棒工作点。 |
-| 180° 漂移 | 在写明执行器假设的仿真中存在持续侧滑示例。 | 当前单电机四驱实车**不能**复现：移除后轮超速后最大侧滑角由 27.0° 降至 4.36°；项目不作实车漂移声明。 |
-| 传感器鲁棒性 | 仅加噪声时可通过部分检查。 | 0.02 m 噪声 + 5% 丢束 + 50 ms 延迟下，10/10 扰动回合失败；这是公开的研究缺口。 |
-
-## 方法
-
-```text
-SolidWorks 装配体
-    └─ solidworks_urdf_exporter_pro ──> ROS 描述 + OpenUSD + MuJoCo MJCF
-                                            └─ 原生资产验证
-                                                └─ 仅传感器策略 / 安全层
-                                                    └─ 24 赛道资格评估
-                                                        └─ 轨迹审计 + 视频 + 失败归档
-```
-
-### 资产来源与导出依赖
-
-`assets/vehicles/osracer/` 中的车辆描述是通过 [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro) 导出的资产。该工具维护从 SolidWorks 到 URDF 的工作流，并可输出 ROS、OpenUSD 与 MuJoCo 目标。它是本项目的**外部依赖和资产来源**，而不是复制进本仓库的代码；几何、惯量、关节语义、碰撞选择以及目标仿真器验证均是独立研究责任。
-
-目录 `assets/vehicles/osracer/`、环境变量 `OSRACER_ISAAC_DIR` 与 `osracer-*` 是规范的资产、运行时和包标识。公开项目名称及审核后的演示媒体统一为 **OSRACER**。
-
-## 最小复现实验
-
-请在仓库根目录执行。需要 Python 3.11+（开发环境为 Python 3.12）；原生 Isaac Sim 需单独安装。
-
-```bash
-bash tools/environment/setup_racing.sh --mujoco-only --test
-. .venv/bin/activate
-
-# 模型、传感器和执行器路径的短回合。
-python3 tools/runtime/run_racing.py \
-  --simulator mujoco --task bahrain --seconds 10 --episodes 1 --tag smoke
-
-# 确定性契约测试。
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
-```
-
-```bash
-export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
-bash tools/runtime/run_isaac.sh tools/runtime/run_racing.py \
-  --simulator isaac --task bahrain --seconds 10 --episodes 1 --tag smoke_isaac
-```
-
-大型原始实验档案被有意排除在公开仓库之外。静态站只发布经审核的截图、视频、讲解材料和可审计摘要；将本地 `output/` 视为公开证据前，请先阅读[公开仓库边界](docs/PROJECT_STRUCTURE.md#公开仓库边界)。
-
-## 仓库导览
-
-| 路径 | 在研究记录中的职责 |
+| 你要运行的内容 | 必须准备的环境 |
 | --- | --- |
-| `assets/` | `vehicles/` 下的车辆描述和 `tracks/` 下的 24 条赛道资产。 |
-| `src/racing/` | 按控制、感知、评估、运行时、赛道、车辆和仿真器划分的可安装 Python 包。 |
-| `tools/` | 按运行、训练、评估、诊断、资产和环境划分的命令工具。 |
-| `native/` | 可选 C++ 扩展及其小范围 Python 探针。 |
-| `deployment/` | ROS2 等部署适配，不与核心仿真代码混放。 |
-| `docs/` | 工程契约、验证台账、部署边界与发布说明。 |
-| `publication/` | 共享审核媒体、证据站构建器、PPT、讲稿和视频制作。 |
-| `runs/` | 被忽略的分批运行产物：检查点、指标、TensorBoard、轨迹、录像和日志。 |
+| MuJoCo 物理仿真、CPU 训练 | Python 3.11+、`venv`、`pip`、Git；无需 NVIDIA GPU。无渲染时设 `MUJOCO_GL=disable`，训练设 `device=cpu` |
+| PPO 训练与模型导出 | PyTorch ≥2.4、ONNX ≥1.17；训练日志需要 TensorBoard ≥2.16、tensorboardX ≥2.6。安装脚本会安装这些依赖 |
+| MuJoCo 录制视频 | 可用的 OpenGL 渲染环境。默认使用 EGL 离屏渲染；无 GPU 时可配置 OSMesa 软件渲染 |
+| 视频编码、检查和桌面播放 | `ffmpeg`、`ffprobe`；自动打开视频还需要 `ffplay` 和桌面显示环境。项目安装脚本不会安装系统软件 |
+| CUDA 加速策略网络 | 支持所选 PyTorch wheel 的 NVIDIA 驱动，且 `torch.cuda.is_available()` 为 `True`；MuJoCo 的物理步进仍在 CPU 上运行 |
+| Isaac 仿真 | 单独安装 **Isaac Sim 6.0.1 Linux standalone**、适配的 NVIDIA RTX GPU/驱动和 Vulkan，使用 Isaac 自带的 Python 3.12 |
+| 磁盘与网络 | 能访问 GitHub、Python 包源；Isaac 初次启动还可能下载扩展与资产。为 Python 包、模型和视频另留空间，`runs/` 会随实验增长 |
 
-新实验使用[运行产物目录](docs/RUN_ARTIFACTS.md)。执行 `.venv/bin/tensorboard --logdir runs --port 6006` 可查看训练指标。现有 `output/racing/` 作为只读历史证据库保留。
+Isaac 6.0 官方要求列出的参考下限包括 4 核 CPU、32 GB 内存、50 GB SSD，以及 RTX 4080 / 16 GB 显存；Linux 测试驱动列为 580.95.05。它们是官方环境要求，并非本项目测出的最低配置；训练和录制还需要额外余量。无 RT Core 的 A100/H100 不在 Isaac 支持范围。安装前运行官方 Compatibility Checker，并核对[对应版本要求](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/requirements.html)（核对于 2026-10-06）。
 
-常用闭环是一行训练、一行 TensorBoard、一行播放：
+已提交的车辆和赛道可直接使用。运行仿真不要求安装 SolidWorks、ROS 2 或编译 `native/`。ROS 2 用于后续[实车部署](docs/DEPLOYMENT.md)，SolidWorks 导出工具用于重新制作资产。
+
+## 从 MuJoCo 开始
+
+### 1. 安装系统依赖并获取仓库
+
+Ubuntu 24.04 参考命令，需要系统包安装权限：
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git python3 python3-venv python3-pip \
+  ffmpeg libegl1 libgl1 libglfw3 libosmesa6
+
+git clone https://github.com/osrbot/osracer_rl.git
+cd osracer_rl
+```
+
+保留完整仓库和 `assets/` 目录。当前代码按源码目录定位车辆与赛道，单独安装 wheel 不能代替仓库资产。
+
+### 2. 选择渲染方式，再安装 Python 环境
+
+有可用 GPU/EGL 驱动时，在当前终端执行：
+
+```bash
+export MUJOCO_GL=egl
+RACING_PYTHON=python3.12 bash tools/environment/setup_racing.sh --mujoco-only --test
+source .venv/bin/activate
+```
+
+没有 GPU、只想检查仿真或做 CPU 训练时，使用下面这组命令。无渲染路径不加 `--test`，因为该选项包含实际渲染测试：
+
+```bash
+export MUJOCO_GL=disable
+RACING_PYTHON=python3.12 bash tools/environment/setup_racing.sh --mujoco-only
+source .venv/bin/activate
+```
+
+需要 CPU 软件录制时选 `export MUJOCO_GL=osmesa`；它需要前面安装的 `libosmesa6`，应先完成一次渲染验证。[MuJoCo 的渲染后端说明](https://mujoco.readthedocs.io/en/3.3.7/programming.html)区分了 EGL、OSMesa 和窗口渲染。
+
+脚本创建 `.venv`，执行 `pip install -e '.[build,training,ppo]'`，并检查依赖和资产。`--test` 运行两组基础契约测试。它不会安装显卡驱动或 Isaac，也不会替你配置 CUDA。运行前设置的 `MUJOCO_GL` 只作用于当前终端，新终端需要重新设置。
+
+Python 依赖以 [pyproject.toml](pyproject.toml) 为准：MuJoCo 固定为 **3.10.0**；基础依赖为 NumPy、SciPy、Pillow；`build` 包含 Shapely、trimesh、pycollada 和 pytest；`training,ppo` 包含上表的训练与日志依赖。其余包使用版本下限，项目尚未提供锁定全部依赖的 lockfile。
+
+如需指定 CPU 或 CUDA 版 PyTorch，先创建 `.venv` 并按 [PyTorch 官方安装选择器](https://pytorch.org/get-started/locally/)安装到该环境，再运行项目安装脚本。系统 CUDA toolkit 不是这里额外编译 PyTorch 的前置步骤；以选定 wheel 的驱动兼容要求为准。
+
+### 3. 验证依赖和短回合
+
+```bash
+python -m pip check
+python -c "import mujoco, torch, onnx, tensorboard, tensorboardX; from onnx.reference import ReferenceEvaluator; print('MuJoCo', mujoco.__version__, 'PyTorch', torch.__version__, 'ONNX', onnx.__version__); print('CUDA available:', torch.cuda.is_available())"
+python tools/environment/check_racing_environment.py --mujoco-only
+
+# 不录制，只检查车辆、传感器与物理步进。
+MUJOCO_GL=disable osracer --simulator mujoco --task bahrain \
+  --seconds 10 --episodes 1 --tag env-smoke
+```
+
+`pip check` 检查已安装包的依赖关系。紧接着的直接导入检查用于确认训练包确实安装在当前解释器中；当前环境检查脚本的 PASS 尚不覆盖 PyTorch、ONNX、TensorBoard、CUDA 运算或实际渲染。不要省略这一步，也不要用本机已有 Isaac 包的兼容回退代替独立环境安装。
+
+10 秒短回合只检查运行链路，不要求完成整圈。有 GPU 并准备录制时，再验证渲染和编码：
+
+```bash
+MUJOCO_GL=egl osracer --simulator mujoco --task bahrain \
+  --seconds 3 --episodes 1 --record --tag render-smoke
+```
+
+CPU 软件渲染改用 `MUJOCO_GL=osmesa`。环境报告默认写入 `runs/_environment/reports/`，回合和视频写入各自的 `runs/<run-id>/`。完整测试包含渲染用例；先切换到可用的 EGL 或 OSMesa，再运行 `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q`。
+
+## 训练、看曲线、播放
+
+完成上面的安装后，日常使用只需要三个命令：
 
 ```bash
 osracer-train +simulator=mujoco +task=racing/bahrain experiment_name=demo
@@ -90,48 +100,72 @@ tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
 osracer-play experiment_name=demo
 ```
 
-为赛季目录中的 24 条赛道分别训练并验证 PPO 策略：
+在另一个已激活 `.venv` 的终端启动 TensorBoard，浏览器打开 `http://localhost:6006`。无 CUDA 时训练追加 `device=cpu`；只检查训练链路可追加 `+train=quick`。`quick` 仍包含教师预热，不是立即结束的空跑，也不证明策略已经收敛。
+
+播放命令会加载 `policy.pt`、重新运行并录制一个回合，再在桌面中打开 MP4。服务器使用 `osracer-play experiment_name=demo --no-open`，随后下载视频查看。**`--no-open` 仍需要渲染环境**；`MUJOCO_GL=disable` 不能用于录制。
+
+每次实验独占一个运行目录。模型位于 `checkpoints/policy.pt`，训练结束会导出 `policy.onnx`；日志在 `metrics/`，录像在 `videos/`。保存的是评估最好的检查点，可能仍是预热模型。TensorBoard 曲线记录训练候选，曲线末值不一定属于最终保留模型。预热结束前没有 event 文件时，页面可能显示 “No dashboards are active”。目录、配置覆盖和排查步骤见[使用说明](docs/RUN_ARTIFACTS.md)。
+
+## 使用 Isaac
+
+先单独完成 Isaac Sim 6.0.1 安装和官方兼容性检查，再设置安装目录。项目 `.venv` 与 Isaac 自带 Python 是两个环境，前面安装的依赖不会自动复制过去。
 
 ```bash
-# 使用上方 demo 训练生成的父检查点；每条赛道单独验收
-osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
-  checkpoint=runs/demo/checkpoints/policy.pt \
-  +simulator=mujoco +train=benchmark
-```
+export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
+nvidia-smi
+cat "$OSRACER_ISAAC_DIR/VERSION"
+test -f "$OSRACER_ISAAC_DIR/python.sh"
+test -f "$OSRACER_ISAAC_DIR/extsDeprecated/omni.isaac.ml_archive/pip_prebundle/nvidia/nccl/lib/libnccl.so.2"
+test -f /etc/vulkan/icd.d/nvidia_icd.json
 
-命令支持赛道粒度断点续跑，并生成统一 TensorBoard 目录与 JSON/CSV 排行表。详见
-[docs/BENCHMARKS.md](docs/BENCHMARKS.md)。
+bash tools/runtime/run_isaac.sh -c \
+  "import sys, numpy, scipy, PIL, torch, onnx, tensorboard, tensorboardX; from onnx.reference import ReferenceEvaluator; print(sys.version); print(torch.__version__, onnx.__version__)"
 
-默认算法是 PPO，训练规模由 `src/racing/config/training/default.toml` 管理；环境检查可追加 `+train=quick`。MuJoCo 与 Isaac Sim 使用统一的逐迭代终端摘要，训练生成 `policy.pt` 并自动导出已校验的 `policy.onnx`；完整原始指标保存在运行目录中。原 CEM 参数搜索通过 `algorithm=cem` 保留为兼容基线。配置覆盖方式、终端字段及兼容选项见[运行产物目录](docs/RUN_ARTIFACTS.md)。
+bash tools/runtime/run_isaac.sh -m racing.runtime.run \
+  --simulator isaac --task bahrain --seconds 10 --episodes 1 --tag isaac-smoke
 
-
-Isaac 使用原生 Python 启动相同训练入口：
-
-```bash
 bash tools/runtime/run_isaac.sh -m racing.runtime.train \
   +simulator=isaac +task=racing/bahrain experiment_name=isaac-demo
+bash tools/runtime/run_isaac.sh -m racing.runtime.play experiment_name=isaac-demo --no-open
 ```
 
-最近本地 PPO 迁移批次为 6/24 条赛道通过全部筛选种子；运行 benchmark 不代表全部赛道收敛。详见[当前验证状态](docs/VALIDATION_STATUS.md)。
+NCCL 库和 Vulkan ICD 的路径是当前启动器的具体要求；如果缺失，先核对 Isaac 版本及驱动安装布局。不能只把目录名改成 6.0.1，也不能用普通 `.venv/bin/python` 代替 Isaac 启动器。
 
-## 负责任地阅读结果
+缺包时，用 `bash "$OSRACER_ISAAC_DIR/python.sh" -m pip install <缺失包>` 补到 Isaac 解释器中。保留 Isaac 随附的 torch/numpy 组合，不要直接在其中执行整套项目 extras 安装。启动器已通过 `PYTHONPATH` 提供本项目源码；双引擎联合运行还须在 Isaac Python 中安装并验证 `mujoco==3.10.0`。安装方法见 [Isaac Python 环境文档](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/install_python.html)。
 
-- 视频可解码、单元测试通过或物理状态有限，不自动等于驾驶成功。
-- 仿真结果不自动等于实车结果。
-- 峰值速度更高，不自动等于策略更鲁棒。
-- 失败记录也是结果的一部分；比较策略或仿真器时不得删除。
+## 24 赛道训练与当前进展
 
-有效圈、超车、漂移、接触与独立审计的定义见[工程说明](docs/ENGINEERING.md)。完整正负证据见[验证状态](docs/VALIDATION_STATUS.md)。实车可迁移性及后轮超速 A/B 结论见[实车部署](docs/DEPLOYMENT.md)。
+单赛道训练生成 `runs/demo/checkpoints/policy.pt` 后，可以把它作为所有赛道共同的父模型：
 
-## 开放研究方向
+```bash
+osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
+  checkpoint=runs/demo/checkpoints/policy.pt +simulator=mujoco +train=benchmark
+osracer-benchmark status benchmark_name=ppo-2025
+```
 
-1. 面对激光丢束与延迟的鲁棒感知和保守规划；
-2. Isaac 专属的桥面接触与起步车车接触问题；
-3. 使用实际转向反馈而非指令回显的实车观测契约；
-4. 可物理实现的漂移机制，或明确不追求漂移的竞速目标。
+命令按赛道保存进度，并生成 TensorBoard 目录和 JSON/CSV 汇总。一次训练完成不代表该赛道通过，程序会保留未通过策略和失败记录。协议与复现命令见 [Benchmark 文档](docs/BENCHMARKS.md)。
 
-## 引用、许可证与贡献
+| 策略 / 实验 | 已记录的结果 | 结论适用范围 |
+| --- | --- | --- |
+| PPO 跨赛道迁移 | MuJoCo 6/24 赛道通过 seed 0–2 | 开发筛选集，尚未达到全赛道稳定驾驶 |
+| PPO Bahrain + 转弯门控 | seed 0–5 为 6/6 有效圈，平均圈时 62.92 s | 保留 iteration 0 模型，改善来自推理门控；不能归因为奖励学习 |
+| 历史 CEM v10c | MuJoCo 24/24，Isaac 22/24 | 冻结参数与名义传感器条件；Isaac 的 Spa、Suzuka 仍失败 |
+| 历史组合传感器扰动 | 噪声、丢束、延迟叠加时 10/10 失败 | 未通过鲁棒性验收，不能从无噪声结果外推 |
 
-在归档版本 / DOI 发布前，请引用仓库 URL、commit SHA 与相应验证文档，避免引用未版本化的单一指标。Issue 或 Pull Request 应提供复现命令、运行时版本、源码版本，以及正负两类证据。
+实车为单电机四驱，不能直接执行仿真里的独立后轮增速。已有漂移样例的执行器假设与实车不同；[部署说明](docs/DEPLOYMENT.md)记录了对应 A/B 和限制。
 
-仓库中的原创源码以 [MIT License](LICENSE) 发布。车辆资产、赛道资产和其他第三方材料保留各自的来源说明和许可条款；MIT 许可证并不会重新许可这些材料。
+## 代码与资料在哪里
+
+| 目录 | 内容 |
+| --- | --- |
+| `src/racing/` | 策略、感知、仿真器、训练、评估与配置 |
+| `assets/` | 车辆描述、24 条赛道及来源记录 |
+| `tools/`、`tests/` | 启动、检查、诊断、历史复现与测试 |
+| `docs/` | 使用说明、实验协议、结果与[参考材料](docs/REFERENCES.md) |
+| `publication/` | 共享审核媒体、网站、PPT 与讲稿 |
+| `deployment/`、`native/` | 可选 ROS 2 部署和原生接触实验 |
+| `runs/` | 各批次模型、指标、轨迹、录像；不提交到 Git |
+
+项目采用 `src/` 包布局，仿真器通过统一工厂创建。配置命令参考 ASAP，具体实现与差异见[仿真器文档](docs/SIMULATORS.md)。CEM 保留为 `algorithm=cem` 基线，也为 PPO 提供教师控制器。旧数据和已移除入口见[历史迁移说明](docs/LEGACY.md)。
+
+车辆资产由 [SolidWorks URDF Exporter Pro](https://github.com/osrbot/solidworks_urdf_exporter_pro) 导出；赛道来源和近似假设见[赛道说明](docs/TRACK_SOURCES.md)。原创代码使用 [MIT License](LICENSE)，第三方资产保留各自声明。反馈问题时，请附提交号、环境版本、完整命令和对应 run 的日志；引用实验结果时，请同时给出策略版本、引擎、赛道和种子。

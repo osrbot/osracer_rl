@@ -17,3 +17,9 @@
 新实验至少记录代码版本、父 checkpoint SHA-256、配置、训练预算、筛选种子和独立评估种子。用训练或调参种子筛选的结果只能作为开发诊断。速度比较须同时列出有效圈率、碰撞/越界、圈时和计量方式；失败截断回合的均速不能直接解释为完整圈提速。
 
 当前 PPO 的局部结果和局限见 [BENCHMARKS.md](BENCHMARKS.md)；历史 CEM 成绩见 [RELEASE.md](RELEASE.md)。这两类结果不混用检查点身份或验收结论。
+
+## 环境与文稿维护参考
+
+- [Isaac Sim 6.0 环境要求](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/requirements.html)与 [Python 环境](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/install_python.html)：用于区分项目虚拟环境和 Isaac 原生运行时。项目当前启动器按 standalone 6.0.1 的目录布局运行。
+- [PyTorch 安装选择器](https://pytorch.org/get-started/locally/)与 [MuJoCo 渲染说明](https://mujoco.readthedocs.io/en/3.3.7/programming.html)：用于选择 CPU/CUDA wheel，以及无渲染、EGL 和 OSMesa 路线。
+- 花叔技能合集中的 [huashu-proofreading](https://github.com/alchaincyf/huashu-skills/blob/2efea35738efa06abbfa9acaee923fcef0732a14/huashu-proofreading/SKILL.md) 与 [huashu-script-polish](https://github.com/alchaincyf/huashu-skills/blob/2efea35738efa06abbfa9acaee923fcef0732a14/huashu-script-polish/SKILL.md)：本轮按内容核验、表达审校、排版与口述节奏三步重写 README 和讲稿。事实来源仍是本项目代码、实验记录及官方环境文档；不添加虚构亲历，也不以 AI 检测分数评价文稿质量。

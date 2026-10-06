@@ -1,86 +1,98 @@
-# OSRACER: Evidence-First Research on Autonomous Ackermann Racing
+# OSRACER · Sensor-driven Ackermann racing
 
-[中文文档](README.zh-CN.md) · [Evidence site](https://osrbot.github.io/osracer_rl/) · [Validation ledger](docs/VALIDATION_STATUS.md) · [Project structure](docs/PROJECT_STRUCTURE.md) · [Documentation](docs/README.md) · [References](docs/REFERENCES.md)
+[中文](README.zh-CN.md) · [Documentation](docs/README.md) · [Results](docs/VALIDATION_STATUS.md) · [Presentations](publication/README.md)
 
-OSRACER is an open research project on high-speed autonomous Ackermann racing in native **MuJoCo** and **Isaac Sim / PhysX**. It combines vehicle-asset validation, sensor-constrained driving, multi-track evaluation, trajectory audits, videos, and failure cases in one reproducible workflow.
+OSRACER studies autonomous Ackermann racing in MuJoCo and Isaac Sim / PhysX. Train a policy, inspect its TensorBoard metrics, then run it in the native simulator to record a lap. The repository includes vehicle assets, 24 tracks, a PPO neural policy, CEM baselines, and tools to check trajectories and videos.
 
-Simulation output is treated as evidence to be qualified—not as a marketing claim.
+The policy reads wheel speeds, steering angles, and a single-plane laser scan. It does not receive global vehicle position. PPO can complete MuJoCo Bahrain laps, but the latest 24-track transfer campaign qualified only **6/24** tracks across all selection seeds. The historical 24/24 MuJoCo result belongs to the CEM controller. Their checkpoints, protocols, and results are kept separate in the [validation ledger](docs/VALIDATION_STATUS.md).
 
-## Research questions
+## Prerequisites
 
-1. Can exported vehicle assets be loaded, rendered, articulated, and stepped reliably in OpenUSD/Isaac Sim and MuJoCo?
-2. With wheel speed, steering, and a 15 Hz laser history—rather than global actor pose—can an Ackermann vehicle finish a lap, overtake, and improve lap time under stated physical assumptions?
-3. Which limits are simulator-specific, sensor-specific, or imposed by the real vehicle's actuation architecture?
+The commands below target **Linux x86_64 with Bash**. Development and validation use Ubuntu 24.04 and Python 3.12. The package declares Python ≥3.11; other OS and Python combinations have not received equivalent project validation. You can start with MuJoCo alone. Isaac requires a separate installation.
 
-## Reviewed snapshot
-
-This is an active codebase; it does **not** claim that all driving objectives are solved. The [validation ledger](docs/VALIDATION_STATUS.md) retains supporting and contrary evidence together.
-
-| Question | Evidence currently supported | Boundary that remains |
-| --- | --- | --- |
-| Exported assets | OpenUSD load/render/short-step evidence: 20 mesh references, 10 rigid bodies, 9 physics joints, 6 movable DoF. MuJoCo `robot.xml`/`scene.xml` pass a 500-step finite-state check. | Asset-level checks are **not** proof that the exported fixed-base model is drive-ready. |
-| Laps and overtakes | v10c reports 24/24 valid MuJoCo laps with one audited overtake per lap; Isaac reports 22/24 under the matched qualification. | Isaac failures remain at Spa (initial car contact) and Suzuka (bridge instability). |
-| Faster laps | At 9.0 m/s cruise, MuJoCo reports 24/24 valid laps and 8.97 m/s peak; Isaac reports 20/24 comparable valid laps at 9.00–9.04 m/s peak. | Higher Isaac speed trades speed for stability; it is not the shared robust operating point. |
-| 180° drift | Simulator examples demonstrate sustained slip under their stated actuation assumptions. | The single-motor 4WD vehicle does **not** reproduce it: removing rear overdrive changes maximum slip from 27.0° to 4.36°. No real-world drift claim is made. |
-| Sensor robustness | Noise-only behavior can pass selected checks. | With 0.02 m noise + 5% beam dropout + 50 ms latency, 10/10 perturbation runs fail. This is an open result, not a hidden caveat. |
-
-## Method
-
-```text
-SolidWorks assembly
-    └─ solidworks_urdf_exporter_pro ──> ROS descriptions + OpenUSD + MuJoCo MJCF
-                                            └─ native asset validation
-                                                └─ sensor-only policy / safety layer
-                                                    └─ 24-track qualification
-                                                        └─ trajectory audit + video + failure archive
-```
-
-### Asset provenance and export dependency
-
-The vehicle descriptions in `assets/vehicles/osracer/` are export artifacts produced with [`osrbot/solidworks_urdf_exporter_pro`](https://github.com/osrbot/solidworks_urdf_exporter_pro), a maintained SolidWorks-to-URDF workflow with ROS, OpenUSD, and MuJoCo targets. It is an **external dependency and provenance source**, not vendored code in this repository. Geometry, inertia, joint semantics, collision choices, and target-simulator verification remain independent research responsibilities.
-
-`assets/vehicles/osracer/`, `OSRACER_ISAAC_DIR`, and `osracer-*` are the canonical asset, runtime, and package identifiers. The public project name and reviewed presentation media are **OSRACER**.
-
-## Minimal reproduction
-
-Run from the repository root. Python 3.11+ is required; Python 3.12 is the development environment. Native Isaac Sim must be installed separately.
-
-```bash
-bash tools/environment/setup_racing.sh --mujoco-only --test
-. .venv/bin/activate
-
-# Model, sensor, and actuator smoke run.
-python3 tools/runtime/run_racing.py \
-  --simulator mujoco --task bahrain --seconds 10 --episodes 1 --tag smoke
-
-# Deterministic contract tests.
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests -q
-```
-
-```bash
-export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
-bash tools/runtime/run_isaac.sh tools/runtime/run_racing.py \
-  --simulator isaac --task bahrain --seconds 10 --episodes 1 --tag smoke_isaac
-```
-
-Large raw experiment archives are deliberately excluded from the public repository. The static site packages a reviewed subset of screenshots, videos, and auditable summaries. Read [the public-release boundary](docs/PROJECT_STRUCTURE.md#公开仓库边界) before treating a local `output/` directory as published evidence.
-
-## Repository guide
-
-| Path | Research role |
+| Workflow | Required environment |
 | --- | --- |
-| `assets/` | Vehicle descriptions under `vehicles/` and 24 circuit assets under `tracks/`. |
-| `src/racing/` | Installable Python package grouped into control, perception, evaluation, runtime, tracks, vehicle, and simulator domains. |
-| `tools/` | Commands grouped into runtime, training, evaluation, diagnostics, assets, and environment domains. |
-| `native/` | Optional C++ extensions and their narrow Python probes. |
-| `deployment/` | ROS2 and other deployment adapters, separated from simulator code. |
-| `docs/` | Engineering contract, validation ledger, deployment limits, and release notes. |
-| `publication/` | Shared reviewed media, evidence-site builder, presentation, notes, and video production. |
-| `runs/` | Ignored, run-scoped checkpoints, metrics, TensorBoard events, trajectories, videos, and logs. |
+| MuJoCo physics and CPU training | Python 3.11+, `venv`, `pip`, and Git. No NVIDIA GPU required. Set `MUJOCO_GL=disable` for runs without rendering and `device=cpu` for CPU training |
+| PPO training and export | PyTorch ≥2.4, ONNX ≥1.17; TensorBoard ≥2.16 and tensorboardX ≥2.6 for event logging. The setup script installs these dependencies |
+| MuJoCo video recording | A working OpenGL backend. EGL is the default for offscreen rendering; OSMesa provides an alternative software renderer |
+| Video encoding and playback | `ffmpeg` and `ffprobe`; opening a video also needs `ffplay` and a desktop display. The project script does not install OS packages |
+| CUDA policy training | An NVIDIA driver compatible with the chosen PyTorch wheel and `torch.cuda.is_available()` returning `True`. MuJoCo physics still runs on the CPU |
+| Isaac simulation | **Isaac Sim 6.0.1 Linux standalone**, a supported NVIDIA RTX GPU/driver, and Vulkan. Use Isaac's bundled Python 3.12 |
+| Storage and network | Access to GitHub and Python package sources. Isaac may download extensions and assets at first startup. Allow additional space for Python packages, models, and growing `runs/` directories |
 
-New runs use the layout in [Run artifacts](docs/RUN_ARTIFACTS.md). Start TensorBoard with `.venv/bin/tensorboard --logdir runs --port 6006`. The existing `output/racing/` tree is retained as a read-only legacy evidence archive.
+NVIDIA's Isaac 6.0 requirements list a four-core CPU, 32 GB RAM, 50 GB SSD storage, and RTX 4080 / 16 GB VRAM as baseline specifications. The listed Linux test driver is 580.95.05. These are vendor specifications, not measured OSRACER minima; training and recording need additional headroom. GPUs without RT Cores, including A100/H100, are unsupported by Isaac. Run the vendor Compatibility Checker and check the [version-specific requirements](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/requirements.html) before installing (checked 2026-10-06).
 
-The normal loop is one command each for training, TensorBoard, and playback:
+The committed vehicle and track assets are ready to use. SolidWorks, ROS 2, and a compiled `native/` extension are not prerequisites for the simulation workflow. ROS 2 is for [vehicle deployment](docs/DEPLOYMENT.md); the SolidWorks exporter is needed when regenerating vehicle assets.
+
+## Start with MuJoCo
+
+### 1. Install system packages and clone the repository
+
+Reference commands for Ubuntu 24.04, with permission to install OS packages:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git python3 python3-venv python3-pip \
+  ffmpeg libegl1 libgl1 libglfw3 libosmesa6
+
+git clone https://github.com/osrbot/osracer_rl.git
+cd osracer_rl
+```
+
+Keep the checkout and its `assets/` directory. The runtime resolves vehicle and track paths relative to the source tree; installing the wheel alone does not supply these assets.
+
+### 2. Select a renderer and install Python dependencies
+
+For a machine with working GPU/EGL drivers:
+
+```bash
+export MUJOCO_GL=egl
+RACING_PYTHON=python3.12 bash tools/environment/setup_racing.sh --mujoco-only --test
+source .venv/bin/activate
+```
+
+For CPU simulation or training without rendering, use the following commands. Omit `--test` on this path because that option includes actual rendering tests:
+
+```bash
+export MUJOCO_GL=disable
+RACING_PYTHON=python3.12 bash tools/environment/setup_racing.sh --mujoco-only
+source .venv/bin/activate
+```
+
+For software rendering, use `export MUJOCO_GL=osmesa`, keep `libosmesa6` installed, and verify a rendered run before recording a full lap. See [MuJoCo's rendering backend documentation](https://mujoco.readthedocs.io/en/3.3.7/programming.html).
+
+The script creates `.venv`, runs `pip install -e '.[build,training,ppo]'`, and checks dependencies and assets. `--test` runs two basic contract test groups. It does not install graphics drivers, configure CUDA, or install Isaac. Set `MUJOCO_GL` again when opening a new terminal.
+
+[pyproject.toml](pyproject.toml) defines the dependencies: **MuJoCo 3.10.0** is pinned; NumPy, SciPy, and Pillow form the base set. The `build` extra adds Shapely, trimesh, pycollada, and pytest. The `training,ppo` extras add the training and logging packages listed above. Other packages use minimum versions; there is no lockfile freezing the entire environment.
+
+To select a particular CPU or CUDA PyTorch build, create `.venv` first and install PyTorch there using the [official installer selector](https://pytorch.org/get-started/locally/), then run the project setup script. This workflow uses a prebuilt wheel; it does not require building PyTorch with a separately installed CUDA toolkit. Follow the selected wheel's driver compatibility requirements.
+
+### 3. Verify dependencies and a short episode
+
+```bash
+python -m pip check
+python -c "import mujoco, torch, onnx, tensorboard, tensorboardX; from onnx.reference import ReferenceEvaluator; print('MuJoCo', mujoco.__version__, 'PyTorch', torch.__version__, 'ONNX', onnx.__version__); print('CUDA available:', torch.cuda.is_available())"
+python tools/environment/check_racing_environment.py --mujoco-only
+
+# Exercise the vehicle, sensors, and physics without recording.
+MUJOCO_GL=disable osracer --simulator mujoco --task bahrain \
+  --seconds 10 --episodes 1 --tag env-smoke
+```
+
+`pip check` checks installed dependency relationships. The explicit imports confirm that training packages are available in the selected interpreter. The environment checker's PASS does not yet cover PyTorch, ONNX, TensorBoard, CUDA computation, or actual rendering. Keep this import check: the project's compatibility fallback to an existing Isaac Python package directory is not a substitute for installing a complete standalone environment.
+
+A ten-second episode verifies execution, not lap completion. To check GPU rendering and video encoding separately:
+
+```bash
+MUJOCO_GL=egl osracer --simulator mujoco --task bahrain \
+  --seconds 3 --episodes 1 --record --tag render-smoke
+```
+
+Use `MUJOCO_GL=osmesa` for software rendering. Setup reports go to `runs/_environment/reports/`; episode outputs go into their own `runs/<run-id>/` directories. The full suite includes rendering tests: select a working EGL or OSMesa backend before running `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q`.
+
+## Train, inspect, and play
+
+After setup, the normal workflow is three commands:
 
 ```bash
 osracer-train +simulator=mujoco +task=racing/bahrain experiment_name=demo
@@ -88,48 +100,72 @@ tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
 osracer-play experiment_name=demo
 ```
 
-Use the `demo` checkpoint produced above as the common parent to train and evaluate
-one PPO policy per track. Qualification is checked separately for each track:
+Start TensorBoard in another terminal with `.venv` activated and open `http://localhost:6006`. Append `device=cpu` when training without CUDA. Append `+train=quick` to reduce the PPO budget for a pipeline check. It still includes teacher warm-up and does not establish convergence.
+
+Playback loads `policy.pt`, runs and records an evaluation episode, then opens the MP4 on a desktop. On a server, use `osracer-play experiment_name=demo --no-open` and download the video. **`--no-open` still requires rendering**; it only skips the video player. Do not use `MUJOCO_GL=disable` for recording.
+
+Each experiment has a separate directory. Weights are saved as `checkpoints/policy.pt`, with `policy.onnx` exported at training completion; metrics live in `metrics/` and recordings in `videos/`. The saved model is the best evaluated checkpoint and may still be the warm-start model. TensorBoard includes training candidates, so its final plotted value need not describe the selected checkpoint. Before warm-up finishes, no events have been written and TensorBoard may show “No dashboards are active.” See [the usage guide](docs/RUN_ARTIFACTS.md) for configuration, artifacts, and troubleshooting.
+
+## Run Isaac
+
+Install Isaac Sim 6.0.1 separately and pass its compatibility checks, then set the installation path. Its bundled Python and the project `.venv` are separate environments; packages installed in one do not automatically appear in the other.
+
+```bash
+export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1
+nvidia-smi
+cat "$OSRACER_ISAAC_DIR/VERSION"
+test -f "$OSRACER_ISAAC_DIR/python.sh"
+test -f "$OSRACER_ISAAC_DIR/extsDeprecated/omni.isaac.ml_archive/pip_prebundle/nvidia/nccl/lib/libnccl.so.2"
+test -f /etc/vulkan/icd.d/nvidia_icd.json
+
+bash tools/runtime/run_isaac.sh -c \
+  "import sys, numpy, scipy, PIL, torch, onnx, tensorboard, tensorboardX; from onnx.reference import ReferenceEvaluator; print(sys.version); print(torch.__version__, onnx.__version__)"
+
+bash tools/runtime/run_isaac.sh -m racing.runtime.run \
+  --simulator isaac --task bahrain --seconds 10 --episodes 1 --tag isaac-smoke
+
+bash tools/runtime/run_isaac.sh -m racing.runtime.train \
+  +simulator=isaac +task=racing/bahrain experiment_name=isaac-demo
+bash tools/runtime/run_isaac.sh -m racing.runtime.play experiment_name=isaac-demo --no-open
+```
+
+The NCCL and Vulkan ICD paths above are requirements of the current launcher. If either is absent, check the Isaac version and driver installation layout. Renaming an installation directory does not make its version compatible, and the regular `.venv/bin/python` cannot replace the Isaac launcher.
+
+If an import is missing, install that package with `bash "$OSRACER_ISAAC_DIR/python.sh" -m pip install <missing-package>`. Preserve Isaac's bundled torch/numpy combination instead of installing the full project extras over it. The launcher already adds project sources to `PYTHONPATH`. Joint runs using both engines also require `mujoco==3.10.0` installed and verified inside Isaac Python. See the [Isaac Python environment documentation](https://docs.isaacsim.omniverse.nvidia.com/6.0.0/installation/install_python.html).
+
+## Train across 24 tracks
+
+Once single-track training has produced `runs/demo/checkpoints/policy.pt`, use it as the shared parent for all tracks:
 
 ```bash
 osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
-  checkpoint=runs/demo/checkpoints/policy.pt \
-  +simulator=mujoco +train=benchmark
+  checkpoint=runs/demo/checkpoints/policy.pt +simulator=mujoco +train=benchmark
+osracer-benchmark status benchmark_name=ppo-2025
 ```
 
-The last local campaign qualified 6/24 tracks; running this command does not guarantee convergence.
-The command resumes at track boundaries and writes one shared TensorBoard tree
-plus JSON/CSV standings. See [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+The command saves progress at track boundaries and writes TensorBoard events plus JSON/CSV summaries. Finishing a training job does not qualify its policy; unsuccessful policies and failure records are retained. See [the benchmark protocol](docs/BENCHMARKS.md).
 
-PPO is the default algorithm and its training scale lives in `src/racing/config/training/default.toml`; append `+train=quick` for an environment check. MuJoCo and Isaac Sim use the same per-iteration console summary. Training writes `policy.pt` and automatically exports a checked `policy.onnx`; complete raw metrics remain in the run directory. The former CEM parameter search remains available as the explicit `algorithm=cem` baseline. See [Run artifacts](docs/RUN_ARTIFACTS.md) for configuration overrides, output fields, and compatibility options.
+| Policy / experiment | Recorded result | Scope |
+| --- | --- | --- |
+| PPO track transfer | 6/24 MuJoCo tracks pass seeds 0–2 | Development selection set; reliable driving across all tracks remains unsolved |
+| PPO Bahrain with corner guard | 6/6 valid laps on seeds 0–5; mean lap time 62.92 s | The retained model is iteration 0; the improvement comes from an inference guard, not demonstrated reward learning |
+| Historical CEM v10c | MuJoCo 24/24; Isaac 22/24 | Frozen configuration and nominal sensors; Isaac still fails at Spa and Suzuka |
+| Historical combined sensor perturbations | 10/10 failures with noise, dropout, and latency combined | Robustness is not established by nominal-condition results |
 
-Simulator backends implement one lifecycle contract and are selected through packaged target configurations. See [Simulator backends](docs/SIMULATORS.md) before adding another engine.
+The real vehicle uses one motor for four-wheel drive and cannot directly execute the independent rear-wheel speed boost used in the simulation drift examples. [Deployment notes](docs/DEPLOYMENT.md) describe the actuator comparison and its limits.
 
-For Isaac training, use its native Python with the same configuration interface:
+## Repository map
 
-```bash
-bash tools/runtime/run_isaac.sh -m racing.runtime.train \
-  +simulator=isaac +task=racing/bahrain experiment_name=isaac-demo
-```
+| Directory | Contents |
+| --- | --- |
+| `src/racing/` | Control, perception, simulators, training, evaluation, and configuration |
+| `assets/` | Vehicle descriptions, 24 tracks, and provenance |
+| `tools/`, `tests/` | Launchers, checks, diagnostics, historical reproduction, and tests |
+| `docs/` | Usage, protocols, results, and [references](docs/REFERENCES.md) |
+| `publication/` | Shared reviewed media, website, slides, and speaker notes |
+| `deployment/`, `native/` | Optional ROS 2 deployment and native contact experiments |
+| `runs/` | Per-run models, metrics, trajectories, and videos; excluded from Git |
 
-## Reading results responsibly
+The Python package uses a `src/` layout and a shared simulator factory. Configuration commands take inspiration from ASAP; see [the backend guide](docs/SIMULATORS.md) for the implementation. CEM remains an explicit `algorithm=cem` baseline and supplies the teacher controller for PPO. Retired entry points and archived data are covered in [migration notes](docs/LEGACY.md).
 
-- A decoded video, a passing unit test, or a finite physics step is not automatically a driving success.
-- A simulator result is not automatically a real-vehicle result.
-- A higher peak speed is not automatically a more robust policy.
-- A failure record is part of the result and must remain in policy or simulator comparisons.
-
-Definitions of valid laps, overtakes, drift, contacts, and independent audits are in [Engineering](docs/ENGINEERING.md). Exact positive and negative evidence is in [Validation status](docs/VALIDATION_STATUS.md). Real-vehicle applicability and the rear-overdrive A/B are in [Deployment](docs/DEPLOYMENT.md).
-
-## Open research directions
-
-1. Robust perception and conservative planning under beam dropout and latency.
-2. Isaac-specific bridge contact and initial vehicle-contact failures.
-3. A real-world observation contract with steering feedback rather than command echo.
-4. A physically realizable drift mechanism—or an explicitly non-drift racing objective.
-
-## Citation, license, and contribution
-
-Until an archival release/DOI is minted, cite the repository URL, commit SHA, and relevant validation document instead of an unversioned metric. Contributions should include reproduction commands, runtime versions, source revision, and both positive and negative evidence.
-
-The repository's original source code is available under the [MIT License](LICENSE). Vehicle assets, track assets, and other third-party material retain their own notices and source terms; do not assume that the MIT license relicenses them.
+Vehicle assets were exported with [SolidWorks URDF Exporter Pro](https://github.com/osrbot/solidworks_urdf_exporter_pro). Track sources and geometric assumptions are documented [here](docs/TRACK_SOURCES.md). Original code uses the [MIT License](LICENSE); third-party assets retain their own notices. When reporting a problem, include the commit, runtime versions, command, and run logs. When citing a result, also identify its policy, engine, tracks, and seeds.

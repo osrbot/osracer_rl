@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-osracer = "racing.runtime.run:main"
+osracer = "racing.runtime.run:console_main"
 osracer-train = "racing.runtime.train:main"
 osracer-play = "racing.runtime.play:main"
 osracer-qualify = "racing.evaluation.qualify:main"

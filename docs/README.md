@@ -1,6 +1,6 @@
 # 文档导航
 
-新用户从[训练、播放与 TensorBoard](RUN_ARTIFACTS.md)开始；实验结论以[当前验证状态](VALIDATION_STATUS.md)为准。
+第一次运行请先按 [README](../README.zh-CN.md#安装前先确认环境)准备环境并完成短回合检查，再阅读[训练、播放与 TensorBoard](RUN_ARTIFACTS.md)。实验结论以[当前验证状态](VALIDATION_STATUS.md)为准。
 
 | 用途 | 文档 |
 | --- | --- |

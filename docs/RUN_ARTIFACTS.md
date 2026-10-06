@@ -4,14 +4,17 @@
 
 ## 安装与最小运行
 
-在仓库根目录使用 Python 3.11+：
+先完成 [README 中的系统依赖、渲染和 Python 自检](../README.zh-CN.md#安装前先确认环境)。以下命令在仓库根目录运行，建议使用已经验证的 Python 3.12：
 
 ```bash
-bash tools/environment/setup_racing.sh --mujoco-only --test
-. .venv/bin/activate
+export MUJOCO_GL=egl  # CPU 软件渲染可改为 osmesa
+RACING_PYTHON=python3.12 bash tools/environment/setup_racing.sh --mujoco-only --test
+source .venv/bin/activate
 ```
 
-安装脚本建立 `.venv`，安装项目和 PPO/ONNX/TensorBoard 依赖，并将环境报告写入 `runs/_environment/reports/`。Isaac 须单独安装；不要在普通系统 Python 中直接启动其后端。
+只做无渲染 CPU 训练时，设 `MUJOCO_GL=disable` 并去掉 `--test`；该测试选项包含渲染用例。
+
+安装脚本建立 `.venv`，安装项目和 PPO/ONNX/TensorBoard 依赖，并将环境报告写入 `runs/_environment/reports/`。系统包、驱动和 Isaac 需提前安装。当前检查脚本尚未覆盖训练依赖与实际渲染，完整自检命令见 README。Isaac 使用它自带的 Python，不能由普通虚拟环境代替。
 
 ## 产物布局
 

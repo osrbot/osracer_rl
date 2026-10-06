@@ -398,5 +398,10 @@ def main(argv=None):
     return artifacts
 
 
-if __name__ == "__main__":
+def console_main() -> None:
+    """Keep the artifact result for Python callers, not as a shell exit value."""
     main()
+
+
+if __name__ == "__main__":
+    console_main()
