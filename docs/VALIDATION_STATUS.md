@@ -1,6 +1,6 @@
 # 当前验证状态
 
-更新时间：2026-09-30（24 赛道 PPO benchmark 迁移入口 + 双引擎历史证据）
+更新时间：2026-10-06（24 赛道 PPO benchmark 终态 + 全程均速奖励 A/B）
 
 工程已具备赛季资产、双车原生仿真、完整传感器契约、训练、独立审计和录像入口。**跨全部赛道稳定高速漂移超车的最终策略仍未验收完成。** 当前结果在 [交互报告](../output/racing/index.html) 和 [结果汇总](../output/racing/RESULTS.md) 中保留成功与失败。
 
@@ -9,7 +9,7 @@
 | 对象 | 真实完成的验证 | 边界 |
 | --- | --- | --- |
 | PPO 神经策略，MuJoCo Bahrain | 370 维最小控制状态、卷积 actor-critic、量化感知 DART/DAgger、PPO 和锚定闭环蒸馏已贯通；检查点选择覆盖 seed 0–2。最终 `.pt` 在 CPU/CUDA/ONNX 三种执行后端逐步一致，三个种子均有效完圈并各超车 1 次（3595/4079/3673 步，即 59.9/68.0/61.2s）。seed 0 原生播放 59.917s、均速4.53m/s、峰值7.16m/s、零碰撞/越界。TensorBoard、`.pt`、ONNX 和 MP4 均保存在 `runs/ppo-cem-pace-v2/` | **已追近但尚未完全追平 CEM**：seed 0 比约50s的 CEM 慢约20%；最大侧滑15.43°，未达到20°连续漂移门槛。第三轮更小步长搜索没有出现新的3/3候选，最佳模型保持不变 |
-| PPO 跨赛道迁移，MuJoCo 2025 赛季 | Bahrain 父策略的 24×seed0 冻结基线为 2/24 有效（Bahrain、Mexico City）。新增按赛段均匀专家采样、父策略锚定、递增训练种子重试和闭环多种子门控；Melbourne 从 86.16m 碰撞恢复为 seed0–2 全部有效，平均 94.07s。`osracer-benchmark` 已贯通独立 `.pt`/ONNX、赛道级续跑、统一 TensorBoard 和 JSON/CSV 汇总 | Shanghai 三次迁移的最好结果为 2/3；失败 seed 在18.4s、53.47m 与对手车辆接触。24 条赛道 campaign 尚未全部跑完，不能把 Melbourne 成功外推成24/24 |
+| PPO 跨赛道迁移，MuJoCo 2025 赛季 | 24 条赛道、每条最多 3 次迁移已全部执行；6/24 达到 seed0–2 全部有效（Melbourne、Bahrain、Imola、Barcelona、Spielberg、Silverstone），18/24 未达标但均保留 `.pt`/ONNX 与失败证据。24 赛道等权平均进度速度约 2.48m/s；6 条合格赛道平均约 3.68m/s、平均圈时70.31s | 18 条未达标赛道的最差种子均以碰撞结束。多数被选中的 checkpoint 仍停在 warm-start，说明原 benchmark 的 1×256 PPO 预算尚不足以让奖励函数稳定影响策略 |
 | 赛道资产 | 2024/2025 两季、48 个分站、24 条唯一赛道；RC 与原路径尺度 DAE/OBJ/PNG/地图 | 年度布局未逐一历史核验；宽度和 Suzuka 高程含明确训练假设 |
 | 未训练 v5 基线，MuJoCo | 24/24 赛道无碰撞完圈，各有效超车 1 次 | 不证明连续漂移 |
 | 未训练 v5 基线，Isaac | 4 条代表赛道中 Bahrain/Austin 有效，Monaco/Suzuka 失败 | 未完成源端全赛道资格 |

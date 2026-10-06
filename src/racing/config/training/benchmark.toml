@@ -31,6 +31,11 @@ name = "racing/bahrain"
 opponent_speed_m_s = 2.8
 opponent_gap_m = 3.0
 
+[reward]
+time_cost = 0.01
+pace_weight = 0.0
+failure_horizon_scale = 0.0
+
 [reproducibility]
 seed = 73
 

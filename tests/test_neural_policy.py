@@ -104,6 +104,7 @@ def test_multiseed_rank_prefers_safety_then_faster_completed_laps():
         'valid_lap':False,'episode_length':1800,'overtakes':0}])
     assert evaluation_rank(faster)>evaluation_rank(safe)>evaluation_rank(partial)
     assert safe['overtakes']==1.
+    assert faster['mean_progress_speed_m_s']>safe['mean_progress_speed_m_s']
 
 
 def test_pt_exports_to_checked_dynamic_batch_onnx(tmp_path):

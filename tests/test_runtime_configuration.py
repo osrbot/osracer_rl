@@ -31,6 +31,9 @@ def test_packaged_profiles_hold_algorithm_details_out_of_the_command():
     assert (default.refinement_cycles,default.refinement_epochs)==(2,8)
     assert (quick.refinement_cycles,quick.refinement_epochs)==(0,0)
     assert default.track=='bahrain'
+    pace=load_training_profile('pace')
+    assert (pace.reward_time_cost,pace.reward_pace_weight,
+            pace.reward_failure_horizon_scale)==(.01,.25,1.)
 
 
 def test_asap_style_training_overrides_map_to_runtime_fields():
@@ -59,15 +62,18 @@ def test_ppo_overrides_map_to_optimizer_fields():
         iterations=1000,steps_per_iteration=2048,learning_epochs=5,mini_batches=4,
         learning_rate=.0003,checkpoint_interval=50,seconds=120.,opponent_speed=2.8,
         opponent_gap=3.,evaluation_episodes=3,refinement_cycles=2,
-        refinement_epochs=8,no_tensorboard=False,tensorboard_dir=None)
+        refinement_epochs=8,no_tensorboard=False,tensorboard_dir=None,
+        reward_time_cost=.01,reward_pace_weight=0.,reward_failure_horizon_scale=0.)
     apply_ppo_overrides(args,['+simulator=mujoco','+task=racing/austin',
         'experiment_name=demo','train.iterations=12','train.steps_per_iteration=512',
         'env.evaluation_episodes=5','train.refinement_cycles=3',
+        'reward.pace_weight=.25','reward.failure_horizon_scale=1',
         'device=cpu'],('isaac','mujoco'))
     assert (args.engine,args.track,args.run_id)==('mujoco','austin','demo')
     assert (args.iterations,args.steps_per_iteration,args.device)==(12,512,'cpu')
     assert args.evaluation_episodes==5
     assert args.refinement_cycles==3
+    assert (args.reward_pace_weight,args.reward_failure_horizon_scale)==(.25,1.)
 
 
 def test_playback_and_joint_use_the_same_names():

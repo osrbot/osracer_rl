@@ -215,7 +215,10 @@ class PPOProgress:
         episodes = [
             ("Mean total reward", f"{metrics['mean_reward']:.3f}"),
             ("Mean episode length", f"{metrics['mean_episode_length']:.1f}"),
+            ("Mean speed / progress", f"{metrics['mean_speed_m_s']:.2f} / "
+             f"{metrics['mean_progress_speed_m_s']:.2f} m/s"),
             ("Reward / progress", f"{metrics['reward_progress']:.4f}"),
+            ("Reward / pace", f"{metrics['reward_pace']:.4f}"),
             ("Reward / alive", f"{metrics['reward_alive']:.4f}"),
             ("Reward / track", f"{metrics['reward_track']:.4f}"),
             ("Reward / action rate", f"{metrics['reward_action_rate']:.4f}"),
@@ -224,6 +227,7 @@ class PPOProgress:
             ("Reward / fail", f"crash {metrics['reward_collision']:.4f}  ·  "
              f"offroad {metrics['reward_offroad']:.4f}"),
             ("Reward / stalled", f"{metrics['reward_stalled']:.4f}"),
+            ("Reward / failure horizon", f"{metrics['reward_failure_horizon']:.4f}"),
             ("Termination / normal", f"done {metrics['termination_completed']:.1f}%  ·  "
              f"timeout {metrics['termination_timeout']:.1f}%"),
             ("Termination / failure", f"collision {metrics['termination_collision']:.1f}%  ·  "

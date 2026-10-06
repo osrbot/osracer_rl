@@ -31,6 +31,7 @@ PPO_KEYS = {
     "train.refinement_cycles", "train.refinement_epochs",
     "env.episode_length_s", "env.evaluation_episodes",
     "task.opponent_speed_m_s", "task.opponent_gap_m", "logger.tensorboard",
+    "reward.time_cost", "reward.pace_weight", "reward.failure_horizon_scale",
 }
 _NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 
@@ -114,11 +115,16 @@ def _checkpoint_result(run_id: str, runs_root: str | Path | None,
         "valid_lap_rate":valid/max(1,count),
         "qualified":bool(count and valid==count),
         "reward":evaluation.get("reward"),
+        "mean_speed_m_s":evaluation.get("mean_speed_m_s"),
+        "mean_progress_speed_m_s":evaluation.get("mean_progress_speed_m_s"),
+        "collision_episode_rate":evaluation.get("collision_episode_rate"),
+        "offroad_episode_rate":evaluation.get("offroad_episode_rate"),
         "progress_m":evaluation.get("progress_m"),
         "episode_length":evaluation.get("episode_length"),
-        "lap_time_s":((float(evaluation["episode_length"])/60.)
-                      if evaluation.get("valid_lap") and evaluation.get("episode_length") is not None
-                      else None),
+        "lap_time_s":evaluation.get("mean_lap_time_s",(
+            float(evaluation["episode_length"])/60.
+            if evaluation.get("valid_lap") and evaluation.get("episode_length") is not None
+            else None)),
         "termination":evaluation.get("termination"),
         "overtakes":evaluation.get("overtakes"),
     }
@@ -147,7 +153,9 @@ def _write_summary(layout: RunLayout,state: dict) -> dict:
     json_path,csv_path=_summary_paths(layout);_atomic_json(json_path,summary)
     fields=["round","track","run_id","status","attempt","qualified","valid_laps",
             "evaluation_episodes","valid_lap_rate","lap_time_s","reward",
-            "progress_m","episode_length","overtakes","termination","total_steps",
+            "mean_speed_m_s","mean_progress_speed_m_s","collision_episode_rate",
+            "offroad_episode_rate","progress_m","episode_length","overtakes",
+            "termination","total_steps",
             "checkpoint","checkpoint_sha256","onnx","onnx_sha256","error"]
     temporary=csv_path.with_suffix(".csv.tmp")
     with temporary.open("w",newline="",encoding="utf-8") as target:
@@ -162,14 +170,16 @@ def _print_summary(summary: dict) -> None:
     print(f"Benchmark {summary['benchmark_name']} · {summary['simulator'].upper()} · "
           f"season {summary['season']} · completed {counts['completed']}/{counts['total']} · "
           f"unqualified {counts['unqualified']} · failed {counts['failed']}")
-    print("rnd  track             status     valid       lap       overtakes  run")
+    print("rnd  track             status     valid       mean speed  lap       overtakes  run")
     for row in summary["tracks"]:
         valid=(f"{row.get('valid_laps',0)}/{row.get('evaluation_episodes',0)}"
                if row.get("evaluation_episodes") is not None else "--")
         lap=f"{row['lap_time_s']:.2f}s" if row.get("lap_time_s") is not None else "--"
+        speed=(f"{row['mean_speed_m_s']:.2f}m/s"
+               if isinstance(row.get("mean_speed_m_s"),(float,int)) else "--")
         over=(f"{row['overtakes']:.2f}" if isinstance(row.get("overtakes"),(float,int)) else "--")
         print(f"{row['round']:>3}  {row['track']:<16} {row['status']:<11} "
-              f"{valid:<11} {lap:<9} {over:<10} {row.get('run_id') or '--'}")
+              f"{valid:<11} {speed:<11} {lap:<9} {over:<10} {row.get('run_id') or '--'}")
 
 
 def _run_child(command: list[str],log_path: Path) -> int:

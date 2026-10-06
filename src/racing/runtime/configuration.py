@@ -43,6 +43,9 @@ class TrainingProfile:
     task: str
     opponent_speed_m_s: float
     opponent_gap_m: float
+    reward_time_cost: float
+    reward_pace_weight: float
+    reward_failure_horizon_scale: float
     seed: int
     tensorboard: bool
 
@@ -78,6 +81,7 @@ def load_training_profile(name: str = "default") -> TrainingProfile:
     algorithm = data["algorithm"]
     environment = data["environment"]
     task = data["task"]
+    reward = data.get("reward", {})
     reproducibility = data["reproducibility"]
     logging = data["logging"]
     profile = TrainingProfile(
@@ -107,6 +111,9 @@ def load_training_profile(name: str = "default") -> TrainingProfile:
         task=str(task["name"]),
         opponent_speed_m_s=float(task["opponent_speed_m_s"]),
         opponent_gap_m=float(task["opponent_gap_m"]),
+        reward_time_cost=float(reward.get("time_cost", .01)),
+        reward_pace_weight=float(reward.get("pace_weight", 0.)),
+        reward_failure_horizon_scale=float(reward.get("failure_horizon_scale", 0.)),
         seed=int(reproducibility["seed"]),
         tensorboard=bool(logging["tensorboard"]),
     )
@@ -115,6 +122,8 @@ def load_training_profile(name: str = "default") -> TrainingProfile:
             or profile.mini_batches < 1 or profile.generations < 1
             or profile.population < 1 or profile.episode_length_s <= 0
             or profile.evaluation_episodes < 1
+            or profile.reward_time_cost < 0 or profile.reward_pace_weight < 0
+            or profile.reward_failure_horizon_scale < 0
             or profile.imitation_steps < 0 or profile.imitation_epochs < 0
             or profile.refinement_cycles < 0 or profile.refinement_epochs < 0):
         raise ValueError(f"invalid training profile: {source}")
@@ -236,6 +245,7 @@ def apply_ppo_overrides(args, tokens: list[str], simulators: tuple[str, ...]) ->
         "train.refinement_cycles", "train.refinement_epochs",
         "env.episode_length_s", "env.evaluation_episodes",
         "task.opponent_speed_m_s", "task.opponent_gap_m",
+        "reward.time_cost", "reward.pace_weight", "reward.failure_horizon_scale",
         "logger.tensorboard", "logger.tensorboard_dir",
     }
     unknown = sorted(set(values) - allowed)
@@ -267,5 +277,9 @@ def apply_ppo_overrides(args, tokens: list[str], simulators: tuple[str, ...]) ->
         args.evaluation_episodes = int(values["env.evaluation_episodes"])
     if "task.opponent_speed_m_s" in values: args.opponent_speed = float(values["task.opponent_speed_m_s"])
     if "task.opponent_gap_m" in values: args.opponent_gap = float(values["task.opponent_gap_m"])
+    if "reward.time_cost" in values: args.reward_time_cost = float(values["reward.time_cost"])
+    if "reward.pace_weight" in values: args.reward_pace_weight = float(values["reward.pace_weight"])
+    if "reward.failure_horizon_scale" in values:
+        args.reward_failure_horizon_scale = float(values["reward.failure_horizon_scale"])
     if "logger.tensorboard" in values: args.no_tensorboard = not _boolean(values["logger.tensorboard"])
     if "logger.tensorboard_dir" in values: args.tensorboard_dir = values["logger.tensorboard_dir"]

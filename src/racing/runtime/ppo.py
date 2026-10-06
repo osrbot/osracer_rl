@@ -39,13 +39,17 @@ class RacingPPOEnv:
     """One native two-car episode with a sensor-only actor and privileged reward."""
 
     def __init__(self, env, track, seconds=120., opponent_speed=2.8,
-                 opponent_gap=3., observation_profile="sim", max_speed=10.):
+                 opponent_gap=3., observation_profile="sim", max_speed=10.,
+                 time_cost=.01, pace_weight=0., failure_horizon_scale=0.):
         self.env, self.track = env, track
         self.max_steps = round(float(seconds) / DT)
         self.opponent_speed = float(opponent_speed)
         self.opponent_gap = float(opponent_gap)
         self.observation_profile = observation_profile
         self.max_speed = float(max_speed)
+        self.time_cost = float(time_cost)
+        self.pace_weight = float(pace_weight)
+        self.failure_horizon_scale = float(failure_horizon_scale)
         self.episode_index = 0
 
     def _location(self, state):
@@ -72,6 +76,7 @@ class RacingPPOEnv:
         self.last_opponent_s = self.track.project(self._location(self.states[1]))[0]
         self.last_action = np.array([-1., 0.], np.float32)
         self.last_motion_step = 0
+        self.speed_integral = 0.
         self.behind = True;self.ahead_steps = 0;self.overtakes = 0
         return self._observe(0)
 
@@ -106,14 +111,16 @@ class RacingPPOEnv:
         self.states = self.env.step([primary, opponent]);self.step_count += 1
         state = self.states[0]
         speed = float(np.hypot(state["vx"], state["vy"]))
-        s, cte, _ = self.track.project(self._location(state))
+        s, cte, _ = self.track.project(self._location(state),s_hint=self.last_s)
         delta = (s-self.last_s+self.track.length/2) % self.track.length-self.track.length/2
         if abs(delta) > max(.6, 2*speed*DT):delta = 0.
         self.last_s = s;self.progress += delta
-        other_s = self.track.project(self._location(self.states[1]))[0]
+        other_s = self.track.project(
+            self._location(self.states[1]),s_hint=self.last_opponent_s)[0]
         other_delta = ((other_s-self.last_opponent_s+self.track.length/2)
                        % self.track.length-self.track.length/2)
         self.last_opponent_s = other_s;self.opponent_progress += other_delta
+        self.speed_integral += speed*DT
         collision = bool(state.get("collision", False))
         offroad = abs(cte) > self.track.width/2-.125
         unstable = abs(state.get("roll", 0.)) > .5 or abs(state.get("pitch", 0.)) > .5 or state.get("z", .05) < .015
@@ -130,18 +137,29 @@ class RacingPPOEnv:
                 self.overtakes += 1;self.behind=False;self.ahead_steps=0;overtake_reward=2.
         elif collision or offroad:self.ahead_steps=0
         safe_completion = completed and not (collision or offroad or unstable)
+        failed = collision or offroad or unstable or stalled
+        normalized_cte = cte/max(self.track.width/2, .01)
+        centered = max(0., 1.-normalized_cte**2)
         rewards = {
             "progress": float(delta),
             # Progress integrates to nearly the same return at any lap time;
             # a small per-step cost makes faster safe completion preferable.
-            "alive": -.01,
-            "track": -.02*float((cte/max(self.track.width/2, .01))**2),
+            "alive": -self.time_cost,
+            # Integral(v ds) distinguishes two valid laps with the same
+            # distance: covering each metre faster earns more while edge
+            # running is suppressed by the privileged centre-line gate.
+            "pace": self.pace_weight*max(0.,float(delta))*min(speed/self.max_speed,1.)*centered,
+            "track": -.02*float(normalized_cte**2),
             "action_rate": -.002*float(np.square(action-self.last_action).sum()),
             "overtake": overtake_reward,
             "completion": 200.*float(safe_completion),
             "collision": -100.*float(collision or unstable),
             "offroad": -100.*float(offroad),
             "stalled": -50.*float(stalled),
+            # A failed episode pays the rest of its time budget immediately,
+            # so crashing early cannot avoid the per-step pace cost.
+            "failure_horizon": (-self.time_cost*self.failure_horizon_scale
+                                *max(0,self.max_steps-self.step_count)*float(failed)),
         }
         self.last_action = action.copy()
         reason = ("collision" if collision or unstable else "offroad" if offroad else
@@ -155,6 +173,10 @@ class RacingPPOEnv:
             "episode_length": self.step_count, "completed": completed,
             "valid_lap": safe_completion,
             "overtakes": self.overtakes,
+            "speed_m_s": speed,
+            "mean_speed_m_s": self.speed_integral/max(self.step_count*DT,DT),
+            "mean_progress_speed_m_s": self.progress/max(self.step_count*DT,DT),
+            "lap_time_s": self.step_count*DT if safe_completion else None,
         }
 
 
@@ -176,6 +198,9 @@ def _checkpoint_metadata(args, iteration, total_steps, metrics):
         "total_steps": int(total_steps),
         "seed": int(args.seed),
         "max_speed_m_s": 10.,
+        "reward": {"time_cost":float(args.reward_time_cost),
+                   "pace_weight":float(args.reward_pace_weight),
+                   "failure_horizon_scale":float(args.reward_failure_horizon_scale)},
         "control_hz": 60,
         "scan_hz": 15,
         "metrics": metrics,
@@ -383,7 +408,10 @@ def evaluate_actor(task, model, device, seed):
             return {"reward":total_reward,"progress_m":info["progress_m"],
                     "termination":info["termination"],"valid_lap":info["valid_lap"],
                     "episode_length":info["episode_length"],
-                    "overtakes":info["overtakes"]}
+                    "overtakes":info["overtakes"],
+                    "mean_speed_m_s":info["mean_speed_m_s"],
+                    "mean_progress_speed_m_s":info["mean_progress_speed_m_s"],
+                    "lap_time_s":info["lap_time_s"]}
 
 
 def _evaluation_summary(episodes):
@@ -397,6 +425,17 @@ def _evaluation_summary(episodes):
         "evaluation_episodes":len(episodes),
         "episode_length":float(np.mean([row["episode_length"] for row in episodes])),
         "overtakes":float(np.mean([row["overtakes"] for row in episodes])),
+        "mean_speed_m_s":float(np.mean([row.get("mean_speed_m_s",0.) for row in episodes])),
+        "mean_progress_speed_m_s":float(np.mean([
+            row.get("mean_progress_speed_m_s",row["progress_m"]/(row["episode_length"]*DT))
+            for row in episodes])),
+        "mean_lap_time_s": (float(np.mean([row["lap_time_s"] for row in episodes]))
+                            if all(row.get("lap_time_s") is not None for row in episodes)
+                            else None),
+        "collision_episode_rate":float(np.mean([
+            row["termination"]=="collision" for row in episodes])),
+        "offroad_episode_rate":float(np.mean([
+            row["termination"]=="offroad" for row in episodes])),
         "episodes":episodes,
     }
 
@@ -410,10 +449,11 @@ def evaluation_rank(evaluation):
     valid_laps=int(evaluation.get("valid_laps",evaluation["valid_lap"]))
     episode_count=int(evaluation.get("evaluation_episodes",1))
     if valid_laps==episode_count:
-        # Completed laps all exceed the same track length by only a few
-        # centimetres. Reward includes the per-step time cost and therefore
-        # carries the meaningful ordering once every seed is safe.
-        return (valid_laps,float(evaluation["reward"]),float(evaluation["progress_m"]))
+        # Once every seed is safe, select explicitly for whole-episode speed.
+        # Reward remains a tie-breaker for centre-line and action smoothness.
+        return (valid_laps,float(evaluation.get("mean_progress_speed_m_s",0.)),
+                float(evaluation.get("mean_speed_m_s",0.)),
+                float(evaluation["reward"]),float(evaluation["progress_m"]))
     return (valid_laps,float(evaluation["progress_m"]),float(evaluation["reward"]))
 
 
@@ -530,7 +570,10 @@ def train(args):
     optimizer=torch.optim.Adam(model.parameters(),lr=args.learning_rate)
     track=Track(args.track)
     native=create_simulator(args.engine,track)
-    task=RacingPPOEnv(native,track,args.seconds,args.opponent_speed,args.opponent_gap)
+    task=RacingPPOEnv(native,track,args.seconds,args.opponent_speed,args.opponent_gap,
+                      time_cost=args.reward_time_cost,
+                      pace_weight=args.reward_pace_weight,
+                      failure_horizon_scale=args.reward_failure_horizon_scale)
     model.to(device)
     checkpoint=args.layout.checkpoints/'policy.pt'
     imitation=(transfer_actor(task,model,args,device) if args.checkpoint else
@@ -538,6 +581,7 @@ def train(args):
     warmstart=evaluate_actor_suite(
         task,model,device,range(args.evaluation_episodes))
     print(f"Warm-start check  progress {warmstart['progress_m']:.2f}m  ·  "
+          f"mean speed {warmstart['mean_speed_m_s']:.2f}m/s  ·  "
           f"termination {warmstart['termination']}  ·  "
           f"valid lap {'yes' if warmstart['valid_lap'] else 'no'}",flush=True)
     save_checkpoint(checkpoint,model,_checkpoint_metadata(
@@ -555,7 +599,7 @@ def train(args):
                 iteration_started=time.monotonic();collection_started=time.monotonic()
                 observations=[];actions=[];teacher_actions=[];rewards=[];dones=[];log_probs=[];values=[]
                 completed_returns=[];completed_lengths=[];terminations=defaultdict(int)
-                reward_sums=defaultdict(float)
+                reward_sums=defaultdict(float);speed_sum=0.
                 for _ in range(args.steps_per_iteration):
                     teacher_action=task.teacher_action()
                     tensor=torch.from_numpy(observation).to(device).unsqueeze(0)
@@ -567,6 +611,7 @@ def train(args):
                     dones.append(done);log_probs.append(float(log_prob.item()));values.append(float(value.item()))
                     episode_return+=reward;episode_length+=1;total_steps+=1
                     for key,val in info["rewards"].items():reward_sums[key]+=float(val)
+                    speed_sum += float(info["speed_m_s"])
                     if done:
                         completed_returns.append(episode_return);completed_lengths.append(episode_length)
                         terminations[info["termination"]]+=1
@@ -646,8 +691,11 @@ def train(args):
                     "action_noise_std":float(model.log_std.exp().mean().detach().cpu()),
                     "mean_reward":float(np.mean(completed_returns)) if episode_count else episode_return,
                     "mean_episode_length":float(np.mean(completed_lengths)) if episode_count else episode_length,
+                    "mean_speed_m_s":speed_sum/denom,
+                    "mean_progress_speed_m_s":reward_sums["progress"]/denom/DT,
                     "reward_progress":reward_sums["progress"]/denom,
                     "reward_alive":reward_sums["alive"]/denom,
+                    "reward_pace":reward_sums["pace"]/denom,
                     "reward_track":reward_sums["track"]/denom,
                     "reward_action_rate":reward_sums["action_rate"]/denom,
                     "reward_overtake":reward_sums["overtake"]/denom,
@@ -655,6 +703,7 @@ def train(args):
                     "reward_collision":reward_sums["collision"]/denom,
                     "reward_offroad":reward_sums["offroad"]/denom,
                     "reward_stalled":reward_sums["stalled"]/denom,
+                    "reward_failure_horizon":reward_sums["failure_horizon"]/denom,
                     "termination_timeout":100*terminations["timeout"]/max(1,episode_count),
                     "termination_collision":100*terminations["collision"]/max(1,episode_count),
                     "termination_offroad":100*terminations["offroad"]/max(1,episode_count),
@@ -667,14 +716,18 @@ def train(args):
                             "entropy":metrics["entropy"],"imitation":metrics["imitation_loss"]},
                     "policy":{"action_noise_std":metrics["action_noise_std"]},
                     "episode":{"mean_reward":metrics["mean_reward"],
-                               "mean_length":metrics["mean_episode_length"]},
+                               "mean_length":metrics["mean_episode_length"],
+                               "mean_speed_m_s":metrics["mean_speed_m_s"],
+                               "mean_progress_speed_m_s":metrics["mean_progress_speed_m_s"]},
                     "reward":{"progress":metrics["reward_progress"],"alive":metrics["reward_alive"],
+                              "pace":metrics["reward_pace"],
                               "track":metrics["reward_track"],"action_rate":metrics["reward_action_rate"],
                               "overtake":metrics["reward_overtake"],
                               "completion":metrics["reward_completion"],
                               "collision":metrics["reward_collision"],
                               "offroad":metrics["reward_offroad"],
-                              "stalled":metrics["reward_stalled"]},
+                              "stalled":metrics["reward_stalled"],
+                              "failure_horizon":metrics["reward_failure_horizon"]},
                     "termination":{"timeout":metrics["termination_timeout"],
                                    "collision":metrics["termination_collision"],
                                    "offroad":metrics["termination_offroad"],
@@ -746,6 +799,9 @@ def _parser(profile):
     parser.add_argument("--seed",type=int,default=profile.seed,help=argparse.SUPPRESS)
     parser.add_argument("--opponent-speed",type=float,default=profile.opponent_speed_m_s,help=argparse.SUPPRESS)
     parser.add_argument("--opponent-gap",type=float,default=profile.opponent_gap_m,help=argparse.SUPPRESS)
+    parser.set_defaults(reward_time_cost=profile.reward_time_cost,
+        reward_pace_weight=profile.reward_pace_weight,
+        reward_failure_horizon_scale=profile.reward_failure_horizon_scale)
     parser.set_defaults(gamma=profile.gamma,gae_lambda=profile.gae_lambda,
         clip_ratio=profile.clip_ratio,entropy_coefficient=profile.entropy_coefficient,
         value_coefficient=profile.value_coefficient,max_gradient_norm=profile.max_gradient_norm)
@@ -766,8 +822,10 @@ def main(argv=None):
               args.evaluation_episodes]
     if any(value<=0 for value in positive):parser.error("PPO training values must be positive")
     if (args.imitation_steps<0 or args.imitation_epochs<0
-            or args.refinement_cycles<0 or args.refinement_epochs<0):
-        parser.error("imitation and refinement training values cannot be negative")
+            or args.refinement_cycles<0 or args.refinement_epochs<0
+            or args.reward_time_cost<0 or args.reward_pace_weight<0
+            or args.reward_failure_horizon_scale<0):
+        parser.error("imitation, refinement, and reward values cannot be negative")
     run_id=args.run_id or f"{datetime.now():%Y%m%d_%H%M%S}-{args.engine}-{args.track}-ppo"
     try:args.layout=RunLayout.open(run_id,args.runs_root)
     except ValueError as exc:parser.error(str(exc))

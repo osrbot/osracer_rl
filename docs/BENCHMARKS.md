@@ -39,4 +39,20 @@
 
 汇总位于 `runs/ppo-2025/reports/benchmark_summary.json` 和 `benchmark_summary.csv`。表中明确列出总赛道数、完成/失败数、多种子有效圈、圈速、超车、步数以及检查点哈希。TensorBoard 的一级 run 名为 `r01-melbourne` 到 `r24-yas_marina`，可直接比较各赛道曲线。
 
+## 全程均速微调
+
+`pace` profile 从一个已经安全的 `.pt` 检查点继续 PPO 微调，并把全程平均物理速度、沿赛道平均进度速度和圈时写入 checkpoint、JSONL 与 TensorBoard：
+
+```bash
+.venv/bin/osracer-train \
+  +simulator=mujoco +task=racing/bahrain +train=pace \
+  experiment_name=pace-bahrain \
+  checkpoint=runs/ppo-2025-mujoco-v2-r04-bahrain/checkpoints/policy.pt \
+  device=cuda
+```
+
+配速项按 `delta_progress × speed / max_speed` 累积，并用中心线距离衰减，因此只有沿赛道快速、仍在道路内部的前进获得额外奖励。碰撞、越界或停滞会立即补缴剩余回合的时间成本，提前失败不能通过少支付逐步时间成本取得更高回报。模型选择先要求所有冻结评估种子有效，再按沿赛道全程均速、物理均速和原始奖励排序。
+
+可用 `reward.pace_weight`、`reward.time_cost` 和 `reward.failure_horizon_scale` 做冻结协议下的 A/B；基线与候选必须保持父 checkpoint、训练预算、种子、对手和回合时长相同。
+
 该结果属于当前近似赛道资产和本地训练协议下的 benchmark。资产并不声称是赛季历史布局的毫米级复现；LoopX experiment board 中也不会把本地结果标记成独立官方评分。
