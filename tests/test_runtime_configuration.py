@@ -34,6 +34,7 @@ def test_packaged_profiles_hold_algorithm_details_out_of_the_command():
     pace=load_training_profile('pace')
     assert (pace.reward_time_cost,pace.reward_pace_weight,
             pace.reward_failure_horizon_scale)==(.01,.25,1.)
+    assert pace.evaluation_episodes==6
 
 
 def test_asap_style_training_overrides_map_to_runtime_fields():

@@ -24,7 +24,7 @@ population = 4
 
 [environment]
 episode_length_s = 180.0
-evaluation_episodes = 3
+evaluation_episodes = 6
 
 [task]
 name = "racing/bahrain"

@@ -486,10 +486,6 @@ def refine_actor(task,model,args,device,tracker=None):
         return {"enabled":False,"improved":False,"cycles":0,"epochs":0,
                 "baseline":None,"evaluation":None,"history":[]}
     baseline=evaluate_actor_suite(task,model,device,seeds)
-    if not baseline["valid_lap"]:
-        return {"enabled":True,
-                "improved":False,"cycles":0,"epochs":0,
-                "baseline":baseline,"evaluation":baseline,"history":[]}
     best_rank=evaluation_rank(baseline);best_evaluation=baseline
     best_state={name:value.detach().cpu().clone()
                 for name,value in model.state_dict().items()}
