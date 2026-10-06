@@ -26,7 +26,7 @@ def require_torch():
     except ModuleNotFoundError as original:
         isaac = Path(os.environ.get(
             "OSRACER_ISAAC_DIR",
-            "/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64",
+            str(Path.home() / "rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64"),
         ))
         candidate = isaac / "kit/python/lib/python3.12/site-packages"
         if candidate.is_dir() and str(candidate) not in sys.path:

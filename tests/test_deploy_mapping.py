@@ -1,3 +1,4 @@
+import json
 import math
 import sys
 from pathlib import Path
@@ -63,29 +64,48 @@ def test_observation_and_action_round_trip():
     assert angle == pytest.approx(.3)        # clamped to the configured limit
 
 
-def test_legacy_frozen_checkpoint_requires_explicit_source_migration(tmp_path):
-    checkpoint = ROOT/'output/racing/policies/frozen-candidates-g00c_v10c_lateral.json'
+@pytest.fixture
+def structured_checkpoint(tmp_path):
+    """Synthetic checkpoint; a clean checkout needs no private training archive."""
+    from racing.control.policy_bundle import actor_source_hashes, actor_version, make_actor
+    spec = {'actor_type': 'reactive'}
+    spec.update(parameters=make_actor(spec=spec).p.tolist(),
+                policy_version=actor_version(spec),
+                actor_source_sha256=actor_source_hashes(spec))
+    checkpoint = tmp_path/'policy.json'
+    checkpoint.write_text(json.dumps(spec))
+    return checkpoint
+
+
+def test_legacy_frozen_checkpoint_requires_explicit_source_migration(structured_checkpoint):
+    checkpoint = structured_checkpoint
+    from racing.control.policy_bundle import actor_source_hashes, actor_version
+    spec = json.loads(checkpoint.read_text())
+    # Emulate the pre-src-layout source names without redistributing trained weights.
+    spec['actor_source_sha256'] = {
+        name.replace('racing/control/', 'racing/'): digest
+        for name, digest in spec['actor_source_sha256'].items()
+    }
+    checkpoint.write_text(json.dumps(spec))
     with pytest.raises(CheckpointMismatch):
         load_actor(checkpoint, racing_root=ROOT)
 
-    import json
-    from racing.control.policy_bundle import actor_source_hashes
-    spec = json.loads(checkpoint.read_text())
     spec['actor_source_sha256'] = actor_source_hashes(spec)
-    migrated = tmp_path/'migrated.json'
+    migrated = checkpoint.with_name('migrated.json')
     migrated.write_text(json.dumps(spec))
     actor, spec = load_actor(migrated, racing_root=ROOT)
-    assert 'verified-escape' in spec['policy_version']
+    assert spec['policy_version'] == actor_version(spec)
     weights = actor.p
     assert weights.shape == (12,)
 
 
-def test_tampered_checkpoint_is_refused(tmp_path):
-    checkpoint = ROOT/'output/racing/policies/frozen-candidates-g00c_v10c_lateral.json'
-    import json
+def test_tampered_checkpoint_is_refused(structured_checkpoint):
+    checkpoint = structured_checkpoint
+    # Establish that the same generated bundle is accepted before tampering.
+    load_actor(checkpoint, racing_root=ROOT)
     spec = json.loads(checkpoint.read_text())
     spec['actor_source_sha256'] = dict(spec['actor_source_sha256'], **{'racing/control/policy.py': '0'*64})
-    tampered = tmp_path/'tampered_checkpoint.json'
+    tampered = checkpoint.with_name('tampered_checkpoint.json')
     tampered.write_text(json.dumps(spec))
     with pytest.raises(CheckpointMismatch):
         load_actor(tampered, racing_root=ROOT)

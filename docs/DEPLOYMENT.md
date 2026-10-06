@@ -1,7 +1,7 @@
 # 实车部署分析（OSRacer ROS 2）
 
-依据：`/home/osrbot/osracer_ws/src/osracer_base`（底盘驱动）与
-`/home/osrbot/osracer_ws/src/osracer`（整车与 `osracer_race` 控制器框架）。
+依据：`/path/to/osracer_ws/src/osracer_base`（底盘驱动）与
+`/path/to/osracer_ws/src/osracer`（整车与 `osracer_race` 控制器框架）。
 本页把仿真训练出的策略与实车接口逐项对照，指出缺口、风险与分阶段上线步骤。
 参考实现放在 `deployment/ros2/osracer_policy/`，可直接拷入车辆工作区构建。
 
@@ -114,7 +114,7 @@
 ## 参考实现
 
 `deployment/ros2/osracer_policy/` 是一个 ament_python 包，可直接拷入
-`/home/osrbot/osracer_ws/src/` 后 `colcon build`：
+`/path/to/osracer_ws/src/` 后 `colcon build`：
 
 - `osracer_policy/mapping.py`：纯函数，把 `LaserScan`/`Odometry` 转成策略观测，
   并把策略动作转成 `AckermannDrive`（无 ROS 依赖，便于离线测试）。
@@ -139,7 +139,7 @@
 
 ### 实车观测配置的仿真测量（初步）
 
-为回答"这样的观测是否可以"，在仿真里加了 `--observation-profile real`（`racing/real_vehicle.py`）：
+为回答"这样的观测是否可以"，在仿真里加了 `--observation-profile real`（`src/racing/vehicle/real.py`）：
 单编码器速度复现为四轮同值、转向用一阶滞后舵机模型估计（τ=0.08 s、速率限 3.5 rad/s）而不是关节实测、
 并把 `rear_overdrive_ratio` 设为 0。用冻结检查点在同一批 MuJoCo 赛道上对比：
 

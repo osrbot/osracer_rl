@@ -1,5 +1,7 @@
 # OSRACER：面向自主阿克曼赛车的证据优先研究
 
+[文档导航](docs/README.md) · [参考材料](docs/REFERENCES.md) · [历史迁移](docs/LEGACY.md)
+
 [English](README.md) · [证据站点](https://osrbot.github.io/osracer_rl/) · [验证台账](docs/VALIDATION_STATUS.md) · [项目结构](docs/PROJECT_STRUCTURE.md)
 
 OSRACER 是一个研究型开源项目，研究阿克曼转向车辆在原生 **MuJoCo** 与 **Isaac Sim / PhysX** 中的高速自主竞速。项目将车辆资产验证、受传感器约束的驾驶、跨赛道测评、轨迹审计、原生视频和失败对照组整合为同一可复现流程。
@@ -46,7 +48,7 @@ SolidWorks 装配体
 请在仓库根目录执行。需要 Python 3.11+（开发环境为 Python 3.12）；原生 Isaac Sim 需单独安装。
 
 ```bash
-bash tools/environment/setup_racing.sh --test
+bash tools/environment/setup_racing.sh --mujoco-only --test
 . .venv/bin/activate
 
 # 模型、传感器和执行器路径的短回合。
@@ -91,8 +93,9 @@ osracer-play experiment_name=demo
 为赛季目录中的 24 条赛道分别训练并验证 PPO 策略：
 
 ```bash
+# 使用上方 demo 训练生成的父检查点；每条赛道单独验收
 osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
-  checkpoint=runs/ppo-cem-pace-v2/checkpoints/policy.pt \
+  checkpoint=runs/demo/checkpoints/policy.pt \
   +simulator=mujoco +train=benchmark
 ```
 
@@ -100,6 +103,16 @@ osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
 [docs/BENCHMARKS.md](docs/BENCHMARKS.md)。
 
 默认算法是 PPO，训练规模由 `src/racing/config/training/default.toml` 管理；环境检查可追加 `+train=quick`。MuJoCo 与 Isaac Sim 使用统一的逐迭代终端摘要，训练生成 `policy.pt` 并自动导出已校验的 `policy.onnx`；完整原始指标保存在运行目录中。原 CEM 参数搜索通过 `algorithm=cem` 保留为兼容基线。配置覆盖方式、终端字段及兼容选项见[运行产物目录](docs/RUN_ARTIFACTS.md)。
+
+
+Isaac 使用原生 Python 启动相同训练入口：
+
+```bash
+bash tools/runtime/run_isaac.sh -m racing.runtime.train \
+  +simulator=isaac +task=racing/bahrain experiment_name=isaac-demo
+```
+
+最近本地 PPO 迁移批次为 6/24 条赛道通过全部筛选种子；运行 benchmark 不代表全部赛道收敛。详见[当前验证状态](docs/VALIDATION_STATUS.md)。
 
 ## 负责任地阅读结果
 

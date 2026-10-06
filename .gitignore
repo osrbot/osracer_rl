@@ -2,6 +2,7 @@
 .codex/goals/
 .local/
 __pycache__/
+*.py[cod]
 .venv/
 *.egg-info/
 .eggs/
@@ -34,13 +35,13 @@ htmlcov/
 .tox/
 .nox/
 
-# ROS/colcon produces these runtime pointers locally.  Do not ignore the
-# repository's publication/presentation/build directory: it contains the reviewed deck.
+# ROS/colcon and Python builds produce these locally. Reviewed presentation
+# releases live in publication/presentation/releases/, outside build directories.
 /log/
 build/
 /install/
 
-# Full experiment output is a 35 GB local evidence archive. The public site
+# Full experiment output is a local evidence archive. The public site
 # consumes the reviewed, hash-traceable subset in publication/assets/ instead.
 output/
 runs/

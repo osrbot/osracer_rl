@@ -1,8 +1,10 @@
 # 当前验证状态
 
-更新时间：2026-10-06（24 赛道 PPO benchmark 终态 + 全程均速奖励 A/B）
+更新时间：2026-10-06（24 赛道 PPO benchmark 终态 + 奖励与推理门控诊断）
 
-工程已具备赛季资产、双车原生仿真、完整传感器契约、训练、独立审计和录像入口。**跨全部赛道稳定高速漂移超车的最终策略仍未验收完成。** 当前结果在 [交互报告](../output/racing/index.html) 和 [结果汇总](../output/racing/RESULTS.md) 中保留成功与失败。
+工程已具备赛季资产、双车原生仿真、完整传感器契约、训练、独立审计和录像入口。**跨全部赛道稳定高速漂移超车的最终策略仍未验收完成。** 当前结果在 交互报告（本地 `output/racing/index.html`） 和 结果汇总（本地 `output/racing/RESULTS.md`） 中保留成功与失败。
+
+`runs/`、`output/` 原始证据仅在实验机保留，公开仓库不附带；可直接查看的精选素材见 [publication/assets](../publication/assets/README.md)。下表历史批次按各自冻结版本解释。
 
 ## 已有证据
 
@@ -10,7 +12,7 @@
 | --- | --- | --- |
 | PPO 神经策略，MuJoCo Bahrain | 370 维最小控制状态、卷积 actor-critic、量化感知 DART/DAgger、PPO 和锚定闭环蒸馏已贯通；检查点选择覆盖 seed 0–2。最终 `.pt` 在 CPU/CUDA/ONNX 三种执行后端逐步一致，三个种子均有效完圈并各超车 1 次（3595/4079/3673 步，即 59.9/68.0/61.2s）。seed 0 原生播放 59.917s、均速4.53m/s、峰值7.16m/s、零碰撞/越界。TensorBoard、`.pt`、ONNX 和 MP4 均保存在 `runs/ppo-cem-pace-v2/` | **已追近但尚未完全追平 CEM**：seed 0 比约50s的 CEM 慢约20%；最大侧滑15.43°，未达到20°连续漂移门槛。第三轮更小步长搜索没有出现新的3/3候选，最佳模型保持不变 |
 | PPO 跨赛道迁移，MuJoCo 2025 赛季 | 24 条赛道、每条最多 3 次迁移已全部执行；6/24 达到 seed0–2 全部有效（Melbourne、Bahrain、Imola、Barcelona、Spielberg、Silverstone），18/24 未达标但均保留 `.pt`/ONNX 与失败证据。24 赛道等权平均进度速度约 2.48m/s；6 条合格赛道平均约 3.68m/s、平均圈时70.31s | 18 条未达标赛道的最差种子均以碰撞结束。多数被选中的 checkpoint 仍停在 warm-start，说明原 benchmark 的 1×256 PPO 预算尚不足以让奖励函数稳定影响策略 |
-| PPO Bahrain 全程均速门控，MuJoCo | 冻结 seed0–5 复验为 **6/6 有效圈、零碰撞/越界、平均物理速度4.315m/s、平均进度速度4.310m/s、平均圈时62.92s**；原父 checkpoint 为5/6、碰撞率16.7%、平均物理速度4.247m/s，因而有效圈率提升16.7个百分点、均速提升1.61%。`.pt`、ONNX 与 TensorBoard 位于 `runs/pace-bahrain-corner-guard-v1/` | 本地诊断只覆盖 MuJoCo Bahrain seed0–5；门控阈值来自该失败轨迹，尚未外推到其余23条赛道或 Isaac |
+| PPO Bahrain 全程均速门控，MuJoCo | 调参种子 seed0–5 复验为 **6/6 有效圈、零碰撞/越界、平均物理速度4.315m/s、平均进度速度4.310m/s、平均圈时62.92s**；原父 checkpoint 为5/6、碰撞率16.7%、平均物理速度4.247m/s，有效圈率提升16.7个百分点，回合均速均值差为+1.61%（基线含提前碰撞回合，不是完整圈配对提速）。`.pt`、ONNX 与 TensorBoard 位于 `runs/pace-bahrain-corner-guard-v1/` | 保留的是 iteration 0 预热检查点，改进来自推理门控，不能归因为 PPO 奖励学习。seed0–5 已用于调参，不是独立留出集；未外推到其余23条赛道或 Isaac。详见[实验记录](BENCHMARKS.md#本地门控诊断记录) |
 | 赛道资产 | 2024/2025 两季、48 个分站、24 条唯一赛道；RC 与原路径尺度 DAE/OBJ/PNG/地图 | 年度布局未逐一历史核验；宽度和 Suzuka 高程含明确训练假设 |
 | 未训练 v5 基线，MuJoCo | 24/24 赛道无碰撞完圈，各有效超车 1 次 | 不证明连续漂移 |
 | 未训练 v5 基线，Isaac | 4 条代表赛道中 Bahrain/Austin 有效，Monaco/Suzuka 失败 | 未完成源端全赛道资格 |
@@ -32,7 +34,7 @@
 | **速度榜：巡航 9.0 m/s（v10c_cruise9），Isaac 24赛道** | 20/24 有效整圈与超车，24段录像与24份轨迹独立审计通过；**峰值 9.00–9.04 m/s**、单圈 40.4–90.5 s | 20 条可比单圈全部更快（0.2%–9.3%）；新增 Austin、Las Vegas 两条停滞，Spa/Suzuka 仍失败；速度—稳定性权衡真实存在 |
 | **留出种子：巡航 9.0 m/s，MuJoCo 5赛道×种子10–14** | **24/25 有效整圈与超车**（96%），25份轨迹与录像全部通过独立审计；Bahrain/Monaco/Baku/Suzuka 各 5/5，Singapore 4/5 | 唯一失败是 Singapore 种子10 起步车车接触，与种子0 同类；说明该类失败是间歇性的 |
 | **留出种子：巡航 9.0 m/s，MuJoCo 全部24赛道×种子10** | 21/24 有效整圈与超车，24份轨迹独立审计通过；单圈 37.7–104.5 s | 失败为 Hungaroring 撞墙、Miami 停滞、Singapore 车车接触；与上一份留出集合去重后共 44 回合、41 有效（93%） |
-| **素材库** | 376 段原生录像（证据 91 / 失败对照组 6 / 历史批次 279）＋905 张预览图，全部通过 ffprobe 解码校验；可浏览版 [media.html](../output/racing/media.html)、表格索引 [MEDIA.md](../output/racing/MEDIA.md)、机器清单 `MEDIA_INDEX.json` | 索引只读生成，不移动或重写录像 |
+| **素材库（早期快照）** | 376 段原生录像（证据 91 / 失败对照组 6 / 历史批次 279）＋905 张预览图，全部通过 ffprobe 解码校验；可浏览版 media.html（本地 `output/racing/media.html`）、表格索引 MEDIA.md（本地 `output/racing/MEDIA.md`）、机器清单 `MEDIA_INDEX.json` | 索引只读生成，不移动或重写录像 |
 | **传感器扰动，MuJoCo 5赛道×种子10–11（噪声0.02m/丢束5%/延迟50ms）** | 10 个回合全部失败，10份轨迹独立审计通过 | **当前策略不具备扰动鲁棒性**；消融显示噪声单独可过，丢束与延迟各自单独即致命，三者叠加 2.7s 内撞墙 |
 | 扰动根因定位（同上赛道集） | 负向证据：三种修复尝试均未解决组合扰动，均已撤回并保留轨迹 | 丢束机制=单束空洞（可行驶走廊须宽于单束，已验证可修好“仅丢束”场景）；组合场景真实瓶颈是安全层扫描匹配在起步即失败（`motion_estimate_unavailable`），进入盲车模式后撞墙 |
 | **留出种子：Isaac 3赛道×种子10–12（冻结7.25m/s）** | 6/9 有效整圈与超车，9份轨迹独立审计通过；Bahrain 3/3（53.0–53.7s）、Monaco 3/3（79.0–79.4s） | Suzuka 0/3（1失稳+2撞墙）；说明 Isaac 不稳定性集中在 Suzuka 桥面，其余赛道在未见种子上稳定 |
@@ -40,7 +42,7 @@
 | 运行时 | 同一 Isaac 进程中实际加载 MuJoCo 3.10.0，并分别执行两引擎短回合与独立审计 | 是联合训练运行时验证，不是驾驶成功率 |
 | 工程测试 | 261 项通过（含 benchmark 断点续跑、PPO checkpoint 身份与 ONNX 导出、全程均速门控、倒车脱困契约、安全层许可与拒绝、观测契约） | 测试契约不代替完整驾驶验收 |
 
-## 正在推进
+## 历史迭代与待验证问题
 
 1. 停车脱困已实现并原生复现，Isaac 停滞类失败清零（原先 5 条）。契约、边界与复现命令见 [停车脱困](../docs/RECOVERY.md)。
 2. 近场原始回波通道解决了拟合墙跳变导致的漏判：Monaco、Silverstone 等原本撞墙的赛道恢复完圈，但代价是正常赛道约 9% 单圈时间。
@@ -55,27 +57,27 @@
 11. 提速的代价已量化：MuJoCo 在 9.0 m/s 仍全赛道有效；Isaac 从 22/24 降到 20/24，新增 Austin 与 Las Vegas 两条停滞。这是当前“速度—稳定性”的真实边界。
 12. 留出种子证据已补齐：巡航 9.0 m/s 在 5 条代表赛道 × 种子 10–14 上为 24/25，在全部 24 条赛道 × 种子 10 上为 21/24；两份集合去重后 44 回合 41 有效（93%）。
 13. 五种针对 Isaac 高速停滞/失败的修复尝试全部撤回（侧向阈值、制动加速度、按可见空间分配倒车预算、累计倒车上限、多点掉头）。证据一致指向：**7.25 m/s 是该车在 Isaac/PhysX 下的稳定上限**，9.0 m/s 超出工作范围（同一配置在 MuJoCo 全赛道有效）。共享配置应保持 7.25 m/s。
-14. 素材已整理：376 段录像按当前证据/失败对照组/历史批次分组，附 905 张预览图、逐段哈希与解码校验，见 [素材库](../output/racing/media.html)。
+14. 早期素材快照：376 段录像按当前证据/失败对照组/历史批次分组，附 905 张预览图、逐段哈希与解码校验，见 素材库（本地 `output/racing/media.html`）。
 15. **传感器扰动是当前最大缺口**：噪声 0.02 m + 丢束 5% + 延迟 50 ms 下 5 赛道 × 2 种子全部失败（10/10），消融显示噪声单独可过、丢束与延迟各自单独即致命。两个针对性修复（丢束容忍、陈旧度限速）均撤回，分别表现为"轨迹逐位不变"和"仍撞墙"。
 16. Isaac 留出种子补齐后，失败面收敛得很清楚：Bahrain/Monaco 在种子 10–12 上全部有效，Suzuka 0/3（1 失稳 + 2 撞墙）。**Isaac 的残余问题集中在 Suzuka 桥面**，可以按专项处理，不必推翻共享策略。
 17. 扰动鲁棒性的靶点已收敛到**扫描匹配**：组合扰动下起步即 `registration_failed`（局部 5 点直线拟合在 2cm 噪声下通过率骤降，特征点不足 24 个）。放宽确认门槛无效（轨迹逐位不变），加宽到 7 点窗口可让 Monaco 6→93m、Singapore 12→55m，但 Bahrain 152→82m 变差且无一完圈，故撤回。下一步把噪声鲁棒的特征提取、降级感知限速与最小走廊宽度规则一起做，再一次性重测。
 18. 再往后：确认 Isaac Spa 接触与 Suzuka 桥面的专项处置方案，并把留出种子扩展到更多种子。
-11. Suzuka 高速桥接触：已证实同一原生轮胎能稳定在倾斜解析平面上以约7m/s运动，但有限 box 表面存在异常法向与弹跳；当前没有把失败试验包装为修复。详见 [接触调查](../output/racing/BRIDGE_CONTACT_INVESTIGATION.md)。
-12. 下一步：处理 Isaac Spa 起步接触与 Suzuka 桥面失稳，并在当前源码上复验 9.0 m/s 变体与留出种子、传感器扰动。
+19. Suzuka 高速桥接触：已证实同一原生轮胎能稳定在倾斜解析平面上以约7m/s运动，但有限 box 表面存在异常法向与弹跳；当前没有把失败试验包装为修复。详见 接触调查（本地 `output/racing/BRIDGE_CONTACT_INVESTIGATION.md`）。
+20. 下一步：处理 Isaac Spa 起步接触与 Suzuka 桥面失稳，并在当前源码上复验 9.0 m/s 变体与留出种子、传感器扰动。
 
-## 可直接查看
+## 本地历史证据索引
 
-- [输出目录导览](../output/racing/README.md)：目录职责与“先看哪里”
-- [策略文件索引](../output/racing/policies/README.md)：62 个检查点，冻结版为 `frozen-candidates-g00c_v10c_lateral.json`
-- [运行日志索引](../output/racing/logs/README.md)：按引擎/用途分组（本轮归位 264 个散落日志）
-- [录像与图片素材库](../output/racing/media.html)：411 段录像可点播，附 905 张预览图
-- [Isaac 联合CEM候选 Bahrain 原生整圈视频，seed10](../output/racing/isaac/bahrain_joint_cem_g00c03_heldout10_14_seed10.mp4)：52.33s、1次有效超车、连续漂移.217s。
-- [Isaac v6k Bahrain 原生整圈视频](../output/racing/isaac/bahrain_v6k_development24_seed0.mp4)
-- [MuJoCo 联合CEM候选 Bahrain 原生整圈视频，seed10](../output/racing/mujoco/bahrain_joint_cem_g00c03_demo_seed10.mp4)：50.02s、1次有效超车、连续漂移.183s；这是选定成功示例，五个新种子的漂移通过率仍为3/5。
-- [MuJoCo v5 Bahrain 原生整圈视频](../output/racing/mujoco/bahrain_baseline_v5_seed0.mp4)
-- [双引擎联合CEM完整搜索结果](../output/racing/training/joint_cem_v6n/RESULT.md)
-- [完整工程测试日志](../output/racing/full_test_suite_latest.log)
-- [固定 MuJoCo 版本的联合运行时证据](../output/racing/joint_runtime_smoke.json)
-- [拒收候选的完整交接与失败记录](../output/racing/experimental/v6m_gain010_workspace/handoff.json)
+- 输出目录导览（本地 `output/racing/README.md`）：目录职责与“先看哪里”
+- 策略文件索引（本地 `output/racing/policies/README.md`）：62 个检查点，冻结版为 `frozen-candidates-g00c_v10c_lateral.json`
+- 运行日志索引（本地 `output/racing/logs/README.md`）：按引擎/用途分组（本轮归位 264 个散落日志）
+- 录像与图片素材库（本地 `output/racing/media.html`）：411 段录像可点播，附 905 张预览图
+- Isaac 联合CEM候选 Bahrain 原生整圈视频，seed10（本地 `output/racing/isaac/bahrain_joint_cem_g00c03_heldout10_14_seed10.mp4`）：52.33s、1次有效超车、连续漂移.217s。
+- Isaac v6k Bahrain 原生整圈视频（本地 `output/racing/isaac/bahrain_v6k_development24_seed0.mp4`）
+- MuJoCo 联合CEM候选 Bahrain 原生整圈视频，seed10（本地 `output/racing/mujoco/bahrain_joint_cem_g00c03_demo_seed10.mp4`）：50.02s、1次有效超车、连续漂移.183s；这是选定成功示例，五个新种子的漂移通过率仍为3/5。
+- MuJoCo v5 Bahrain 原生整圈视频（本地 `output/racing/mujoco/bahrain_baseline_v5_seed0.mp4`）
+- 双引擎联合CEM完整搜索结果（本地 `output/racing/training/joint_cem_v6n/RESULT.md`）
+- 完整工程测试日志（本地 `output/racing/full_test_suite_latest.log`）
+- 固定 MuJoCo 版本的联合运行时证据（本地 `output/racing/joint_runtime_smoke.json`）
+- 拒收候选的完整交接与失败记录（本地 `output/racing/experimental/v6m_gain010_workspace/handoff.json`）
 
-LoopX 当前没有待用户批准的 gate；工作属于 agent 执行项。共享显卡已有用户自己的其他工作负载，实验按真实显存余量排队，不停止用户进程。
+运行状态和 GPU 占用是本机实时信息，不作为版本化验收结论。

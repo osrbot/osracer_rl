@@ -33,14 +33,14 @@ Elapsed: 01:16
 
 | Parameter | Value |
 | --- | --- |
-| output_root | C:\Users\kitso\Desktop\OSRACER\ |
+| output_root | <export-root>\ |
 | robot_name | osracer_arc_e01_prtnew_asm |
 | ros1_package_name | osracer_description |
 | ros2_package_name | osracer_description |
-| ros1_package_directory | C:\Users\kitso\Desktop\OSRACER\ROS1\osracer_description\ |
-| ros2_package_directory | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\ |
-| ros1_urdf | C:\Users\kitso\Desktop\OSRACER\ROS1\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
-| ros2_urdf | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
+| ros1_package_directory | <export-root>\ROS1\osracer_description\ |
+| ros2_package_directory | <export-root>\ROS2\osracer_description\ |
+| ros1_urdf | <export-root>\ROS1\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
+| ros2_urdf | <export-root>\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
 | export_meshes | true |
 | mesh_format | STL |
 | inertial_validation_rows | 210 |

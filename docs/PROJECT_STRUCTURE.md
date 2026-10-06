@@ -16,7 +16,7 @@
 | `publication/site/` | 静态站生成器 | 提交生成器，忽略 `_site/` |
 | `publication/presentation/` | PPT、讲稿、直播说明和视频制作 | 提交源材料，忽略本地生成物 |
 | `runs/<run-id>/` | 新训练/评估的检查点、指标、TensorBoard、轨迹、录像和日志 | 忽略 |
-| `output/racing/` | 旧版 34GB 证据库，文件内含历史路径和哈希 | 忽略并只读保留 |
+| `output/racing/` | 旧版证据库，文件内含历史路径和哈希 | 忽略并只读保留 |
 
 ## 代码边界
 
@@ -36,6 +36,6 @@
 
 1. 阅读 [验证状态](VALIDATION_STATUS.md) 理解结论边界。
 2. 按 [运行产物目录](RUN_ARTIFACTS.md) 启动训练和 TensorBoard。
-3. 查看 [冻结发布](RELEASE.md) 复现历史已审计结果。
+3. 查看 [历史 CEM 冻结基线](RELEASE.md) 复现历史已审计结果。
 4. 演示和媒体入口统一在 [`publication/`](../publication/README.md)。
 5. 扩展仿真器前阅读 [仿真器后端](SIMULATORS.md)。

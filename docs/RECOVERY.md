@@ -20,7 +20,7 @@ if forward < .24:
 
 ## 倒车脱困契约
 
-`racing/policy.py` 增加一个有界状态机，触发条件是**已经停住**并且**规划器自己要求停车**（或前方距离小于 0.30 m）：
+`src/racing/control/policy.py` 增加一个有界状态机，触发条件是**已经停住**并且**规划器自己要求停车**（或前方距离小于 0.30 m）：
 
 ```python
 stuck = (fresh and abs(measured_forward) < ESCAPE_SPEED_EPS
@@ -29,13 +29,13 @@ stuck = (fresh and abs(measured_forward) < ESCAPE_SPEED_EPS
 
 满足 0.35 s 后进入 0.8 s 倒车，速度 −0.7 m/s，**前轮回到中位**而不是保持入弯转角：保持转角会让倒车中的车身快速旋转，实测曾把车转到逆向行驶并累计 −109 m 进度。脱困后进入 1.2 s 冷却，避免连续倒车。
 
-同一条脱困也可以由外部请求触发（`RacingPolicy.request_reverse_escape`）。`racing/policy_bundle.py` 中，当安全监督器连续 0.6 s 拒绝指令且实测轮速接近 0 时，会发出该请求。这是纯传感器证据：监督器的拒绝本身说明车辆被阻挡。
+同一条脱困也可以由外部请求触发（`RacingPolicy.request_reverse_escape`）。`src/racing/control/policy_bundle.py` 中，当安全监督器连续 0.6 s 拒绝指令且实测轮速接近 0 时，会发出该请求。这是纯传感器证据：监督器的拒绝本身说明车辆被阻挡。
 
 倒车动作是唯一会输出负轮速的路径，因此也是唯一的观测契约扩展；标称行驶仍然是前进四轮速度加两个前轮转角。
 
 ## 安全层许可条件
 
-`racing/safety.py` 不会因为策略请求倒车就放行。许可需要三条同时成立：
+`src/racing/control/safety.py` 不会因为策略请求倒车就放行。许可需要三条同时成立：
 
 1. **后方可见**：固定扫描是 270°，车身正后方 90° 是盲区。只有 |angle| ≥ 120° 的射线可用，其最小距离必须 ≥ 0.60 m，否则拒绝。
 2. **墙体几何不恶化**：以物理墙拟合为判据做倒车扫描预测。若当前包络与墙已有重叠，则要求倒车结束时间距增加 ≥ 0.02 m 且中途不恶化；若当前有正常间距，则要求整段倒车轨迹都不低于 0.03 m 余量。
@@ -103,7 +103,7 @@ danger = wall_danger or compact_danger or near_danger
 
 全时域版本把 Bahrain 拖慢 84%，因此只保留 0.2 s 时域版本：两个原本撞墙的赛道都变成有效整圈，正常赛道代价约 9%。
 
-`racing/safety_motion.py` 的 `predict_poses` 同时扩展到支持负 `command_speed`，否则倒车许可永远无法在“当前已经贴墙”的情形下通过：预测姿态仍按观测到的（接近零）运动积分，倒车结束间距不可能改善。
+`src/racing/control/safety_motion.py` 的 `predict_poses` 同时扩展到支持负 `command_speed`，否则倒车许可永远无法在“当前已经贴墙”的情形下通过：预测姿态仍按观测到的（接近零）运动积分，倒车结束间距不可能改善。
 
 ## 制动动作
 
@@ -120,7 +120,7 @@ result_wheels = np.array([rolling, rolling, rolling, -rolling])
 
 ## 每个赛道都留录像
 
-双引擎刷榜默认对全部赛道录像，失败场次同样入库作为对照组。MuJoCo 用 `racing.runtime.sweep --record-tracks <ids>`，Isaac 用 `tools/runtime/run_racing_batch.py --record-tracks <ids>`。`racing.evaluation.report` 会把每段视频写进 [RESULTS.md](../output/racing/RESULTS.md)，`racing.evaluation.verify` 逐段做解码校验，身份（赛道、种子、检查点哈希）与成绩一起核对。
+双引擎刷榜默认对全部赛道录像，失败场次同样入库作为对照组。MuJoCo 用 `racing.runtime.sweep --record-tracks <ids>`，Isaac 用 `tools/runtime/run_racing_batch.py --record-tracks <ids>`。`racing.evaluation.report` 会把每段视频写进 RESULTS.md（本地 `output/racing/RESULTS.md`），`racing.evaluation.verify` 逐段做解码校验，身份（赛道、种子、检查点哈希）与成绩一起核对。
 
 ## 速度榜
 
@@ -176,8 +176,8 @@ Isaac 侧此前完全没有留出种子，本轮补齐三条代表赛道（种�
 
 `tools/assets/index_media.py` 读取已有产物生成三个文件，不移动、不重写任何录像：
 
-- [media.html](../output/racing/media.html)：可浏览素材库，按“当前证据 / 失败对照组 / 历史批次”分组，点开即播，未播放的录像不占用带宽。
-- [MEDIA.md](../output/racing/MEDIA.md)：同一批素材的表格索引，含引擎、赛道、配置、种子、是否有效圈、单圈、超车数、最长连续漂移与时长。
+- media.html（本地 `output/racing/media.html`）：可浏览素材库，按“当前证据 / 失败对照组 / 历史批次”分组，点开即播，未播放的录像不占用带宽。
+- MEDIA.md（本地 `output/racing/MEDIA.md`）：同一批素材的表格索引，含引擎、赛道、配置、种子、是否有效圈、单圈、超车数、最长连续漂移与时长。
 - `MEDIA_INDEX.json`：机器可读清单，每段录像带字节数、SHA-256、解码时长/帧数/分辨率、对应回合指标与分组标记。
 
 当前共 **376 段录像**（证据 91、失败对照组 6、历史批次 279），其中 905 张 PNG 作为每段录像的首帧预览；全部 376 段通过 `ffprobe` 解码校验，没有不可解码文件。

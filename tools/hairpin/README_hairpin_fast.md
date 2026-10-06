@@ -6,10 +6,10 @@
 
 ## 复现
 
-在仓库根目录执行。需要可运行的 Isaac Sim 6.0.1、MuJoCo、NumPy、Pillow，以及 `ffmpeg` / `ffprobe`。Isaac 启动脚本默认使用 `/home/osrbot/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64`；其他安装位置可通过 `OSRACER_ISAAC_DIR` 指定。
+在仓库根目录执行。需要可运行的 Isaac Sim 6.0.1、MuJoCo、NumPy、Pillow，以及 `ffmpeg` / `ffprobe`。Isaac 启动脚本默认使用 `$HOME/rlgpu_ws/isaac-sim-standalone-6.0.1-linux-x86_64`；其他安装位置可通过 `OSRACER_ISAAC_DIR` 指定。
 
 ```bash
-cd /home/osrbot/Desktop/osracer_work
+cd /path/to/osracer_rl
 
 # 只在 Isaac 中训练，并评估 10 个回合。
 bash tools/runtime/run_isaac.sh tools/hairpin/run_hairpin_fast.py --engine isaac --train --generations 6 --population 16 --eval-seed-start 300 --episodes 10

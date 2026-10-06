@@ -1,6 +1,6 @@
-# 冻结交付版（converged release）
+# 历史 CEM 冻结基线
 
-本页固定当前**已完整验证**的配置与成绩，作为可复现交付基线。目标仍在推进（见文末已知限制），但此处列出的每一项都有对应的原生轨迹、独立审计与录像。
+本页保留历史 CEM 配置、当时的成绩与本地证据路径，不代表当前 PPO 的成绩。复现需要对应历史检查点及匹配源码；这些原始产物不随公开仓库分发。新训练请从[使用说明](RUN_ARTIFACTS.md)开始，公开精选素材见 [publication/assets](../publication/assets/README.md)。
 
 ## 冻结配置
 
@@ -13,7 +13,7 @@
 | 巡航 | 7.25 m/s（共享/冻结）；9.0 m/s 仅 MuJoCo 全赛道有效 |
 | 对手 | 同类传感器策略，2.8 m/s 巡航，发车领先 3 m |
 
-源码哈希（`racing/policy.py`、`policy_closed_loop.py`、`safety.py`、`odometry.py`、`policy_bundle.py` 等）逐项记录在检查点的 `actor_source_sha256` 中，可用下列命令复核：
+历史源码哈希（当时使用 `racing/policy.py` 等路径；当前代码位于 `src/racing/control/` 与 `src/racing/perception/`）逐项记录在检查点的 `actor_source_sha256` 中，可用下列命令复核：
 
 ```bash
 .venv/bin/python -I -c "import sys,json;sys.path.insert(0,'.');\
@@ -21,6 +21,8 @@ from racing.control.policy_bundle import actor_source_hashes;\
 spec=json.load(open('output/racing/candidates/g00c_v10c_lateral.json'));\
 print(actor_source_hashes(spec)==spec['actor_source_sha256'])"
 ```
+
+目录重构后上述校验可能返回 `False`。这意味着当前代码不等同于冻结源码，应取回匹配快照并重新验收；不能只更新哈希来沿用历史资格。
 
 ## 冻结成绩
 
@@ -33,18 +35,18 @@ print(actor_source_hashes(spec)==spec['actor_source_sha256'])"
 | MuJoCo 留出种子（5 赛道×10–14、全部 24 赛道×10） | 41/44 | — | — | — | 49 份轨迹通过 |
 | Isaac 留出种子（3 赛道×10–12） | 6/9 | 每条 1 次 | 53.0–79.4 s（Bahrain/Monaco） | — | 9 份轨迹通过 |
 
-报告共 174 个回合、174 份轨迹全部通过证据完整性审计，其中 141 场任务成功；可排序报告见 [RESULTS.md](../output/racing/RESULTS.md)，交互报告见 [index.html](../output/racing/index.html)。
+报告共 174 个回合、174 份轨迹全部通过证据完整性审计，其中 141 场任务成功；可排序报告见 RESULTS.md（本地 `output/racing/RESULTS.md`），交互报告见 index.html（本地 `output/racing/index.html`）。
 
 ## 素材
 
-目录已经把散落的文件整理成便于查看的结构，入口是 [output/racing/README.md](../output/racing/README.md)：
+目录已经把散落的文件整理成便于查看的结构，入口是 output/racing/README.md（本地 `output/racing/README.md`）：
 
 - `output/racing/policies/`：62 个策略检查点的符号链接视图与清单（含参数、版本、训练引擎、状态、SHA-256），**冻结版是 `frozen-candidates-g00c_v10c_lateral.json`**。
 - `output/racing/logs/`：运行日志按 `isaac/`、`mujoco/`、`bridge/`、`training/`、`qualification/`、`misc/` 分组（本轮归位 264 个文件）。
 - 顶层从 446 项降到 184 项；结果、轨迹、录像仍在原路径，未移动、未改名，因此已记录的证据哈希与引用保持有效。
-- 重新整理只需 `.venv/bin/python -I tools/assets/organize_outputs.py`，它只归位新出现的日志并刷新索引。
+- 旧日志搬移脚本已删除。现在使用 `.venv/bin/python tools/artifacts/index_legacy_output.py`，只在 `runs/_legacy/` 写入索引，不改动历史文件；详见[历史复现](LEGACY.md)。
 
-[media.html](../output/racing/media.html) 是可浏览素材库（点开即播），[MEDIA.md](../output/racing/MEDIA.md) 是同一批素材的表格索引，`MEDIA_INDEX.json` 是机器清单。当前共 **411 段原生录像**（证据 91 / 失败对照组 8 / 历史批次 312，后者含被撤回实验的录像）与 905 张首帧预览，全部通过 `ffprobe` 解码校验，逐段带 SHA-256、分辨率、帧数与对应回合指标。
+media.html（本地 `output/racing/media.html`） 是可浏览素材库（点开即播），MEDIA.md（本地 `output/racing/MEDIA.md`） 是同一批素材的表格索引，`MEDIA_INDEX.json` 是机器清单。当前共 **411 段原生录像**（证据 91 / 失败对照组 8 / 历史批次 312，后者含被撤回实验的录像）与 905 张首帧预览，全部通过 `ffprobe` 解码校验，逐段带 SHA-256、分辨率、帧数与对应回合指标。
 
 ```bash
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -I tools/assets/index_media.py \

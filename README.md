@@ -1,6 +1,6 @@
 # OSRACER: Evidence-First Research on Autonomous Ackermann Racing
 
-[中文文档](README.zh-CN.md) · [Evidence site](https://osrbot.github.io/osracer_rl/) · [Validation ledger](docs/VALIDATION_STATUS.md) · [Project structure](docs/PROJECT_STRUCTURE.md)
+[中文文档](README.zh-CN.md) · [Evidence site](https://osrbot.github.io/osracer_rl/) · [Validation ledger](docs/VALIDATION_STATUS.md) · [Project structure](docs/PROJECT_STRUCTURE.md) · [Documentation](docs/README.md) · [References](docs/REFERENCES.md)
 
 OSRACER is an open research project on high-speed autonomous Ackermann racing in native **MuJoCo** and **Isaac Sim / PhysX**. It combines vehicle-asset validation, sensor-constrained driving, multi-track evaluation, trajectory audits, videos, and failure cases in one reproducible workflow.
 
@@ -46,7 +46,7 @@ The vehicle descriptions in `assets/vehicles/osracer/` are export artifacts prod
 Run from the repository root. Python 3.11+ is required; Python 3.12 is the development environment. Native Isaac Sim must be installed separately.
 
 ```bash
-bash tools/environment/setup_racing.sh --test
+bash tools/environment/setup_racing.sh --mujoco-only --test
 . .venv/bin/activate
 
 # Model, sensor, and actuator smoke run.
@@ -88,21 +88,29 @@ tensorboard --logdir runs/demo/metrics/tensorboard --port 6006
 osracer-play experiment_name=demo
 ```
 
-Train one independently validated PPO policy for every round in the 24-track
-season catalog:
+Use the `demo` checkpoint produced above as the common parent to train and evaluate
+one PPO policy per track. Qualification is checked separately for each track:
 
 ```bash
 osracer-benchmark train benchmark_name=ppo-2025 season=2025 \
-  checkpoint=runs/ppo-cem-pace-v2/checkpoints/policy.pt \
+  checkpoint=runs/demo/checkpoints/policy.pt \
   +simulator=mujoco +train=benchmark
 ```
 
+The last local campaign qualified 6/24 tracks; running this command does not guarantee convergence.
 The command resumes at track boundaries and writes one shared TensorBoard tree
 plus JSON/CSV standings. See [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
 
 PPO is the default algorithm and its training scale lives in `src/racing/config/training/default.toml`; append `+train=quick` for an environment check. MuJoCo and Isaac Sim use the same per-iteration console summary. Training writes `policy.pt` and automatically exports a checked `policy.onnx`; complete raw metrics remain in the run directory. The former CEM parameter search remains available as the explicit `algorithm=cem` baseline. See [Run artifacts](docs/RUN_ARTIFACTS.md) for configuration overrides, output fields, and compatibility options.
 
 Simulator backends implement one lifecycle contract and are selected through packaged target configurations. See [Simulator backends](docs/SIMULATORS.md) before adding another engine.
+
+For Isaac training, use its native Python with the same configuration interface:
+
+```bash
+bash tools/runtime/run_isaac.sh -m racing.runtime.train \
+  +simulator=isaac +task=racing/bahrain experiment_name=isaac-demo
+```
 
 ## Reading results responsibly
 

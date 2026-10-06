@@ -1,6 +1,6 @@
 # 仿真器后端
 
-仿真器采用与 ASAP / HumanoidVerse 相同的分层思路：业务逻辑只依赖统一接口，后端实现彼此隔离，目标类和默认参数由独立配置选择。
+仿真器采用参考 ASAP / HumanoidVerse 的分层思路（见[参考材料](REFERENCES.md)）：业务逻辑只依赖统一接口，后端实现彼此隔离，目标类和默认参数由独立配置选择。
 
 ```text
 src/racing/
@@ -28,4 +28,4 @@ env = create_simulator("mujoco", track, render=False, physics_hz=480)
 2. 在 `src/racing/config/simulators/<name>.toml` 中声明目标类和默认参数。
 3. 增加接口契约和原生物理测试；业务入口不增加新的后端判断分支。
 
-`racing.isaac_env` 和 `racing.mujoco_env` 仅保留为旧实验脚本的兼容导入层。新代码应使用 `racing.simulators`。
+`racing.isaac_env` 和 `racing.mujoco_env` 兼容层已移除；统一使用上面的工厂入口。旧脚本迁移与历史复现见 [LEGACY.md](LEGACY.md)。

@@ -17,11 +17,11 @@
 
 ```bash
 # 1. 车辆项目的策略代码（纯 numpy，提供 racing 包）
-cd /home/osrbot/Desktop/osracer_work && pip install -e .        # 或把仓库路径填给 racing_root 参数
+cd /path/to/osracer_rl && pip install -e .        # 或把仓库路径填给 racing_root 参数
 
 # 2. 把本包放进车辆工作区
-cp -r /home/osrbot/Desktop/osracer_work/deployment/ros2/osracer_policy /home/osrbot/osracer_ws/src/
-cd /home/osrbot/osracer_ws && colcon build --packages-select osracer_policy && source install/setup.bash
+cp -r /path/to/osracer_rl/deployment/ros2/osracer_policy /path/to/osracer_ws/src/
+cd /path/to/osracer_ws && colcon build --packages-select osracer_policy && source install/setup.bash
 ```
 
 `ackermann_msgs` 是车辆端既有依赖（`osracer_base` 已使用），开发机上未安装时无法构建本包。
@@ -32,8 +32,8 @@ cd /home/osrbot/osracer_ws && colcon build --packages-select osracer_policy && s
 
 ```bash
 ros2 launch osracer_policy policy.launch.py \
-  checkpoint_path:=/home/osrbot/Desktop/osracer_work/runs/demo/checkpoints/policy.pt \
-  racing_root:=/home/osrbot/Desktop/osracer_work \
+  checkpoint_path:=/path/to/osracer_rl/runs/demo/checkpoints/policy.pt \
+  racing_root:=/path/to/osracer_rl \
   shadow_mode:=true max_speed_mps:=1.0 max_steering_rad:=0.3
 ```
 
@@ -73,4 +73,4 @@ ros2 launch osracer_policy policy.launch.py shadow_mode:=false max_speed_mps:=1.
 - 底盘只接受**一个速度 + 一个转向角**，仿真里用于漂移的后轮增速没有对应执行器，
   实车上漂移段会退化为常规转向。
 - 策略参数按 0.05 倍 RC 尺度赛道标定，实车策略参数需要重新标定；
-  分级提速流程见 [../../docs/DEPLOYMENT.md](../../docs/DEPLOYMENT.md)。
+  分级提速流程见 [部署与实车边界](../../../docs/DEPLOYMENT.md)。

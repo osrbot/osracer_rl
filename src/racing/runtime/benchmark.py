@@ -340,7 +340,7 @@ def main(argv=None):
     command=raw.pop(0) if raw and raw[0] in COMMANDS else "train"
     parser=argparse.ArgumentParser(description=__doc__,epilog=(
         "Example: osracer-benchmark train benchmark_name=ppo-2025 season=2025 "
-        "checkpoint=runs/ppo-cem-pace-v2/checkpoints/policy.pt +simulator=mujoco"))
+        "checkpoint=runs/demo/checkpoints/policy.pt +simulator=mujoco"))
     parser.add_argument("overrides",nargs="*",metavar="KEY=VALUE")
     parser.add_argument("--runs-root",help=argparse.SUPPRESS)
     parser.add_argument("--no-resume",action="store_true")

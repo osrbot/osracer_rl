@@ -5,10 +5,9 @@
 ## 直接打开
 
 - [可编辑 PPTX](releases/osracer_live_briefing.pptx)
-- [逐页讲稿](../publication/presentation/SPEAKER_NOTES.md)
-- [视频与截图清单](../publication/presentation/MEDIA_MANIFEST.md)
-- [资产可用性录像](../output/usability/README.md)
-- [完整媒体库](../../output/racing/media.html)
+- [逐页讲稿](SPEAKER_NOTES.md)
+- [视频与截图清单](MEDIA_MANIFEST.md)
+- [审核媒体库](../assets/README.md)
 
 ## 两个问题的当前回答
 
@@ -17,7 +16,7 @@
 | SolidWorks URDF Exporter Pro 导出的 OpenUSD/MuJoCo 资产是否在对应平台可用？ | **是，限于资产层。** 两套资产均已在 Isaac Sim 6.0.1 / MuJoCo 3.10.0 加载、渲染、短程步进并录制可解码 MP4。 | OpenUSD 的动态三角网格碰撞会回退凸包；MuJoCo 原资产为固定基座且执行器独立跟踪未可靠。这不是车辆可靠驾驶验收。 |
 | 受限主动观测与宽松物理约束能否实现 180° 漂移、主动超车和最短圈速？ | **分项成立。** 仿真中已有发卡弯持续侧滑、双车有效超车、以及 MuJoCo 9.0 m/s 的 24/24 速度榜。 | 当前实车等效单电机四驱没有后轮增速；A/B 将侧滑从 27.0° 降到 4.36°，不能声称漂移可直接上车。Isaac 9.0 m/s 仅 20/24；组合传感器扰动 10/10 失败。 |
 
-冻结配置、验收口径和复现命令见 [RELEASE.md](RELEASE.md)；逐项成功/失败证据见 [VALIDATION_STATUS.md](VALIDATION_STATUS.md)。
+冻结配置、验收口径和复现命令见 [历史冻结基线](../../docs/RELEASE.md)；逐项成功/失败证据见 [VALIDATION_STATUS.md](../../docs/VALIDATION_STATUS.md)。
 
 ## 导出工具介绍：SolidWorks URDF Exporter Pro
 

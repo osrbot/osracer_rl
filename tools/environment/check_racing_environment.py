@@ -124,7 +124,7 @@ def main():
             print(f"[{mark}] {item['name']}: {item['detail']}")
         print('Isaac launcher: bash tools/runtime/run_isaac.sh tools/runtime/run_racing.py ...')
         if not report['passed']:
-            print("Project packages: .venv/bin/python -m pip install -e '.[build]'")
+            print("Project packages: .venv/bin/python -m pip install -e '.[build,training,ppo]'")
             print('Existing Isaac location: export OSRACER_ISAAC_DIR=/path/to/isaac-sim-6.0.1')
     raise SystemExit(0 if report['passed'] else 1)
 

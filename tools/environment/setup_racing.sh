@@ -33,11 +33,11 @@ if [[ ! -x "$racing_venv_python" ]]; then
 fi
 "$racing_venv_python" -I -m pip --disable-pip-version-check install -e '.[build,training,ppo]'
 export MUJOCO_GL="${MUJOCO_GL:-egl}"
-racing_check_args=(--output "$racing_root/output/racing/environment_check.json")
+racing_check_args=(--output "$racing_root/runs/_environment/reports/environment_check.json")
 if "$racing_mujoco_only"; then racing_check_args+=(--mujoco-only); fi
 "$racing_venv_python" -I tools/environment/check_racing_environment.py "${racing_check_args[@]}"
 if "$racing_run_tests"; then
-  "$racing_venv_python" -I -m pytest -q tests/test_mujoco_racing.py tests/test_racing_contracts.py
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 "$racing_venv_python" -I -m pytest -q tests/test_mujoco_racing.py tests/test_racing_contracts.py
 fi
 echo "Ready: source .venv/bin/activate"
 echo "TensorBoard: .venv/bin/tensorboard --logdir runs --port 6006"

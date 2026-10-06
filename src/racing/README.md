@@ -9,6 +9,8 @@ The Python package is split by responsibility:
 - `evaluation/`: metrics, qualification, verification, and reports.
 - `tracks/`: track catalog and offline asset builder.
 - `vehicle/`: real-vehicle adapters.
-- `config/simulators/`: packaged backend target and default configuration.
+- `config/`: packaged simulator targets and training profiles.
 
-`isaac_env.py` and `mujoco_env.py` are thin compatibility imports for older experiments. New code should import from `racing.simulators`.
+Usage and engineering documentation starts at [docs/README.md](../../docs/README.md).
+
+Import backends through `racing.simulators.create_simulator`. The obsolete top-level `isaac_env.py` and `mujoco_env.py` shims have been removed; see [migration notes](../../docs/LEGACY.md).

@@ -1,8 +1,8 @@
 # Stage 0/1 defaults: shadow mode, conservative limits.
 osracer_policy_node:
   ros__parameters:
-    checkpoint_path: "/home/osrbot/Desktop/osracer_work/output/racing/policies/frozen-candidates-g00c_v10c_lateral.json"
-    racing_root: "/home/osrbot/Desktop/osracer_work"
+    checkpoint_path: ""  # Required: set to a qualified .pt or .json checkpoint.
+    racing_root: ""  # Optional when the racing package is installed.
     shadow_mode: true
     max_speed_mps: 1.0
     max_steering_rad: 0.3

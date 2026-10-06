@@ -34,14 +34,14 @@ Elapsed: 01:15
 
 | Parameter | Value |
 | --- | --- |
-| output_root | C:\Users\kitso\Desktop\OSRACER\ |
+| output_root | <export-root>\ |
 | robot_name | osracer_arc_e01_prtnew_asm |
 | ros1_package_name | osracer_description |
 | ros2_package_name | osracer_description |
-| ros1_package_directory | C:\Users\kitso\Desktop\OSRACER\ROS1\osracer_description\ |
-| ros2_package_directory | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\ |
-| ros1_urdf | C:\Users\kitso\Desktop\OSRACER\ROS1\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
-| ros2_urdf | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
+| ros1_package_directory | <export-root>\ROS1\osracer_description\ |
+| ros2_package_directory | <export-root>\ROS2\osracer_description\ |
+| ros1_urdf | <export-root>\ROS1\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
+| ros2_urdf | <export-root>\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
 | export_meshes | true |
 | mesh_format | STL |
 | inertial_validation_rows | 210 |
@@ -54,7 +54,7 @@ Elapsed: 01:15
 
 ## ROS 2 URDF
 
-- File: C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf
+- File: <export-root>\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf
 - Exists: true
 - XML parse: OK
 - Root is robot: true
@@ -70,20 +70,20 @@ Elapsed: 01:15
 
 | Item | Status | Required | Path |
 | --- | --- | --- | --- |
-| ROS 2 package directory | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\ |
-| ROS 2 package.xml | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\package.xml |
-| ROS 2 CMakeLists.txt | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\CMakeLists.txt |
-| ROS 2 URDF | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
-| ROS 2 config directory | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\config\ |
-| ROS 2 display.launch.py | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\launch\display.launch.py |
-| ROS 2 gazebo.launch.py | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\launch\gazebo.launch.py |
-| ROS 2 meshes directory | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\meshes\ |
-| ROS 2 visual meshes directory | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\meshes\visual |
-| ROS 2 visual mesh files | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\meshes\visual |
-| ROS 2 collision meshes directory | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\meshes\collision |
-| ROS 2 collision mesh files | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\meshes\collision |
-| ROS 2 inertial validation CSV | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\config\inertial_validation.csv |
-| ROS 2 mesh manifest CSV | OK | yes | C:\Users\kitso\Desktop\OSRACER\ROS2\osracer_description\config\mesh_manifest.csv |
+| ROS 2 package directory | OK | yes | <export-root>\ROS2\osracer_description\ |
+| ROS 2 package.xml | OK | yes | <export-root>\ROS2\osracer_description\package.xml |
+| ROS 2 CMakeLists.txt | OK | yes | <export-root>\ROS2\osracer_description\CMakeLists.txt |
+| ROS 2 URDF | OK | yes | <export-root>\ROS2\osracer_description\urdf\osracer_arc_e01_prtnew_asm.urdf |
+| ROS 2 config directory | OK | yes | <export-root>\ROS2\osracer_description\config\ |
+| ROS 2 display.launch.py | OK | yes | <export-root>\ROS2\osracer_description\launch\display.launch.py |
+| ROS 2 gazebo.launch.py | OK | yes | <export-root>\ROS2\osracer_description\launch\gazebo.launch.py |
+| ROS 2 meshes directory | OK | yes | <export-root>\ROS2\osracer_description\meshes\ |
+| ROS 2 visual meshes directory | OK | yes | <export-root>\ROS2\osracer_description\meshes\visual |
+| ROS 2 visual mesh files | OK | yes | <export-root>\ROS2\osracer_description\meshes\visual |
+| ROS 2 collision meshes directory | OK | yes | <export-root>\ROS2\osracer_description\meshes\collision |
+| ROS 2 collision mesh files | OK | yes | <export-root>\ROS2\osracer_description\meshes\collision |
+| ROS 2 inertial validation CSV | OK | yes | <export-root>\ROS2\osracer_description\config\inertial_validation.csv |
+| ROS 2 mesh manifest CSV | OK | yes | <export-root>\ROS2\osracer_description\config\mesh_manifest.csv |
 
 ## ROS Package Parity
 
