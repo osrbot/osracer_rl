@@ -40,7 +40,9 @@ class RacingPPOEnv:
 
     def __init__(self, env, track, seconds=120., opponent_speed=2.8,
                  opponent_gap=3., observation_profile="sim", max_speed=10.,
-                 time_cost=.01, pace_weight=0., failure_horizon_scale=0.):
+                 time_cost=.01, pace_weight=0., failure_horizon_scale=0.,
+                 corner_risk_weight=0., corner_speed_threshold_m_s=3.5,
+                 corner_steer_threshold=.5):
         self.env, self.track = env, track
         self.max_steps = round(float(seconds) / DT)
         self.opponent_speed = float(opponent_speed)
@@ -50,6 +52,9 @@ class RacingPPOEnv:
         self.time_cost = float(time_cost)
         self.pace_weight = float(pace_weight)
         self.failure_horizon_scale = float(failure_horizon_scale)
+        self.corner_risk_weight = float(corner_risk_weight)
+        self.corner_speed_threshold_m_s = float(corner_speed_threshold_m_s)
+        self.corner_steer_threshold = float(corner_steer_threshold)
         self.episode_index = 0
 
     def _location(self, state):
@@ -151,6 +156,12 @@ class RacingPPOEnv:
             "pace": self.pace_weight*max(0.,float(delta))*min(speed/self.max_speed,1.)*centered,
             "track": -.02*float(normalized_cte**2),
             "action_rate": -.002*float(np.square(action-self.last_action).sum()),
+            # Penalize the measured state that caused the held-out Bahrain
+            # failure: sharp steering while the vehicle still carries high
+            # speed. The hinge leaves ordinary low-speed cornering untouched.
+            "corner_risk": (-self.corner_risk_weight
+                *max(0.,speed-self.corner_speed_threshold_m_s)**2
+                *max(0.,abs(float(action[1]))-self.corner_steer_threshold)),
             "overtake": overtake_reward,
             "completion": 200.*float(safe_completion),
             "collision": -100.*float(collision or unstable),
@@ -200,7 +211,12 @@ def _checkpoint_metadata(args, iteration, total_steps, metrics):
         "max_speed_m_s": 10.,
         "reward": {"time_cost":float(args.reward_time_cost),
                    "pace_weight":float(args.reward_pace_weight),
-                   "failure_horizon_scale":float(args.reward_failure_horizon_scale)},
+                   "failure_horizon_scale":float(args.reward_failure_horizon_scale),
+                   "corner_risk_weight":float(args.reward_corner_risk_weight)},
+        "policy": {"pace_guard":bool(args.pace_guard),
+                   "corner_speed_threshold_m_s":float(args.corner_speed_threshold_m_s),
+                   "corner_steer_threshold":float(args.corner_steer_threshold),
+                   "corner_slowdown_bins":float(args.corner_slowdown_bins)},
         "control_hz": 60,
         "scan_hz": 15,
         "metrics": metrics,
@@ -608,6 +624,10 @@ def train(args):
     # matching torch._dynamo used by optimizer initialization.
     model=(load_checkpoint(args.checkpoint,"cpu")[0]
            if args.checkpoint else ActorCritic())
+    model.pace_guard=bool(args.pace_guard)
+    model.corner_speed_threshold_m_s=float(args.corner_speed_threshold_m_s)
+    model.corner_steer_threshold=float(args.corner_steer_threshold)
+    model.corner_slowdown_bins=float(args.corner_slowdown_bins)
     if args.checkpoint:
         with torch.no_grad():model.log_std.fill_(-4.)
     imitation_optimizer=torch.optim.Adam(model.parameters(),lr=args.learning_rate)
@@ -617,7 +637,10 @@ def train(args):
     task=RacingPPOEnv(native,track,args.seconds,args.opponent_speed,args.opponent_gap,
                       time_cost=args.reward_time_cost,
                       pace_weight=args.reward_pace_weight,
-                      failure_horizon_scale=args.reward_failure_horizon_scale)
+                      failure_horizon_scale=args.reward_failure_horizon_scale,
+                      corner_risk_weight=args.reward_corner_risk_weight,
+                      corner_speed_threshold_m_s=args.corner_speed_threshold_m_s,
+                      corner_steer_threshold=args.corner_steer_threshold)
     model.to(device)
     checkpoint=args.layout.checkpoints/'policy.pt'
     imitation=(transfer_actor(task,model,args,device) if args.checkpoint else
@@ -742,6 +765,7 @@ def train(args):
                     "reward_pace":reward_sums["pace"]/denom,
                     "reward_track":reward_sums["track"]/denom,
                     "reward_action_rate":reward_sums["action_rate"]/denom,
+                    "reward_corner_risk":reward_sums["corner_risk"]/denom,
                     "reward_overtake":reward_sums["overtake"]/denom,
                     "reward_completion":reward_sums["completion"]/denom,
                     "reward_collision":reward_sums["collision"]/denom,
@@ -766,6 +790,7 @@ def train(args):
                     "reward":{"progress":metrics["reward_progress"],"alive":metrics["reward_alive"],
                               "pace":metrics["reward_pace"],
                               "track":metrics["reward_track"],"action_rate":metrics["reward_action_rate"],
+                              "corner_risk":metrics["reward_corner_risk"],
                               "overtake":metrics["reward_overtake"],
                               "completion":metrics["reward_completion"],
                               "collision":metrics["reward_collision"],
@@ -845,7 +870,12 @@ def _parser(profile):
     parser.add_argument("--opponent-gap",type=float,default=profile.opponent_gap_m,help=argparse.SUPPRESS)
     parser.set_defaults(reward_time_cost=profile.reward_time_cost,
         reward_pace_weight=profile.reward_pace_weight,
-        reward_failure_horizon_scale=profile.reward_failure_horizon_scale)
+        reward_failure_horizon_scale=profile.reward_failure_horizon_scale,
+        reward_corner_risk_weight=profile.reward_corner_risk_weight)
+    parser.set_defaults(pace_guard=profile.pace_guard,
+        corner_speed_threshold_m_s=profile.corner_speed_threshold_m_s,
+        corner_steer_threshold=profile.corner_steer_threshold,
+        corner_slowdown_bins=profile.corner_slowdown_bins)
     parser.set_defaults(gamma=profile.gamma,gae_lambda=profile.gae_lambda,
         clip_ratio=profile.clip_ratio,entropy_coefficient=profile.entropy_coefficient,
         value_coefficient=profile.value_coefficient,max_gradient_norm=profile.max_gradient_norm)
@@ -868,7 +898,9 @@ def main(argv=None):
     if (args.imitation_steps<0 or args.imitation_epochs<0
             or args.refinement_cycles<0 or args.refinement_epochs<0
             or args.reward_time_cost<0 or args.reward_pace_weight<0
-            or args.reward_failure_horizon_scale<0):
+            or args.reward_failure_horizon_scale<0 or args.reward_corner_risk_weight<0
+            or args.corner_speed_threshold_m_s<0
+            or not 0<=args.corner_steer_threshold<=1 or args.corner_slowdown_bins<0):
         parser.error("imitation, refinement, and reward values cannot be negative")
     run_id=args.run_id or f"{datetime.now():%Y%m%d_%H%M%S}-{args.engine}-{args.track}-ppo"
     try:args.layout=RunLayout.open(run_id,args.runs_root)

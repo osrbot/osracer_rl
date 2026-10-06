@@ -35,6 +35,13 @@ opponent_gap_m = 3.0
 time_cost = 0.01
 pace_weight = 0.25
 failure_horizon_scale = 1.0
+corner_risk_weight = 0.05
+
+[policy]
+pace_guard = true
+corner_speed_threshold_m_s = 3.5
+corner_steer_threshold = 0.5
+corner_slowdown_bins = 1.0
 
 [reproducibility]
 seed = 73

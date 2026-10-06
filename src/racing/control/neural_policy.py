@@ -107,12 +107,19 @@ class ActorCritic(nn.Module):
     def __init__(self, observation_size: int = OBSERVATION_SIZE,
                  action_size: int = ACTION_SIZE, hidden_sizes=(256, 128),
                  residual_actions: bool = False,
-                 quantized_actions: bool = True):
+                 quantized_actions: bool = True, pace_guard: bool = False,
+                 corner_speed_threshold_m_s: float = 3.5,
+                 corner_steer_threshold: float = .5,
+                 corner_slowdown_bins: float = 1.):
         super().__init__()
         first, second = map(int, hidden_sizes)
         self.observation_size = int(observation_size)
         self.residual_actions = bool(residual_actions)
         self.quantized_actions = bool(quantized_actions)
+        self.pace_guard = bool(pace_guard)
+        self.corner_speed_threshold_m_s = float(corner_speed_threshold_m_s)
+        self.corner_steer_threshold = float(corner_steer_threshold)
+        self.corner_slowdown_bins = float(corner_slowdown_bins)
         self.lidar_encoder = nn.Sequential(
             nn.Conv1d(1, 8, kernel_size=7, stride=1, padding=3), nn.ELU(),
             nn.Conv1d(8, 8, kernel_size=5, stride=2, padding=2), nn.ELU(),
@@ -140,7 +147,23 @@ class ActorCritic(nn.Module):
             quantized=self.quantize_action(action)
             action=(action+(quantized-action).detach()
                     if self.training else quantized)
-        return action
+        return self.apply_pace_guard(observation,action)
+
+    def apply_pace_guard(self,observation,action):
+        """Remove one speed bin only during sensor-observed fast, sharp turns.
+
+        The wheel and steering terms come from the portable observation vector,
+        so the same rule is present in PyTorch, ONNX, and the runtime policy.
+        """
+        if not self.pace_guard or self.corner_slowdown_bins <= 0:return action
+        wheel_m_s=observation[:,:2]*12.
+        steering_rad=observation[:,4:6]*.45
+        measured_speed=(wheel_m_s*torch.cos(steering_rad)).mean(dim=-1)
+        intervene=((action[:,1].abs()>=self.corner_steer_threshold)
+                   & (measured_speed>=self.corner_speed_threshold_m_s))
+        speed=(action[:,0]-intervene.to(action.dtype)
+               *self.corner_slowdown_bins/ACTION_QUANTIZATION).clamp(-1.,1.)
+        return torch.stack((speed,action[:,1]),dim=-1)
 
     def quantize_action(self,action):
         if not self.quantized_actions:return action
@@ -160,6 +183,7 @@ class ActorCritic(nn.Module):
         if self.quantized_actions:
             quantized=self.quantize_action(action)
             action=action+(quantized-action).detach()
+        action=self.apply_pace_guard(observation,action)
         if self.residual_actions:
             scale=raw.new_tensor(ACTION_DELTA_LIMITS)
             bounded=((action-observation[:,-ACTION_SIZE:])/scale).clamp(-1+1e-6,1-1e-6)
@@ -213,7 +237,11 @@ def checkpoint_payload(model: ActorCritic, metadata: dict) -> dict:
         "model": {"architecture": "lidar-conv-quantized-action-v3",
                   "hidden_sizes": [256, 128],
                   "residual_actions": model.residual_actions,
-                  "quantized_actions": model.quantized_actions},
+                  "quantized_actions": model.quantized_actions,
+                  "pace_guard": model.pace_guard,
+                  "corner_speed_threshold_m_s": model.corner_speed_threshold_m_s,
+                  "corner_steer_threshold": model.corner_steer_threshold,
+                  "corner_slowdown_bins": model.corner_slowdown_bins},
         "state_dict": model.state_dict(),
         "metadata": metadata,
     }
@@ -242,6 +270,11 @@ def load_checkpoint(path, device="cpu"):
         residual_actions=bool(model_spec.get("residual_actions",False)),
         quantized_actions=bool(model_spec.get(
             "quantized_actions",checkpoint_format!="osracer.ppo.pt.v2")),
+        pace_guard=bool(model_spec.get("pace_guard",False)),
+        corner_speed_threshold_m_s=float(model_spec.get(
+            "corner_speed_threshold_m_s",3.5)),
+        corner_steer_threshold=float(model_spec.get("corner_steer_threshold",.5)),
+        corner_slowdown_bins=float(model_spec.get("corner_slowdown_bins",1.)),
     ).to(device)
     state=dict(payload["state_dict"])
     if checkpoint_size==368:

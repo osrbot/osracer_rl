@@ -222,6 +222,7 @@ class PPOProgress:
             ("Reward / alive", f"{metrics['reward_alive']:.4f}"),
             ("Reward / track", f"{metrics['reward_track']:.4f}"),
             ("Reward / action rate", f"{metrics['reward_action_rate']:.4f}"),
+            ("Reward / corner risk", f"{metrics.get('reward_corner_risk',0.):.4f}"),
             ("Reward / pass + finish", f"pass {metrics['reward_overtake']:.4f}  ·  "
              f"finish {metrics['reward_completion']:.4f}"),
             ("Reward / fail", f"crash {metrics['reward_collision']:.4f}  ·  "

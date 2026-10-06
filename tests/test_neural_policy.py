@@ -74,6 +74,19 @@ def test_pt_checkpoint_round_trip_and_actor_inference(tmp_path):
     assert wheels.shape==(4,) and steering.shape==(2,)
 
 
+def test_pace_guard_removes_one_speed_bin_only_for_fast_sharp_turns():
+    model=ActorCritic(pace_guard=True,corner_speed_threshold_m_s=3.5,
+                      corner_steer_threshold=.5,corner_slowdown_bins=1.)
+    observation=torch.zeros(3,OBSERVATION_SIZE)
+    observation[0,:2]=4./12.
+    observation[1,:2]=3./12.
+    observation[2,:2]=4./12.
+    action=torch.tensor([[.25,.5],[.25,.5],[.25,.49]])
+    guarded=model.apply_pace_guard(observation,action)
+    torch.testing.assert_close(guarded[0],torch.tensor([.21875,.5]))
+    torch.testing.assert_close(guarded[1:],action[1:])
+
+
 def test_v2_checkpoint_is_upgraded_without_changing_its_actor(tmp_path):
     torch.manual_seed(4)
     old=ActorCritic(observation_size=368,residual_actions=False,

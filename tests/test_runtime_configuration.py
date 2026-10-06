@@ -34,6 +34,9 @@ def test_packaged_profiles_hold_algorithm_details_out_of_the_command():
     pace=load_training_profile('pace')
     assert (pace.reward_time_cost,pace.reward_pace_weight,
             pace.reward_failure_horizon_scale)==(.01,.25,1.)
+    assert pace.reward_corner_risk_weight==.05
+    assert (pace.pace_guard,pace.corner_speed_threshold_m_s,
+            pace.corner_steer_threshold,pace.corner_slowdown_bins)==(True,3.5,.5,1.)
     assert pace.evaluation_episodes==6
 
 

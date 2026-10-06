@@ -46,6 +46,11 @@ class TrainingProfile:
     reward_time_cost: float
     reward_pace_weight: float
     reward_failure_horizon_scale: float
+    reward_corner_risk_weight: float
+    pace_guard: bool
+    corner_speed_threshold_m_s: float
+    corner_steer_threshold: float
+    corner_slowdown_bins: float
     seed: int
     tensorboard: bool
 
@@ -82,6 +87,7 @@ def load_training_profile(name: str = "default") -> TrainingProfile:
     environment = data["environment"]
     task = data["task"]
     reward = data.get("reward", {})
+    policy = data.get("policy", {})
     reproducibility = data["reproducibility"]
     logging = data["logging"]
     profile = TrainingProfile(
@@ -114,6 +120,11 @@ def load_training_profile(name: str = "default") -> TrainingProfile:
         reward_time_cost=float(reward.get("time_cost", .01)),
         reward_pace_weight=float(reward.get("pace_weight", 0.)),
         reward_failure_horizon_scale=float(reward.get("failure_horizon_scale", 0.)),
+        reward_corner_risk_weight=float(reward.get("corner_risk_weight", 0.)),
+        pace_guard=bool(policy.get("pace_guard",False)),
+        corner_speed_threshold_m_s=float(policy.get("corner_speed_threshold_m_s",3.5)),
+        corner_steer_threshold=float(policy.get("corner_steer_threshold",.5)),
+        corner_slowdown_bins=float(policy.get("corner_slowdown_bins",1.)),
         seed=int(reproducibility["seed"]),
         tensorboard=bool(logging["tensorboard"]),
     )
@@ -124,6 +135,10 @@ def load_training_profile(name: str = "default") -> TrainingProfile:
             or profile.evaluation_episodes < 1
             or profile.reward_time_cost < 0 or profile.reward_pace_weight < 0
             or profile.reward_failure_horizon_scale < 0
+            or profile.reward_corner_risk_weight < 0
+            or profile.corner_speed_threshold_m_s < 0
+            or not 0 <= profile.corner_steer_threshold <= 1
+            or profile.corner_slowdown_bins < 0
             or profile.imitation_steps < 0 or profile.imitation_epochs < 0
             or profile.refinement_cycles < 0 or profile.refinement_epochs < 0):
         raise ValueError(f"invalid training profile: {source}")
@@ -246,6 +261,9 @@ def apply_ppo_overrides(args, tokens: list[str], simulators: tuple[str, ...]) ->
         "env.episode_length_s", "env.evaluation_episodes",
         "task.opponent_speed_m_s", "task.opponent_gap_m",
         "reward.time_cost", "reward.pace_weight", "reward.failure_horizon_scale",
+        "reward.corner_risk_weight", "policy.pace_guard",
+        "policy.corner_speed_threshold_m_s", "policy.corner_steer_threshold",
+        "policy.corner_slowdown_bins",
         "logger.tensorboard", "logger.tensorboard_dir",
     }
     unknown = sorted(set(values) - allowed)
@@ -281,5 +299,14 @@ def apply_ppo_overrides(args, tokens: list[str], simulators: tuple[str, ...]) ->
     if "reward.pace_weight" in values: args.reward_pace_weight = float(values["reward.pace_weight"])
     if "reward.failure_horizon_scale" in values:
         args.reward_failure_horizon_scale = float(values["reward.failure_horizon_scale"])
+    if "reward.corner_risk_weight" in values:
+        args.reward_corner_risk_weight = float(values["reward.corner_risk_weight"])
+    if "policy.pace_guard" in values: args.pace_guard = _boolean(values["policy.pace_guard"])
+    if "policy.corner_speed_threshold_m_s" in values:
+        args.corner_speed_threshold_m_s = float(values["policy.corner_speed_threshold_m_s"])
+    if "policy.corner_steer_threshold" in values:
+        args.corner_steer_threshold = float(values["policy.corner_steer_threshold"])
+    if "policy.corner_slowdown_bins" in values:
+        args.corner_slowdown_bins = float(values["policy.corner_slowdown_bins"])
     if "logger.tensorboard" in values: args.no_tensorboard = not _boolean(values["logger.tensorboard"])
     if "logger.tensorboard_dir" in values: args.tensorboard_dir = values["logger.tensorboard_dir"]
