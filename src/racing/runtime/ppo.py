@@ -457,6 +457,23 @@ def evaluation_rank(evaluation):
     return (valid_laps,float(evaluation["progress_m"]),float(evaluation["reward"]))
 
 
+def _interpolate_state(base, candidate, scale):
+    """Interpolate floating checkpoint tensors for a quantized trust region."""
+    scale=float(scale)
+    return {name:(value+scale*(candidate[name]-value)
+                  if value.is_floating_point() else candidate[name].clone())
+            for name,value in base.items()}
+
+
+def _action_change_fraction(model,observations,anchors):
+    changed=0
+    with torch.inference_mode():
+        for start in range(0,len(observations),1024):
+            action=model.deterministic(observations[start:start+1024])
+            changed += int((action!=anchors[start:start+1024]).any(dim=1).sum().item())
+    return changed/max(1,len(observations))
+
+
 def refine_actor(task,model,args,device,tracker=None):
     """Safely distil the expert on successful on-policy trajectories.
 
@@ -498,7 +515,7 @@ def refine_actor(task,model,args,device,tracker=None):
         target_tensor=model.quantize_action(torch.from_numpy(
             np.asarray(targets,np.float32)).to(device))
         anchor_tensor=torch.from_numpy(np.asarray(anchors,np.float32)).to(device)
-        learning_rate=2e-6/(cycle+1)
+        learning_rate=min(2e-6,args.learning_rate)/(cycle+1)
         anchor_weight=4.*(cycle+1)
         optimizer=torch.optim.Adam(
             [parameter for parameter in model.parameters() if parameter.requires_grad],
@@ -517,6 +534,8 @@ def refine_actor(task,model,args,device,tracker=None):
                 optimizer.zero_grad(set_to_none=True);loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(),args.max_gradient_norm)
                 optimizer.step();losses.append(float(loss.item()))
+            candidate_state={name:value.detach().cpu().clone()
+                             for name,value in model.state_dict().items()}
             model.eval()
             primary=evaluate_actor(task,model,device,seeds[0])
             if primary["valid_lap"]:
@@ -525,8 +544,35 @@ def refine_actor(task,model,args,device,tracker=None):
                 evaluation=_evaluation_summary(episodes)
             else:
                 evaluation=_evaluation_summary([primary])
+            selected_scale=1.;change_fraction=_action_change_fraction(
+                model,observation_tensor,anchor_tensor)
+            rank=(evaluation_rank(evaluation)
+                  if len(evaluation["episodes"])==len(seeds) else None)
+            accepted=rank is not None and rank>best_rank
+            # A full optimizer epoch can cross many discrete action bins at
+            # once. If it is rejected, interpolate from the last safe policy
+            # and evaluate one candidate whose changed-action footprint is at
+            # most one percent of the accepted trajectories.
+            if not accepted:
+                for scale in (.5,.25,.125,.0625):
+                    model.load_state_dict(_interpolate_state(best_state,candidate_state,scale))
+                    model.to(device);model.eval()
+                    fraction=_action_change_fraction(model,observation_tensor,anchor_tensor)
+                    if 0.<fraction<=.01:
+                        selected_scale=scale;change_fraction=fraction
+                        primary=evaluate_actor(task,model,device,seeds[0])
+                        if primary["valid_lap"]:
+                            evaluation=_evaluation_summary([primary]+[
+                                evaluate_actor(task,model,device,seed) for seed in seeds[1:]])
+                        else:evaluation=_evaluation_summary([primary])
+                        rank=(evaluation_rank(evaluation)
+                              if len(evaluation["episodes"])==len(seeds) else None)
+                        accepted=rank is not None and rank>best_rank
+                        break
             row={"cycle":cycle+1,"epoch":epoch+1,
-                 "loss":float(np.mean(losses)),"evaluation":evaluation}
+                 "loss":float(np.mean(losses)),"step_scale":selected_scale,
+                 "action_change_fraction":change_fraction,"accepted":accepted,
+                 "evaluation":evaluation}
             history.append(row)
             if tracker is not None:
                 step=args.iterations+cycle*args.refinement_epochs+epoch
@@ -540,13 +586,15 @@ def refine_actor(task,model,args,device,tracker=None):
             print(f"Refinement cycle {cycle+1}/{args.refinement_cycles}  ·  "
                   f"epoch {epoch+1}/{args.refinement_epochs}  ·  loss {row['loss']:.6f}  ·  "
                   f"valid {evaluation['valid_laps']}/{len(seeds)}  ·  "
+                  f"scale {selected_scale:.4f}  ·  accepted {'yes' if accepted else 'no'}  ·  "
                   f"steps {evaluation['episode_length']:.0f}",flush=True)
-            if len(evaluation["episodes"])==len(seeds):
-                rank=evaluation_rank(evaluation)
-                if rank>best_rank:
-                    best_rank=rank;best_evaluation=evaluation
-                    best_state={name:value.detach().cpu().clone()
-                                for name,value in model.state_dict().items()}
+            if accepted:
+                best_rank=rank;best_evaluation=evaluation
+                best_state={name:value.detach().cpu().clone()
+                            for name,value in model.state_dict().items()}
+            else:
+                model.load_state_dict(best_state);model.to(device);model.eval()
+                optimizer.state.clear()
         model.load_state_dict(best_state);model.to(device);model.eval()
     for name,parameter in model.named_parameters():
         parameter.requires_grad_(gradient_flags[name])

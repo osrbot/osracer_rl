@@ -69,3 +69,11 @@ def test_failure_pays_unspent_time_cost_instead_of_rewarding_early_exit(monkeypa
     paid_time_cost=task.step_count*info['rewards']['alive']+info['rewards']['failure_horizon']
     assert paid_time_cost==pytest.approx(-task.max_steps*task.time_cost)
     assert info['termination']=='collision'
+
+
+def test_quantized_refinement_interpolates_from_last_safe_state():
+    base={'weight':ppo.torch.tensor([0.,2.]),'counter':ppo.torch.tensor(1)}
+    candidate={'weight':ppo.torch.tensor([4.,6.]),'counter':ppo.torch.tensor(2)}
+    state=ppo._interpolate_state(base,candidate,.25)
+    ppo.torch.testing.assert_close(state['weight'],ppo.torch.tensor([1.,3.]))
+    assert state['counter'].item()==2
