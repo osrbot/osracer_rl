@@ -51,8 +51,12 @@
   device=cuda
 ```
 
-配速项按 `delta_progress × speed / max_speed` 累积，并用中心线距离衰减，因此只有沿赛道快速、仍在道路内部的前进获得额外奖励。碰撞、越界或停滞会立即补缴剩余回合的时间成本，提前失败不能通过少支付逐步时间成本取得更高回报。模型选择先提高六个冻结评估种子的有效圈覆盖率；全部有效后，才按沿赛道全程均速、物理均速和原始奖励排序。量化策略的 refinement 每轮从最后一个安全模型出发，用不超过 1% 轨迹动作变化的信任域候选做闭环验收，拒绝的更新不会继续累积。
+配速项按 `delta_progress × speed / max_speed` 累积，并用中心线距离衰减，因此只有沿赛道快速、仍在道路内部的前进获得额外奖励。碰撞、越界或停滞会立即补缴剩余回合的时间成本，提前失败不能通过少支付逐步时间成本取得更高回报。`corner_risk` 对高速急转状态施加连续惩罚；推理图同时使用轮速与转向的联合门控，只在传感器观测到车速至少 3.5m/s 且归一化转向达到 0.5 时降低一个 `1/32` 速度档。该门控保存在 `.pt` 的模型规格中，并直接导出到 ONNX。
 
-可用 `reward.pace_weight`、`reward.time_cost` 和 `reward.failure_horizon_scale` 做冻结协议下的 A/B；基线与候选必须保持父 checkpoint、训练预算、种子、对手和回合时长相同。
+模型选择先提高六个冻结评估种子的有效圈覆盖率；全部有效后，才按沿赛道全程均速、物理均速和原始奖励排序。量化策略的 refinement 每轮从最后一个安全模型出发，用不超过 1% 轨迹动作变化的信任域候选做闭环验收，拒绝的更新不会继续累积。
+
+可用 `reward.pace_weight`、`reward.time_cost`、`reward.failure_horizon_scale`、`reward.corner_risk_weight`、`policy.corner_speed_threshold_m_s`、`policy.corner_steer_threshold` 和 `policy.corner_slowdown_bins` 做冻结协议下的 A/B；基线与候选必须保持父 checkpoint、训练预算、种子、对手和回合时长相同。
+
+冻结 seed 0–5 的本地 Bahrain 诊断中，父 checkpoint 为 5/6 有效圈、碰撞率 16.7%、平均物理速度 4.247m/s。`pace-bahrain-corner-guard-v1` 达到 6/6、零碰撞/越界、平均物理速度 4.315m/s、平均进度速度 4.310m/s、平均圈时 62.92s；均速相对父 checkpoint 提高 1.61%。产物位于 `runs/pace-bahrain-corner-guard-v1/`。这是本地诊断结果，不外推到其他赛道或 Isaac。
 
 该结果属于当前近似赛道资产和本地训练协议下的 benchmark。资产并不声称是赛季历史布局的毫米级复现；LoopX experiment board 中也不会把本地结果标记成独立官方评分。
